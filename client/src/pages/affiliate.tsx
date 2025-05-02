@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,10 +21,19 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+
+// Components
+import AffiliationRequestDialog from "@/components/affiliate/affiliation-request-dialog";
 
 const Affiliate = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("marketplace");
+  const [selectedProperty, setSelectedProperty] = useState<any>(null);
+  const [isAffiliationDialogOpen, setIsAffiliationDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: marketplaceProperties, isLoading: isLoadingMarketplace } = useQuery({
     queryKey: ['/api/affiliate/marketplace'],
@@ -61,6 +70,17 @@ const Affiliate = () => {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  };
+
+  // Handle property affiliation approval/rejection for property owners
+  const handleAffiliationAction = (affiliationId: number, action: 'approve' | 'reject') => {
+    // Add your logic here to handle approval or rejection of affiliation requests
+    toast({
+      title: action === 'approve' ? 'Afiliação aprovada' : 'Afiliação rejeitada',
+      description: action === 'approve' 
+        ? 'A solicitação de afiliação foi aprovada com sucesso.' 
+        : 'A solicitação de afiliação foi rejeitada.',
+    });
   };
 
   return (
@@ -126,7 +146,15 @@ const Affiliate = () => {
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <Button className="w-full">Solicitar Afiliação</Button>
+                      <Button 
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedProperty(property);
+                          setIsAffiliationDialogOpen(true);
+                        }}
+                      >
+                        Solicitar Afiliação
+                      </Button>
                     </CardFooter>
                   </Card>
                 ))}
@@ -270,6 +298,15 @@ const Affiliate = () => {
           </TabsContent>
         </div>
       </Tabs>
+
+      {/* Affiliation Request Dialog */}
+      {selectedProperty && (
+        <AffiliationRequestDialog
+          isOpen={isAffiliationDialogOpen}
+          onClose={() => setIsAffiliationDialogOpen(false)}
+          property={selectedProperty}
+        />
+      )}
     </div>
   );
 };
