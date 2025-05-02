@@ -7,6 +7,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import Dashboard from "@/pages/dashboard";
 import Properties from "@/pages/properties";
 import AddProperty from "@/pages/add-property";
+import Favorites from "@/pages/favorites";
 import CRM from "@/pages/crm";
 import SiteEditor from "@/pages/site-editor";
 import Affiliate from "@/pages/affiliate";

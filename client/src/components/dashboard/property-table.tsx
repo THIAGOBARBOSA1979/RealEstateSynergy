@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
+import PropertyView from "@/components/properties/property-view";
 
 interface PropertyTableProps {
   limit?: number;
@@ -19,6 +20,9 @@ interface PropertyTableProps {
 
 const PropertyTable = ({ limit }: PropertyTableProps) => {
   const [page, setPage] = useState(1);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  
   const { data, isLoading, isError } = useQuery({
     queryKey: [`/api/properties?page=${page}&limit=${limit || 10}`],
   });
@@ -120,13 +124,29 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <Button variant="ghost" size="icon" className="text-primary hover:text-primary-dark h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-primary hover:text-primary-dark h-8 w-8"
+                      >
                         <span className="material-icons">edit</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-primary hover:text-primary-dark h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-primary hover:text-primary-dark h-8 w-8"
+                        onClick={() => {
+                          setSelectedPropertyId(property.id);
+                          setIsViewDialogOpen(true);
+                        }}
+                      >
                         <span className="material-icons">visibility</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-muted-foreground hover:text-destructive h-8 w-8"
+                      >
                         <span className="material-icons">delete_outline</span>
                       </Button>
                     </div>
@@ -184,6 +204,13 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
           </div>
         </div>
       )}
+
+      {/* Property View Dialog */}
+      <PropertyView
+        propertyId={selectedPropertyId}
+        isOpen={isViewDialogOpen}
+        onClose={() => setIsViewDialogOpen(false)}
+      />
     </div>
   );
 };

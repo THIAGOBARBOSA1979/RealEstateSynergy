@@ -22,7 +22,7 @@ const Properties = () => {
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-heading font-bold">Meus Imóveis</h1>
-        <Button onClick={() => setIsAddPropertyOpen(true)}>
+        <Button onClick={() => navigate("/properties/add")}>
           <span className="material-icons text-sm mr-1">add</span>
           Adicionar Imóvel
         </Button>
@@ -68,14 +68,8 @@ const Properties = () => {
         </div>
       </div>
 
-      {/* Property Table */}
+      {/* Property Table with All Properties */}
       <PropertyTable />
-
-      {/* Add Property Form Dialog */}
-      <PropertyForm 
-        isOpen={isAddPropertyOpen} 
-        onClose={() => setIsAddPropertyOpen(false)} 
-      />
     </div>
   );
 };
