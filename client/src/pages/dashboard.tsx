@@ -4,16 +4,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip,
-  Legend
-} from "recharts";
+import { isMobile } from "react-device-detect";
 
 // Temporary mock data
 const incomeData = [
@@ -184,7 +175,7 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Income Statistics and Circular Progress */}
+      {/* Income Statistics Card */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2">
           <Card className="h-full">
@@ -193,51 +184,28 @@ const Dashboard = () => {
               <div className="flex items-center space-x-2 text-xs">
                 <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1D</Button>
                 <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1M</Button>
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md bg-accent/10 text-accent border-accent">3M</Button>
+                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md bg-orange-100 text-orange-500 border-orange-500">3M</Button>
                 <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1Y</Button>
                 <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">ALL</Button>
               </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={incomeData}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="colorRent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorSale" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <Tooltip />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="rent" 
-                      stroke="hsl(var(--accent))" 
-                      fillOpacity={1} 
-                      fill="url(#colorRent)" 
-                      name="Rent"
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="sale" 
-                      stroke="hsl(var(--primary))" 
-                      fillOpacity={1} 
-                      fill="url(#colorSale)" 
-                      name="Sale"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] flex items-center justify-center flex-col">
+                <span className="material-icons text-6xl text-gray-300 mb-4">insert_chart</span>
+                <p className="text-sm text-gray-500">Chart visualization simplified for mobile view</p>
+
+                <div className="grid grid-cols-2 gap-8 w-full mt-8">
+                  <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
+                    <div className="w-3 h-3 rounded-full bg-orange-500 mb-2"></div>
+                    <h4 className="text-sm text-gray-700 font-medium">Rent Income</h4>
+                    <p className="text-lg font-bold text-gray-900">$480,000</p>
+                  </div>
+                  <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
+                    <div className="w-3 h-3 rounded-full bg-blue-500 mb-2"></div>
+                    <h4 className="text-sm text-gray-700 font-medium">Sale Income</h4>
+                    <p className="text-lg font-bold text-gray-900">$520,000</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -256,7 +224,7 @@ const Dashboard = () => {
                     cy="50" 
                     r="45" 
                     fill="transparent" 
-                    stroke="hsl(var(--muted))" 
+                    stroke="#e5e7eb" 
                     strokeWidth="10" 
                   />
                   <circle 
@@ -264,7 +232,7 @@ const Dashboard = () => {
                     cy="50" 
                     r="45" 
                     fill="transparent" 
-                    stroke="hsl(var(--accent))" 
+                    stroke="#f97316" 
                     strokeWidth="10" 
                     strokeDasharray="283"
                     strokeDashoffset="141.5" 
