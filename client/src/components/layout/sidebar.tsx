@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
                 >
                   <span 
                     className={cn(
-                      "material-icons-outlined mr-3 text-[20px]",
+                      "material-icons mr-3 text-[20px]",
                       location === item.path ? "text-orange-500" : "text-gray-500"
                     )}
                   >

@@ -8,16 +8,17 @@ interface WebsitePreviewProps {
 }
 
 const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
-  const { data: websiteData, isLoading } = useQuery({
+  const { data: websiteData, isLoading, isError } = useQuery({
     queryKey: [`/api/users/${userId}/website`],
+    retry: false // Don't retry on 403 errors
   });
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardContent className="p-6">
-          <h3 className="text-lg font-heading font-semibold mb-4">Seu Site Imobiliário</h3>
-          <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border mb-4">
+          <h3 className="text-lg font-semibold mb-4">Your Real Estate Website</h3>
+          <div className="aspect-video rounded-lg overflow-hidden border border-gray-200 mb-4">
             <Skeleton className="w-full h-full" />
           </div>
           <div className="grid grid-cols-2 gap-4 mb-4">
@@ -26,7 +27,6 @@ const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
           </div>
           <div className="flex flex-col gap-2">
             <Skeleton className="h-10 rounded-lg" />
-            <Skeleton className="h-10 rounded-lg" />
           </div>
         </CardContent>
       </Card>
@@ -34,49 +34,52 @@ const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardContent className="p-6">
-        <h3 className="text-lg font-heading font-semibold mb-4">Seu Site Imobiliário</h3>
+        <h3 className="text-lg font-semibold mb-4">Your Real Estate Website</h3>
 
-        {websiteData ? (
+        {isError || !websiteData ? (
+          <div className="flex flex-col items-center justify-center p-6 bg-orange-50 rounded-lg mb-4">
+            <span className="material-icons text-4xl text-orange-500 mb-2">web</span>
+            <p className="text-sm text-gray-600 text-center mb-2">You don't have a website yet</p>
+            <p className="text-xs text-gray-500 text-center">Create a professional website to showcase your properties</p>
+          </div>
+        ) : (
           <>
-            <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border mb-4">
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 mb-4 bg-gray-50">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                 <div className="p-4 text-white">
-                  <h4 className="font-heading font-semibold">{websiteData.title}</h4>
-                  <p className="text-sm text-white/80">{websiteData.domain}</p>
+                  <h4 className="font-semibold">{websiteData.title || "My Website"}</h4>
+                  <p className="text-sm text-white/80">{websiteData.domain || "mywebsite.realestate.com"}</p>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="text-center p-3 bg-background rounded-lg">
-                <p className="text-2xl font-bold text-primary">{websiteData.stats.visitsToday}</p>
-                <p className="text-xs text-muted-foreground">Visitas hoje</p>
+              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <p className="text-2xl font-bold text-orange-500">
+                  {websiteData.stats?.visitsToday || 0}
+                </p>
+                <p className="text-xs text-gray-500">Today's Visitors</p>
               </div>
-              <div className="text-center p-3 bg-background rounded-lg">
-                <p className="text-2xl font-bold text-primary">{websiteData.stats.leadsGenerated}</p>
-                <p className="text-xs text-muted-foreground">Leads gerados</p>
+              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <p className="text-2xl font-bold text-orange-500">
+                  {websiteData.stats?.leadsGenerated || 0}
+                </p>
+                <p className="text-xs text-gray-500">Leads Generated</p>
               </div>
             </div>
           </>
-        ) : (
-          <div className="text-center p-6 bg-background rounded-lg mb-4">
-            <p className="text-sm text-muted-foreground">Você ainda não tem um site configurado</p>
-          </div>
         )}
 
         <div className="flex flex-col gap-2">
-          <Button asChild variant="default">
-            <a href="/site-editor">
-              {websiteData ? "Editar Site" : "Criar Site"}
-            </a>
+          <Button variant="default" className="bg-orange-500 hover:bg-orange-600">
+            {isError || !websiteData ? "Create Website" : "Edit Website"}
           </Button>
-          {websiteData && (
-            <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary/5">
-              <a href={`https://${websiteData.domain}`} target="_blank" rel="noopener noreferrer">
-                Visualizar Site
-              </a>
+          
+          {!isError && websiteData && websiteData.domain && (
+            <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
+              View Website
             </Button>
           )}
         </div>

@@ -114,9 +114,13 @@
     @apply font-heading;
   }
 
+  /* Material Icons */
   .material-icons-outlined {
     font-family: 'Material Icons';
   }
+  
+  /* Import Material Icons */
+  @import 'material-icons/iconfont/material-icons.css';
 }
 
 @layer components {
