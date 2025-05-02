@@ -14,11 +14,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="dashboard-grid">
+    <div className="flex h-screen w-full overflow-hidden">
       <Sidebar isOpen={isSidebarOpen} />
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col flex-1 overflow-x-hidden">
         <Header toggleSidebar={toggleSidebar} />
-        <main className="flex-grow p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 bg-background">{children}</main>
       </div>
     </div>
   );
