@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 13%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+    
+    --primary: 240 65% 30%;
+    --primary-foreground: 0 0% 100%;
+    
+    --primary-light: 207 90% 61%;
+    --primary-dark: 240 70% 16%;
+    
+    --secondary: 174 100% 24%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --secondary-light: 173 40% 45%;
+    --secondary-dark: 176 100% 15%;
+    
+    --accent: 36 100% 50%; 
+    --accent-foreground: 0 0% 9%;
+    
+    --accent-light: 36 100% 65%;
+    --accent-dark: 31 100% 48%;
+
+    --muted: 0 0% 88%;
+    --muted-foreground: 0 0% 38%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 0% 13%;
+    
+    --radius: 0.375rem;
+    
+    --chart-1: 207 90% 61%;
+    --chart-2: 174 100% 24%;
+    --chart-3: 36 100% 50%;
+    --chart-4: 0 100% 50%;
+    --chart-5: 262 100% 50%;
+    
+    --sidebar-background: 240 65% 30%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 240 70% 16%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 70% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 70% 16%;
+    --sidebar-ring: 0 0% 100%;
+
+    --success: 122 39% 49%;
+    --warning: 36 100% 50%;
+    --error: 0 84% 60%;
+    --info: 207 90% 54%;
+  }
+  
+  .dark {
+    --background: 0 0% 9%;
+    --foreground: 0 0% 98%;
+    
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 240 65% 30%;
+    --primary-foreground: 0 0% 100%;
+    
+    --primary-light: 207 90% 61%;
+    --primary-dark: 240 70% 16%;
+    
+    --secondary: 174 100% 24%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+    
+    --accent: 36 100% 50%;
+    --accent-foreground: 0 0% 9%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 0 0% 73%;
+    
+    --sidebar-background: 240 65% 30%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 240 70% 16%;
+    --sidebar-primary-foreground: 0 0% 100%;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  /* Dashboard Grid Layout */
+  .dashboard-grid {
+    @apply grid min-h-screen;
+    grid-template-columns: 16rem 1fr;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Kanban Board Layout */
+  .kanban-board {
+    @apply grid gap-4 overflow-x-auto py-4 px-1;
+    grid-auto-flow: column;
+    grid-auto-columns: 280px;
+  }
+
+  /* Card shadow */
+  .card-shadow {
+    @apply shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Custom scrollbar */
+  *::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/40 rounded-full;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/60;
+  }
+}

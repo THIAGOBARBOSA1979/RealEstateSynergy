@@ -1,0 +1,881 @@
+import { db } from "@db";
+import { 
+  users, 
+  properties, 
+  leads, 
+  websites, 
+  propertyAffiliations, 
+  documents, 
+  activityLogs 
+} from "@shared/schema";
+import { 
+  type User, 
+  type Property, 
+  type Lead, 
+  type Website, 
+  type Document, 
+  type PropertyAffiliation, 
+  type ActivityLog 
+} from "@shared/schema";
+import { eq, like, and, or, desc, asc, inArray, ne, isNull, sql } from "drizzle-orm";
+import { hash } from "bcrypt";
+
+// Storage service for all database operations
+export const storage = {
+  // User operations
+  async getUserById(id: number) {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  },
+
+  async getUserByUsername(username: string) {
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  },
+
+  async insertUser(userData: any) {
+    if (userData.password) {
+      const hashedPassword = await hash(userData.password, 10);
+      userData.password = hashedPassword;
+    }
+    
+    const result = await db.insert(users).values(userData).returning();
+    return result[0];
+  },
+
+  async updateUser(id: number, userData: any) {
+    if (userData.password) {
+      const hashedPassword = await hash(userData.password, 10);
+      userData.password = hashedPassword;
+    }
+    
+    const result = await db.update(users)
+      .set({...userData, updatedAt: new Date().toISOString()})
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  },
+
+  // Team operations
+  async getTeamMembers(userId: number) {
+    const result = await db.select().from(users).where(eq(users.parentId, userId));
+    return result.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return {
+        ...userWithoutPassword,
+        active: true // Setting default active state
+      };
+    });
+  },
+
+  // Property operations
+  async getProperties({ userId, page, limit, searchTerm, propertyType, status }: any) {
+    let query = db.select().from(properties).where(eq(properties.userId, userId));
+    
+    if (searchTerm) {
+      query = query.where(
+        or(
+          like(properties.title, `%${searchTerm}%`),
+          like(properties.description, `%${searchTerm}%`),
+          like(properties.address, `%${searchTerm}%`)
+        )
+      );
+    }
+    
+    if (propertyType && propertyType !== 'all') {
+      query = query.where(eq(properties.propertyType, propertyType));
+    }
+    
+    if (status && status !== 'all') {
+      query = query.where(eq(properties.status, status));
+    }
+    
+    const totalResult = await db.select({ count: sql<number>`count(*)` })
+      .from(properties)
+      .where(eq(properties.userId, userId));
+    
+    const total = totalResult[0]?.count || 0;
+    
+    const offset = (page - 1) * limit;
+    const result = await query
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(properties.createdAt));
+    
+    return {
+      properties: result,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  },
+
+  async getPropertyById(id: number) {
+    const result = await db.select().from(properties).where(eq(properties.id, id));
+    return result[0];
+  },
+
+  async insertProperty(propertyData: any) {
+    const result = await db.insert(properties).values(propertyData).returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId: propertyData.userId,
+      entityType: 'property',
+      entityId: result[0].id,
+      action: 'created',
+      metadata: {}
+    });
+    
+    return result[0];
+  },
+
+  async updateProperty(id: number, propertyData: any) {
+    const result = await db.update(properties)
+      .set({...propertyData, updatedAt: new Date().toISOString()})
+      .where(eq(properties.id, id))
+      .returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId: propertyData.userId,
+      entityType: 'property',
+      entityId: id,
+      action: 'updated',
+      metadata: {}
+    });
+    
+    return result[0];
+  },
+
+  async deleteProperty(id: number) {
+    const property = await this.getPropertyById(id);
+    
+    if (!property) {
+      throw new Error("Property not found");
+    }
+    
+    const result = await db.delete(properties).where(eq(properties.id, id)).returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId: property.userId,
+      entityType: 'property',
+      entityId: id,
+      action: 'deleted',
+      metadata: {}
+    });
+    
+    return result[0];
+  },
+
+  // Website operations
+  async getWebsiteByUserId(userId: number) {
+    const result = await db.select().from(websites).where(eq(websites.userId, userId));
+    
+    if (result.length === 0) {
+      return null;
+    }
+    
+    // Add mock stats for demo purposes
+    return {
+      ...result[0],
+      stats: {
+        visitsToday: 27,
+        leadsGenerated: 5
+      }
+    };
+  },
+
+  async updateWebsite(userId: number, websiteData: any) {
+    // Check if website exists
+    const existingWebsite = await this.getWebsiteByUserId(userId);
+    
+    if (!existingWebsite) {
+      // Create new website
+      const result = await db.insert(websites)
+        .values({...websiteData, userId})
+        .returning();
+      
+      return {
+        ...result[0],
+        stats: {
+          visitsToday: 0,
+          leadsGenerated: 0
+        }
+      };
+    }
+    
+    // Update existing website
+    const result = await db.update(websites)
+      .set({...websiteData, updatedAt: new Date().toISOString()})
+      .where(eq(websites.userId, userId))
+      .returning();
+    
+    return {
+      ...result[0],
+      stats: existingWebsite.stats
+    };
+  },
+
+  // Lead operations
+  async getLeads({ userId, page, limit, searchTerm, stage }: any) {
+    let query = db.select().from(leads).where(eq(leads.userId, userId));
+    
+    if (searchTerm) {
+      query = query.where(
+        or(
+          like(leads.fullName, `%${searchTerm}%`),
+          like(leads.email, `%${searchTerm}%`),
+          like(leads.message, `%${searchTerm}%`)
+        )
+      );
+    }
+    
+    if (stage) {
+      query = query.where(eq(leads.stage, stage));
+    }
+    
+    const totalResult = await db.select({ count: sql<number>`count(*)` })
+      .from(leads)
+      .where(eq(leads.userId, userId));
+    
+    const total = totalResult[0]?.count || 0;
+    
+    const offset = (page - 1) * limit;
+    const result = await query
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(leads.createdAt));
+    
+    return {
+      leads: result,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  },
+
+  async insertLead(leadData: any) {
+    const result = await db.insert(leads).values(leadData).returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId: leadData.userId,
+      entityType: 'lead',
+      entityId: result[0].id,
+      action: 'created',
+      metadata: { source: leadData.source || 'direct' }
+    });
+    
+    return result[0];
+  },
+
+  async updateLeadStage(leadId: number, userId: number, stageId: string) {
+    // Map stageId to stage in our schema
+    const stageMap: {[key: string]: string} = {
+      'initial_contact': 'initial_contact',
+      'qualification': 'qualification',
+      'scheduled_visit': 'scheduled_visit',
+      'proposal': 'proposal',
+      'documentation': 'documentation',
+      'closed': 'closed'
+    };
+    
+    const stage = stageMap[stageId] || stageId;
+    
+    const lead = await db.select().from(leads).where(eq(leads.id, leadId));
+    
+    if (lead.length === 0) {
+      throw new Error("Lead not found");
+    }
+    
+    if (lead[0].userId !== userId) {
+      throw new Error("Unauthorized to update this lead");
+    }
+    
+    const result = await db.update(leads)
+      .set({
+        stage,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(leads.id, leadId))
+      .returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId,
+      entityType: 'lead',
+      entityId: leadId,
+      action: 'stage_changed',
+      metadata: { 
+        previousStage: lead[0].stage,
+        newStage: stage
+      }
+    });
+    
+    return result[0];
+  },
+
+  // CRM operations
+  async getCrmStages(userId: number) {
+    // Get all leads for the user
+    const userLeads = await db.select().from(leads).where(eq(leads.userId, userId));
+    
+    // Define all stages
+    const stages = [
+      { id: 'initial_contact', name: 'Contato Inicial', count: 0, leads: [] },
+      { id: 'qualification', name: 'Qualificação', count: 0, leads: [] },
+      { id: 'scheduled_visit', name: 'Visita Agendada', count: 0, leads: [] },
+      { id: 'proposal', name: 'Proposta', count: 0, leads: [] },
+      { id: 'documentation', name: 'Documentação', count: 0, leads: [] },
+      { id: 'closed', name: 'Fechado', count: 0, leads: [] }
+    ];
+    
+    // Map leads to their stages
+    for (const lead of userLeads) {
+      const stageIndex = stages.findIndex(s => s.id === lead.stage);
+      
+      if (stageIndex !== -1) {
+        stages[stageIndex].count++;
+        
+        // Only add the most recent leads to each stage (limit to 3 for preview)
+        if (stages[stageIndex].leads.length < 3) {
+          stages[stageIndex].leads.push({
+            id: lead.id,
+            name: lead.fullName,
+            source: lead.source || 'Site',
+            description: lead.message || `Interessado em ${lead.propertyId ? 'imóvel específico' : 'imóveis na região'}`,
+            timeAgo: this.getTimeAgo(lead.createdAt),
+            stageId: lead.stage
+          });
+        }
+      }
+    }
+    
+    return stages;
+  },
+
+  // Activity log operations
+  async logActivity(activityData: any) {
+    await db.insert(activityLogs).values({
+      ...activityData,
+      createdAt: new Date().toISOString()
+    });
+  },
+
+  async getRecentActivities(userId: number) {
+    // Get recent activity logs
+    const recentLogs = await db.select()
+      .from(activityLogs)
+      .where(
+        or(
+          eq(activityLogs.userId, userId),
+          eq(activityLogs.entityType, 'property')
+        )
+      )
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(10);
+      
+    // Map activity logs to a format suitable for the frontend
+    const activities = [];
+    
+    for (const log of recentLogs) {
+      let activityItem = null;
+      
+      if (log.entityType === 'lead' && log.action === 'created') {
+        const lead = await db.select().from(leads).where(eq(leads.id, log.entityId));
+        
+        if (lead.length > 0) {
+          activityItem = {
+            id: log.id,
+            type: 'lead',
+            name: lead[0].fullName,
+            description: lead[0].message || 'Novo lead interessado em seus imóveis',
+            timeAgo: this.getTimeAgo(log.createdAt),
+            icon: 'person'
+          };
+        }
+      } else if (log.entityType === 'lead' && log.action === 'stage_changed' && log.metadata.newStage === 'scheduled_visit') {
+        const lead = await db.select().from(leads).where(eq(leads.id, log.entityId));
+        
+        if (lead.length > 0) {
+          let property = null;
+          
+          if (lead[0].propertyId) {
+            const propertyResult = await db.select().from(properties).where(eq(properties.id, lead[0].propertyId));
+            property = propertyResult[0];
+          }
+          
+          activityItem = {
+            id: log.id,
+            type: 'appointment',
+            name: lead[0].fullName,
+            description: `Visita agendada para ${property ? property.title : 'um imóvel'}`,
+            timeAgo: this.getTimeAgo(log.createdAt),
+            icon: 'calendar_today'
+          };
+        }
+      } else if (log.entityType === 'document' && log.action === 'created') {
+        const document = await db.select().from(documents).where(eq(documents.id, log.entityId));
+        
+        if (document.length > 0) {
+          let lead = null;
+          
+          if (document[0].leadId) {
+            const leadResult = await db.select().from(leads).where(eq(leads.id, document[0].leadId));
+            lead = leadResult[0];
+          }
+          
+          activityItem = {
+            id: log.id,
+            type: 'document',
+            name: lead ? lead.fullName : 'Cliente',
+            description: `Enviou ${document[0].title || 'documentação'} para análise`,
+            timeAgo: this.getTimeAgo(log.createdAt),
+            icon: 'article'
+          };
+        }
+      }
+      
+      if (activityItem) {
+        activities.push(activityItem);
+      }
+    }
+    
+    return activities.slice(0, 3); // Return only the 3 most recent activities
+  },
+
+  // Dashboard operations
+  async getDashboardStats(userId: number) {
+    // Count leads created in current month
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed in JS
+    const currentYear = currentDate.getFullYear();
+    
+    // Returns mock stats for demonstration
+    return {
+      leads: 48,
+      leadsChange: 12,
+      visits: 16,
+      visitsChange: 8,
+      activeProperties: 32,
+      propertiesChange: -3,
+      websiteVisits: 920,
+      websiteVisitsChange: 18
+    };
+  },
+
+  // Affiliate operations
+  async getAffiliateMarketplace({ userId, page, limit, searchTerm }: any) {
+    // Get properties available for affiliation (excluding user's own properties)
+    let query = db.select()
+      .from(properties)
+      .where(
+        and(
+          ne(properties.userId, userId),
+          eq(properties.availableForAffiliation, true)
+        )
+      );
+    
+    if (searchTerm) {
+      query = query.where(
+        or(
+          like(properties.title, `%${searchTerm}%`),
+          like(properties.description, `%${searchTerm}%`),
+          like(properties.address, `%${searchTerm}%`)
+        )
+      );
+    }
+    
+    const offset = (page - 1) * limit;
+    const properties = await query
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(properties.createdAt));
+    
+    // Enhance properties with owner information
+    const result = [];
+    
+    for (const property of properties) {
+      const ownerResult = await db.select()
+        .from(users)
+        .where(eq(users.id, property.userId));
+      
+      const owner = ownerResult[0];
+      
+      if (owner) {
+        const { password, ...ownerWithoutPassword } = owner;
+        
+        result.push({
+          ...property,
+          owner: {
+            id: owner.id,
+            name: owner.fullName
+          },
+          commissionRate: property.affiliationCommissionRate || 5
+        });
+      }
+    }
+    
+    return result;
+  },
+
+  async getUserAffiliations(userId: number) {
+    // Get all property affiliations where user is the affiliate
+    const affiliations = await db.select()
+      .from(propertyAffiliations)
+      .where(eq(propertyAffiliations.affiliateId, userId))
+      .orderBy(desc(propertyAffiliations.createdAt));
+    
+    // Enhance with property and owner information
+    const result = [];
+    
+    for (const affiliation of affiliations) {
+      const propertyResult = await db.select()
+        .from(properties)
+        .where(eq(properties.id, affiliation.propertyId));
+      
+      const property = propertyResult[0];
+      
+      if (property) {
+        const ownerResult = await db.select()
+          .from(users)
+          .where(eq(users.id, affiliation.ownerId));
+        
+        const owner = ownerResult[0];
+        
+        if (owner) {
+          const { password, ...ownerWithoutPassword } = owner;
+          
+          result.push({
+            ...affiliation,
+            property: {
+              id: property.id,
+              title: property.title,
+              address: property.address,
+              price: property.price
+            },
+            owner: {
+              id: owner.id,
+              name: owner.fullName
+            }
+          });
+        }
+      }
+    }
+    
+    return result;
+  },
+
+  async getUserAffiliableProperties(userId: number) {
+    // Get user's properties that are available for affiliation
+    const userProperties = await db.select()
+      .from(properties)
+      .where(
+        and(
+          eq(properties.userId, userId),
+          eq(properties.availableForAffiliation, true)
+        )
+      )
+      .orderBy(desc(properties.createdAt));
+    
+    // Enhance with affiliation count
+    const result = [];
+    
+    for (const property of userProperties) {
+      const affiliationsResult = await db.select({ count: sql<number>`count(*)` })
+        .from(propertyAffiliations)
+        .where(eq(propertyAffiliations.propertyId, property.id));
+      
+      const affiliationsCount = affiliationsResult[0]?.count || 0;
+      
+      result.push({
+        ...property,
+        commissionRate: property.affiliationCommissionRate || 5,
+        affiliationsCount
+      });
+    }
+    
+    return result;
+  },
+
+  async isPropertyAffiliate(propertyId: number, userId: number) {
+    const affiliation = await db.select()
+      .from(propertyAffiliations)
+      .where(
+        and(
+          eq(propertyAffiliations.propertyId, propertyId),
+          eq(propertyAffiliations.affiliateId, userId),
+          eq(propertyAffiliations.status, 'approved')
+        )
+      );
+    
+    return affiliation.length > 0;
+  },
+
+  async requestAffiliation(userId: number, propertyId: number) {
+    // Check if property exists and is available for affiliation
+    const propertyResult = await db.select()
+      .from(properties)
+      .where(
+        and(
+          eq(properties.id, propertyId),
+          eq(properties.availableForAffiliation, true)
+        )
+      );
+    
+    if (propertyResult.length === 0) {
+      throw new Error("Property not found or not available for affiliation");
+    }
+    
+    const property = propertyResult[0];
+    
+    // Check if user is not the property owner
+    if (property.userId === userId) {
+      throw new Error("Cannot affiliate with your own property");
+    }
+    
+    // Check if affiliation already exists
+    const existingAffiliation = await db.select()
+      .from(propertyAffiliations)
+      .where(
+        and(
+          eq(propertyAffiliations.propertyId, propertyId),
+          eq(propertyAffiliations.affiliateId, userId)
+        )
+      );
+    
+    if (existingAffiliation.length > 0) {
+      throw new Error("Affiliation request already exists");
+    }
+    
+    // Create affiliation request
+    const result = await db.insert(propertyAffiliations)
+      .values({
+        propertyId,
+        affiliateId: userId,
+        ownerId: property.userId,
+        status: 'pending',
+        commissionRate: property.affiliationCommissionRate || 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      .returning();
+    
+    return result[0];
+  },
+
+  async updateAffiliationStatus(affiliationId: number, userId: number, status: string) {
+    // Check if affiliation exists
+    const affiliationResult = await db.select()
+      .from(propertyAffiliations)
+      .where(eq(propertyAffiliations.id, affiliationId));
+    
+    if (affiliationResult.length === 0) {
+      throw new Error("Affiliation not found");
+    }
+    
+    const affiliation = affiliationResult[0];
+    
+    // Check if user is the property owner (only owner can approve/reject)
+    if (affiliation.ownerId !== userId) {
+      throw new Error("Unauthorized to update this affiliation");
+    }
+    
+    // Update status
+    const result = await db.update(propertyAffiliations)
+      .set({
+        status,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(propertyAffiliations.id, affiliationId))
+      .returning();
+    
+    return result[0];
+  },
+
+  // Document operations
+  async getUserDocuments(userId: number) {
+    // Get all documents for the user
+    const documents = await db.select()
+      .from(documents)
+      .where(eq(documents.userId, userId))
+      .orderBy(desc(documents.createdAt));
+    
+    // Enhance with lead information
+    const result = [];
+    
+    for (const document of documents) {
+      let lead = null;
+      
+      if (document.leadId) {
+        const leadResult = await db.select()
+          .from(leads)
+          .where(eq(leads.id, document.leadId));
+        
+        lead = leadResult[0];
+      }
+      
+      result.push({
+        ...document,
+        client: lead ? lead.fullName : 'Cliente'
+      });
+    }
+    
+    return result;
+  },
+
+  async insertDocument(documentData: any) {
+    const result = await db.insert(documents).values(documentData).returning();
+    
+    // Log activity
+    await this.logActivity({
+      userId: documentData.userId,
+      entityType: 'document',
+      entityId: result[0].id,
+      action: 'created',
+      metadata: {}
+    });
+    
+    return result[0];
+  },
+
+  // Client operations
+  async getClients(userId: number) {
+    // For this example, we'll consider leads as clients
+    const clientLeads = await db.select()
+      .from(leads)
+      .where(eq(leads.userId, userId))
+      .orderBy(desc(leads.createdAt));
+    
+    // Transform leads into clients format
+    return clientLeads.map(lead => ({
+      id: lead.id,
+      name: lead.fullName,
+      email: lead.email,
+      phone: lead.phone || 'N/A',
+      interest: lead.message ? (lead.message.length > 30 ? `${lead.message.substring(0, 30)}...` : lead.message) : 'N/A',
+      status: this.mapLeadStageToClientStatus(lead.stage)
+    }));
+  },
+
+  // Subscription operations
+  async getUserSubscription(userId: number) {
+    // Mock subscription data
+    return {
+      id: 1,
+      userId,
+      plan: {
+        id: 'professional',
+        name: 'Professional',
+        price: 199
+      },
+      status: 'active',
+      nextBillingDate: '2023-12-15',
+      startDate: '2023-11-15',
+      features: {
+        propertyLimit: 50,
+        teamMembers: 5,
+        customDomain: true,
+        analytics: true
+      }
+    };
+  },
+
+  // Integration operations
+  async getUserIntegrations(userId: number) {
+    // Mock integration settings
+    return {
+      googleDrive: {
+        enabled: true,
+        token: 'YOUR_GOOGLE_DRIVE_TOKEN',
+        folder: 'ImobConnect'
+      },
+      whatsapp: {
+        enabled: true,
+        apiKey: 'YOUR_WHATSAPP_API_KEY',
+        phone: '+5511912345678'
+      },
+      portals: {
+        enabled: true,
+        zapImoveis: true,
+        vivaReal: true,
+        olx: false
+      }
+    };
+  },
+
+  async updateUserIntegrations(userId: number, integrationData: any) {
+    // In a real application, this would update the integrations in the database
+    // For this example, we'll just return the updated data
+    return integrationData;
+  },
+
+  // Analytics operations
+  async getAnalyticsData(userId: number, timeframe: string) {
+    // Mock analytics data
+    return {
+      overview: {
+        visitors: 8734,
+        visitorsChange: 12,
+        leads: 156,
+        leadsChange: 8,
+        conversionRate: 1.78,
+        conversionRateChange: -0.3,
+        sales: 14,
+        salesChange: 27
+      },
+      timeSeriesData: [],
+      trafficSources: [],
+      propertyPerformance: []
+    };
+  },
+
+  // Helper methods
+  getTimeAgo(dateString: string) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffWeeks = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+    const diffMonths = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30));
+    
+    if (diffMins < 60) {
+      return `Há ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
+    } else if (diffHours < 24) {
+      return `Há ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+    } else if (diffDays < 7) {
+      return `Há ${diffDays} ${diffDays === 1 ? 'dia' : 'dias'}`;
+    } else if (diffWeeks < 4) {
+      return `Há ${diffWeeks} ${diffWeeks === 1 ? 'semana' : 'semanas'}`;
+    } else {
+      return `Há ${diffMonths} ${diffMonths === 1 ? 'mês' : 'meses'}`;
+    }
+  },
+
+  mapLeadStageToClientStatus(stage: string) {
+    switch (stage) {
+      case 'initial_contact':
+        return 'Novo';
+      case 'qualification':
+        return 'Em Análise';
+      case 'scheduled_visit':
+        return 'Agendado';
+      case 'proposal':
+        return 'Proposta';
+      case 'documentation':
+        return 'Documentação';
+      case 'closed':
+        return 'Fechado';
+      default:
+        return 'Ativo';
+    }
+  }
+};
