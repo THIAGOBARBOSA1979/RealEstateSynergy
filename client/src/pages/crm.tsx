@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/queryClient";
 
+// Components
+import LeadForm from "@/components/crm/lead-form";
+
 // Styles and helper functions imported from CrmPreview
 import { getSourceBadgeClass } from "@/components/dashboard/crm-preview";
 
@@ -31,6 +34,8 @@ interface CrmStage {
 const CRM = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [draggingLeadId, setDraggingLeadId] = useState<number | null>(null);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: stages, isLoading } = useQuery({
@@ -64,8 +69,13 @@ const CRM = () => {
     }
   };
 
+  const handleAddLeadToStage = (stageId: string) => {
+    setSelectedStageId(stageId);
+    setIsAddLeadOpen(true);
+  };
+
   // Filter leads based on search term
-  const filteredStages = stages ? stages.map((stage: CrmStage) => ({
+  const filteredStages = stages && Array.isArray(stages) ? stages.map((stage: CrmStage) => ({
     ...stage,
     leads: stage.leads.filter(lead => 
       lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,12 +83,20 @@ const CRM = () => {
     )
   })) : [];
 
+  // Map stage IDs to stage names for the form
+  const stageIdToName: Record<string, string> = {};
+  if (stages && Array.isArray(stages)) {
+    stages.forEach((stage: CrmStage) => {
+      stageIdToName[stage.id] = stage.name;
+    });
+  }
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-heading font-bold">CRM (Pipeline de Vendas)</h1>
         <div className="flex gap-2">
-          <Button>
+          <Button onClick={() => setIsAddLeadOpen(true)}>
             <span className="material-icons text-sm mr-1">add</span>
             Novo Lead
           </Button>
@@ -154,14 +172,46 @@ const CRM = () => {
                   ))
                 ) : (
                   <div className="text-center p-4 bg-background rounded-lg border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground">Arraste leads para esta etapa</p>
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-muted-foreground">Nenhum lead nesta etapa</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleAddLeadToStage(stage.id)}
+                        className="text-xs"
+                      >
+                        <span className="material-icons text-xs mr-1">add</span>
+                        Adicionar Lead
+                      </Button>
+                    </div>
                   </div>
+                )}
+                {stage.leads.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full flex items-center justify-center text-xs text-muted-foreground hover:text-primary"
+                    onClick={() => handleAddLeadToStage(stage.id)}
+                  >
+                    <span className="material-icons text-xs mr-1">add</span>
+                    Adicionar Lead
+                  </Button>
                 )}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Add Lead Form Dialog */}
+      <LeadForm
+        isOpen={isAddLeadOpen}
+        onClose={() => {
+          setIsAddLeadOpen(false);
+          setSelectedStageId(null);
+        }}
+        initialStage={selectedStageId || undefined}
+      />
     </div>
   );
 };

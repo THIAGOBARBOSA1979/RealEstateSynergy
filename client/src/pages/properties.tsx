@@ -10,17 +10,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PropertyTable from "@/components/dashboard/property-table";
+import PropertyForm from "@/components/properties/property-form";
 
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [status, setStatus] = useState("all");
+  const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
 
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-heading font-bold">Meus Imóveis</h1>
-        <Button>
+        <Button onClick={() => setIsAddPropertyOpen(true)}>
           <span className="material-icons text-sm mr-1">add</span>
           Adicionar Imóvel
         </Button>
@@ -68,6 +70,12 @@ const Properties = () => {
 
       {/* Property Table */}
       <PropertyTable />
+
+      {/* Add Property Form Dialog */}
+      <PropertyForm 
+        isOpen={isAddPropertyOpen} 
+        onClose={() => setIsAddPropertyOpen(false)} 
+      />
     </div>
   );
 };
