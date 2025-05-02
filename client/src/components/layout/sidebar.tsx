@@ -41,18 +41,17 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
           <ul>
             {menuItems.map((item) => (
               <li key={item.path}>
-                <Link href={item.path}>
-                  <a 
-                    className={cn(
-                      "flex items-center px-4 py-3 transition-colors",
-                      location === item.path 
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground/90 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
-                    )}
-                  >
-                    <span className="material-icons mr-3">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </a>
+                <Link 
+                  href={item.path}
+                  className={cn(
+                    "flex items-center px-4 py-3 transition-colors",
+                    location === item.path 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground/90 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
+                  )}
+                >
+                  <span className="material-icons mr-3">{item.icon}</span>
+                  <span>{item.label}</span>
                 </Link>
               </li>
             ))}

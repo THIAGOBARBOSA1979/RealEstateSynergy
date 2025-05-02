@@ -53,7 +53,7 @@ const CrmPreview = () => {
         </div>
       ) : (
         <div className="kanban-board mb-4">
-          {(stages || []).map((stage: CrmStage) => (
+          {(Array.isArray(stages) ? stages : []).map((stage: CrmStage) => (
             <Card key={stage.id} className="h-fit">
               <CardHeader className="py-3 px-4">
                 <div className="flex items-center justify-between">
