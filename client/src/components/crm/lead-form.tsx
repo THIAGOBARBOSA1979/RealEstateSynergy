@@ -189,13 +189,16 @@ const LeadForm = ({ isOpen, onClose, initialData, initialStage }: LeadFormProps)
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="">Nenhum imóvel específico</SelectItem>
-                        {propertiesData && propertiesData.properties ? 
-                          propertiesData.properties.map((property: any) => (
-                            <SelectItem key={property.id} value={property.id.toString()}>
-                              {property.title}
-                            </SelectItem>
-                          ))
-                        : null}
+                        {propertiesData && 
+                         typeof propertiesData === 'object' && 
+                         'properties' in propertiesData && 
+                         Array.isArray(propertiesData.properties) ? 
+                            propertiesData.properties.map((property: any) => (
+                              <SelectItem key={property.id} value={property.id.toString()}>
+                                {property.title}
+                              </SelectItem>
+                            ))
+                          : null}
                       </SelectContent>
                     </Select>
                     <FormMessage />

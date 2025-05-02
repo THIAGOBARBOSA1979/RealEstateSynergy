@@ -16,7 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import SectionEditor from "@/components/site-editor/section-editor";
 
 const SiteEditor = () => {
   const [activeTab, setActiveTab] = useState("geral");
@@ -270,13 +272,16 @@ const SiteEditor = () => {
                 <Separator />
                 
                 <p className="text-muted-foreground">
-                  Arraste e solte os componentes para personalizar as páginas do seu site.
+                  Adicione e organize as seções do seu site. Arraste para reordenar.
                 </p>
                 
-                <div className="border rounded-lg p-4 bg-muted/30">
-                  <p className="text-center text-muted-foreground py-12">
-                    Editor visual será carregado aqui...
-                  </p>
+                <div className="mt-6">
+                  <SectionEditor 
+                    websiteData={websiteData} 
+                    updateWebsiteData={(newData) => {
+                      queryClient.setQueryData(['/api/users/me/website'], newData);
+                    }} 
+                  />
                 </div>
               </CardContent>
             </Card>
