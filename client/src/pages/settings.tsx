@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -752,6 +753,209 @@ const Settings = () => {
                     )}
                   </div>
 
+                  {/* Webhooks Integration */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                          <span className="material-icons text-indigo-600 text-2xl">webhook</span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Webhooks</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Para integração com sistemas externos
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={integrationSettings?.webhooks?.enabled || false}
+                        onCheckedChange={(checked) => {
+                          queryClient.setQueryData(['/api/users/me/integrations'], {
+                            ...integrationSettings,
+                            webhooks: {
+                              ...integrationSettings?.webhooks,
+                              enabled: checked,
+                              endpoints: integrationSettings?.webhooks?.endpoints || [],
+                            },
+                          });
+                        }}
+                      />
+                    </div>
+                    {integrationSettings?.webhooks?.enabled && (
+                      <div className="border rounded-md p-4 space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium">Endpoints de Webhook</h4>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              const currentEndpoints = integrationSettings?.webhooks?.endpoints || [];
+                              queryClient.setQueryData(['/api/users/me/integrations'], {
+                                ...integrationSettings,
+                                webhooks: {
+                                  ...integrationSettings?.webhooks,
+                                  endpoints: [
+                                    ...currentEndpoints,
+                                    { id: Date.now(), url: '', events: [], active: true }
+                                  ],
+                                },
+                              });
+                            }}
+                          >
+                            <span className="material-icons text-sm mr-1">add</span>
+                            Adicionar
+                          </Button>
+                        </div>
+                        
+                        {/* Webhook List */}
+                        <div className="space-y-3">
+                          {Array.isArray(integrationSettings?.webhooks?.endpoints) && 
+                           integrationSettings.webhooks.endpoints.length > 0 ? (
+                            integrationSettings.webhooks.endpoints.map((endpoint: any, index: number) => (
+                              <div key={endpoint.id || index} className="border p-3 rounded-md">
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center">
+                                    <Badge 
+                                      variant={endpoint.active ? "default" : "outline"}
+                                      className={endpoint.active ? "bg-success text-success-foreground" : ""}
+                                    >
+                                      {endpoint.active ? "Ativo" : "Inativo"}
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground ml-2">ID: {endpoint.id}</span>
+                                  </div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                      const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
+                                      newEndpoints.splice(index, 1);
+                                      queryClient.setQueryData(['/api/users/me/integrations'], {
+                                        ...integrationSettings,
+                                        webhooks: {
+                                          ...integrationSettings?.webhooks,
+                                          endpoints: newEndpoints,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <span className="material-icons text-sm">delete</span>
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid gap-3">
+                                  <div className="grid gap-1">
+                                    <Label htmlFor={`webhook-url-${index}`} className="text-xs">URL do Webhook</Label>
+                                    <Input
+                                      id={`webhook-url-${index}`}
+                                      placeholder="https://seu-servidor.com/webhook"
+                                      value={endpoint.url || ''}
+                                      onChange={(e) => {
+                                        const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
+                                        newEndpoints[index] = {
+                                          ...newEndpoints[index],
+                                          url: e.target.value,
+                                        };
+                                        queryClient.setQueryData(['/api/users/me/integrations'], {
+                                          ...integrationSettings,
+                                          webhooks: {
+                                            ...integrationSettings?.webhooks,
+                                            endpoints: newEndpoints,
+                                          },
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  <div className="grid gap-1">
+                                    <Label className="text-xs">Eventos para Notificar</Label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {['lead.created', 'lead.updated', 'property.created', 'property.updated'].map((event) => (
+                                        <div key={event} className="flex items-center space-x-2">
+                                          <Checkbox 
+                                            id={`event-${index}-${event}`}
+                                            checked={endpoint.events?.includes(event) || false}
+                                            onCheckedChange={(checked) => {
+                                              const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
+                                              const currentEvents = newEndpoints[index].events || [];
+                                              
+                                              if (checked) {
+                                                newEndpoints[index] = {
+                                                  ...newEndpoints[index],
+                                                  events: [...currentEvents, event],
+                                                };
+                                              } else {
+                                                newEndpoints[index] = {
+                                                  ...newEndpoints[index],
+                                                  events: currentEvents.filter((e: string) => e !== event),
+                                                };
+                                              }
+                                              
+                                              queryClient.setQueryData(['/api/users/me/integrations'], {
+                                                ...integrationSettings,
+                                                webhooks: {
+                                                  ...integrationSettings?.webhooks,
+                                                  endpoints: newEndpoints,
+                                                },
+                                              });
+                                            }}
+                                          />
+                                          <Label htmlFor={`event-${index}-${event}`} className="text-xs">{event}</Label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`webhook-active-${index}`}
+                                      checked={endpoint.active}
+                                      onCheckedChange={(checked) => {
+                                        const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
+                                        newEndpoints[index] = {
+                                          ...newEndpoints[index],
+                                          active: checked,
+                                        };
+                                        queryClient.setQueryData(['/api/users/me/integrations'], {
+                                          ...integrationSettings,
+                                          webhooks: {
+                                            ...integrationSettings?.webhooks,
+                                            endpoints: newEndpoints,
+                                          },
+                                        });
+                                      }}
+                                    />
+                                    <Label htmlFor={`webhook-active-${index}`}>Ativo</Label>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-6 text-muted-foreground">
+                              <p>Nenhum webhook configurado. Clique em "Adicionar" para criar um novo.</p>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="bg-muted rounded-md p-3 text-xs text-muted-foreground">
+                          <p>Os webhooks permitem que sua aplicação receba notificações automáticas quando eventos importantes ocorrem em sua conta.</p>
+                          <p className="mt-1">Exemplo de payload de notificação:</p>
+                          <pre className="bg-card p-2 mt-1 rounded text-xs overflow-x-auto">
+{`{
+  "event": "lead.created",
+  "timestamp": "2023-05-02T12:34:56Z",
+  "data": {
+    "id": 123,
+    "fullName": "João Silva",
+    "email": "joao@exemplo.com",
+    "propertyId": 456
+  }
+}`}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
                   {/* Portals Integration */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -847,7 +1051,9 @@ const Settings = () => {
               <Button
                 onClick={() => handleIntegrationUpdate(integrationSettings)}
                 disabled={updateIntegrationsMutation.isPending || isLoadingIntegrations}
+                className="flex items-center"
               >
+                <span className="material-icons text-sm mr-2">save</span>
                 {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Configurações"}
               </Button>
             </CardFooter>
