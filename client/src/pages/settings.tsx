@@ -482,6 +482,125 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
+        {/* Domain Settings */}
+        <TabsContent value="domain" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações de Domínio</CardTitle>
+              <CardDescription>
+                Configure seu domínio personalizado e subdomínios para seu site de imóveis.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {isLoadingProfile ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Domínio padrão</h3>
+                      <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
+                        <span className="material-icons text-sm mr-2">info</span>
+                        <span className="text-sm">
+                          Seu site está disponível em <span className="font-medium text-foreground">admin-12345.meusite.com.br</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Domínio personalizado</h3>
+                      <div className="flex items-center p-3 bg-yellow-50 rounded-md text-yellow-700 mb-4 border border-yellow-200">
+                        <span className="material-icons text-sm mr-2">warning</span>
+                        <span className="text-sm">
+                          A configuração de domínio personalizado está disponível apenas para planos Professional e Enterprise.
+                        </span>
+                      </div>
+
+                      <div className="grid gap-2">
+                        <Label htmlFor="customDomain">Seu domínio personalizado</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="customDomain"
+                            placeholder="seudominio.com.br"
+                            defaultValue={profileData?.website?.domain || ""}
+                            disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
+                          />
+                          <Button 
+                            disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
+                          >
+                            Verificar
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Digite seu domínio sem "www" ou "http://".
+                        </p>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Configuração de DNS</h3>
+                      <p className="text-sm mb-3 text-muted-foreground">
+                        Para conectar seu domínio personalizado, adicione os seguintes registros DNS ao seu provedor de domínio:
+                      </p>
+
+                      <div className="bg-muted p-3 rounded-md mb-4 overflow-x-auto">
+                        <table className="text-sm w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left pb-2 font-medium">Tipo</th>
+                              <th className="text-left pb-2 font-medium">Nome</th>
+                              <th className="text-left pb-2 font-medium">Valor</th>
+                              <th className="text-left pb-2 font-medium">TTL</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-b">
+                              <td className="py-2 pr-4">A</td>
+                              <td className="py-2 pr-4">@</td>
+                              <td className="py-2 pr-4">192.168.10.123</td>
+                              <td className="py-2">3600</td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 pr-4">CNAME</td>
+                              <td className="py-2 pr-4">www</td>
+                              <td className="py-2 pr-4">seudominio.com.br</td>
+                              <td className="py-2">3600</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
+                        <span className="material-icons text-sm mr-2">info</span>
+                        <span className="text-sm">
+                          As alterações de DNS podem levar até 48 horas para se propagar.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline">Cancelar</Button>
+              <Button
+                disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
+              >
+                Salvar Configurações
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
         {/* Integrations Settings */}
         <TabsContent value="integrations" className="space-y-4">
           <Card>
