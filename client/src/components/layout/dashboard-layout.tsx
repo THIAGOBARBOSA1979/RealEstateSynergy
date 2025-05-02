@@ -15,10 +15,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} />
-      <div className="flex flex-col flex-1 overflow-x-hidden">
+      <div className={`fixed md:relative z-20 ${isSidebarOpen ? "" : "hidden md:block"}`}>
+        <Sidebar isOpen={isSidebarOpen} />
+      </div>
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-6 bg-background">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 bg-white">{children}</main>
       </div>
     </div>
   );

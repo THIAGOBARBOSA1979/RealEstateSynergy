@@ -7,8 +7,17 @@ interface WebsitePreviewProps {
   userId: number;
 }
 
+interface WebsiteData {
+  title?: string;
+  domain?: string;
+  stats?: {
+    visitsToday: number;
+    leadsGenerated: number;
+  }
+}
+
 const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
-  const { data: websiteData, isLoading, isError } = useQuery({
+  const { data: websiteData, isLoading, isError } = useQuery<WebsiteData>({
     queryKey: [`/api/users/${userId}/website`],
     retry: false // Don't retry on 403 errors
   });
@@ -49,8 +58,8 @@ const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
             <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 mb-4 bg-gray-50">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                 <div className="p-4 text-white">
-                  <h4 className="font-semibold">{websiteData.title || "My Website"}</h4>
-                  <p className="text-sm text-white/80">{websiteData.domain || "mywebsite.realestate.com"}</p>
+                  <h4 className="font-semibold">{websiteData?.title || "My Website"}</h4>
+                  <p className="text-sm text-white/80">{websiteData?.domain || "mywebsite.realestate.com"}</p>
                 </div>
               </div>
             </div>
@@ -58,13 +67,13 @@ const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
                 <p className="text-2xl font-bold text-orange-500">
-                  {websiteData.stats?.visitsToday || 0}
+                  {websiteData?.stats?.visitsToday || 0}
                 </p>
                 <p className="text-xs text-gray-500">Today's Visitors</p>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
                 <p className="text-2xl font-bold text-orange-500">
-                  {websiteData.stats?.leadsGenerated || 0}
+                  {websiteData?.stats?.leadsGenerated || 0}
                 </p>
                 <p className="text-xs text-gray-500">Leads Generated</p>
               </div>

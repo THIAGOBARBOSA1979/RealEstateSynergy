@@ -14,7 +14,10 @@ const menuItems = [
   { path: "/analytics", label: "Analytics", icon: "bar_chart" },
   { path: "/crm", label: "Client Data", icon: "people" },
   { path: "/site-editor", label: "Documents", icon: "description" },
-  { path: "/calendar", label: "Calendar", icon: "calendar_today" },
+  { path: "/team", label: "Team", icon: "group" },
+  { path: "/affiliate", label: "Affiliation", icon: "link" },
+  { path: "/client-portal", label: "Client Portal", icon: "public" },
+  { path: "/settings", label: "Settings", icon: "settings" },
 ];
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
