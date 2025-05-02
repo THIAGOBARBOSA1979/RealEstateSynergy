@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PropertyTable from "@/components/dashboard/property-table";
-import PropertyForm from "@/components/properties/property-form";
 
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [status, setStatus] = useState("all");
-  const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
+  const [, navigate] = useLocation();
 
   return (
     <div>

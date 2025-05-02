@@ -188,7 +188,7 @@ const LeadForm = ({ isOpen, onClose, initialData, initialStage }: LeadFormProps)
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhum imóvel específico</SelectItem>
+                        <SelectItem value="none">Nenhum imóvel específico</SelectItem>
                         {propertiesData && 
                          typeof propertiesData === 'object' && 
                          'properties' in propertiesData && 

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import Dashboard from "@/pages/dashboard";
 import Properties from "@/pages/properties";
+import AddProperty from "@/pages/add-property";
 import CRM from "@/pages/crm";
 import SiteEditor from "@/pages/site-editor";
 import Affiliate from "@/pages/affiliate";
@@ -20,6 +21,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/properties" component={Properties} />
+      <Route path="/properties/add" component={AddProperty} />
       <Route path="/crm" component={CRM} />
       <Route path="/site-editor" component={SiteEditor} />
       <Route path="/affiliate" component={Affiliate} />
