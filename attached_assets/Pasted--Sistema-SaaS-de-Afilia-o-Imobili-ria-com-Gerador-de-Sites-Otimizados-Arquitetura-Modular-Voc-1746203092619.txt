@@ -1,0 +1,583 @@
+# Sistema SaaS de Afiliação Imobiliária com Gerador de Sites Otimizados - Arquitetura Modular
+
+Você é um expert em desenvolvimento full-stack e arquitetura de SaaS. Desenvolva um sistema completo de afiliação imobiliária com gerador de sites otimizados para conversão. O código deve ser estruturado em módulos independentes e reutilizáveis, seguindo as melhores práticas de segurança, escalabilidade e UX.
+
+## 1. Visão Geral e Modelo de Negócio
+### Conceito Central
+Plataforma SaaS multi-perfil que fornece soluções completas para o mercado imobiliário, incluindo sites personalizáveis, CRM visual, sistema de afiliação e integrações avançadas para diferentes perfis de usuários.
+
+### Proposta de Valor por Segmento
+#### Para Corretores Autônomos
+- Site imobiliário premium: Tema único com alta customização visual, sem parecer template
+- Conversão maximizada: Páginas de imóveis otimizadas para tráfego pago e alta conversão
+- Aceleração de vendas: Acesso a portfólios completos de imóveis via integrações
+- Ferramenta completa: CRM visual, integração com portais e ferramentas de qualificação de clientes
+
+#### Para Imobiliárias
+- Gestão centralizada: Controle completo da equipe de corretores e agentes
+- Automação de atualização: Integração de CRM para atualizar milhares de ofertas no site
+- Distribuição de exclusividades: Compartilhamento de imóveis exclusivos com a rede
+- Performance analítica: Métricas detalhadas por corretor, imóvel e canal
+
+#### Para Incorporadores/Construtoras
+- Ampliação de canais: Distribuição dos empreendimentos em bases qualificadas
+- Rede de vendas expandida: Conexão com corretores e imobiliárias parceiras
+- Controle de marketing: Materiais e informações padronizadas para toda a rede
+- Dashboards em tempo real: Acompanhamento de performance de vendas por canal
+
+### Modelo de Monetização
+- Planos escalonados: Basic (10 imóveis), Professional (50 imóveis), Enterprise (ilimitado)
+- Diferenciação por recursos: Cada plano libera mais opções de personalização e ferramentas
+- Add-ons premium: Domínio personalizado, relatórios avançados, verificação Meta Ads Business
+
+## 2. Portal de Sites para Corretores
+### Tema Base Otimizado
+- Framework único de alta performance (Core Web Vitals perfeitos)
+- Código enxuto e otimizado para SEO e conversão
+- Design mobile-first com adaptação automática para todos dispositivos
+
+### Sistema de Personalização Avançado
+- Editor visual WYSIWYG com controle total de cores, fontes, espaçamentos
+- Biblioteca de componentes intercambiáveis (hero sections, galerias, formulários)
+- Sistema de grid flexível para organização de seções
+- Personalização de cabeçalho, rodapé e navegação
+- Upload de logos, banners e imagens de fundo
+
+### Configuração White-Label
+- Domínio próprio com conexão simplificada (CNAME)
+- Remoção completa de marcas da plataforma
+- Emails transacionais personalizados
+
+### Arquitetura de Performance
+- Geração estática com hydration seletiva (ISR/SSG)
+- CDN global com cache inteligente
+- Imagens otimizadas e servidas via CDN (formato WebP/AVIF)
+- Código JavaScript mínimo com carregamento sob demanda
+
+## 3. Páginas de Imóveis Otimizadas
+### Estrutura de Landing Page
+- Layout focado em conversão com heat map de atenção
+- Carregamento prioritário de elementos críticos (imagens principais, CTA)
+- Formulários de lead otimizados para conversão (multi-step opcional)
+- Social proof e elementos de urgência configuráveis
+
+### Otimização para Campanhas
+- Captura e preservação automática de parâmetros UTM
+- Suporte completo a pixels de todas as plataformas:
+  - Facebook/Meta Pixel
+  - Google Ads/Analytics
+  - TikTok Pixel
+  - Pinterest Tag
+  - LinkedIn Insight Tag
+  - Twitter Pixel
+- Sistema de verificação de domínio para Meta Business
+- Campos dedicados para códigos de rastreamento de cada plataforma
+- Relatórios de conversão por fonte de tráfego
+
+### Mídia Otimizada
+- Carrossel de imagens com lazy loading
+- Compressão automática sem perda de qualidade
+- Redimensionamento para múltiplos dispositivos
+- Player de vídeo/tour virtual leve
+
+## 4. Área do Cliente — Upload de Documentação com Google Drive
+### Portal do Cliente Dedicado
+- Acessível pelo site do corretor para clientes finais (compradores/locatários)
+- Interface intuitiva para preenchimento de dados e upload de documentos
+- Área segura e compatível com LGPD
+
+### Formulário de Cadastro Personalizado
+- Campos configuráveis para coleta de dados como:
+  - Nome completo
+  - CPF/CNPJ
+  - E-mail e telefone
+  - Endereço completo
+  - Finalidade (compra, locação, financiamento)
+
+### Sistema de Upload de Documentação
+- Suporte para múltiplos formatos (PDF, JPG, PNG)
+- Interface drag-and-drop simplificada
+- Tipos de documentos comuns:
+  - RG e CPF
+  - Comprovante de residência
+  - Comprovante de renda
+  - Contracheques, declarações, etc.
+
+### Integração Avançada com Google Drive
+- Autenticação via OAuth 2.0 com a conta Google do corretor
+- Criação automática de estrutura de pastas organizada:
+  - Drive / Clientes / [Nome Completo do Cliente] / arquivos...
+- Upload automatizado dos documentos para a pasta do cliente
+- Utilização da Google Drive API (v3) com criptografia de ponta a ponta
+- Notificações configuráveis (email/WhatsApp) sobre novos envios
+
+## 5. Painel Super Admin e Gestão de Hierarquia
+### Gestão Completa de Usuários
+- CRUD de usuários com roles e permissões granulares
+- Limites por plano automaticamente aplicados
+- Insights de uso por usuário/plano
+
+### Sistema de Hierarquia de Equipes
+- Estrutura de equipe multi-nível:
+  - Corretor principal (conta matriz)
+  - Corretores secundários (colaboradores)
+  - Agentes imobiliários
+  - Assistentes administrativos
+- Definição de permissões e acesso por nível
+- Distribuição automatizada de leads por agente/corretor
+- Métricas de performance por membro da equipe
+- Comissionamento configurável por hierarquia
+
+### Controle de Planos e Assinaturas
+- Configuração de planos e recursos disponíveis
+- Integração com gateway de pagamento (Stripe)
+- Gestão de upgrades, downgrades e cancelamentos
+- Relatórios financeiros e previsão de receita
+
+### Monitoramento de Performance
+- Dashboard de métricas globais
+- Identificação de gargalos e picos de uso
+- Auditoria de sistema e logs de acesso
+
+### Comunicação com Usuários
+- Sistema de notificações in-app
+- Emails automatizados por evento (onboarding, renovação)
+- Anúncios de novas funcionalidades
+
+### Acesso aos Sites dos Clientes
+- Funcionalidade para super admin acessar e gerenciar o site de qualquer cliente diretamente do painel
+- Modo de visualização ou edição para ajustes rápidos
+- Log de acessos e alterações realizadas nos sites dos clientes
+- Possibilidade de assumir identidade temporária para teste de funcionalidades
+
+## 6. CRM Visual Baseado em Cards
+### Interface Kanban Intuitiva
+- Layout visual inspirado no Trello/Kanban para gerenciamento de pipeline
+- Colunas personalizáveis representando etapas do funil de vendas
+- Drag-and-drop para mover leads entre etapas do processo
+- Visualização compacta e expandida dos cards
+
+### Cards Altamente Configuráveis
+- Campos personalizados por etapa do funil (texto, data, número, seleção, etc.)
+- Tags coloridas para classificação visual rápida
+- Checklists para acompanhamento de tarefas relacionadas ao lead
+- Anexos de documentos e anotações internas
+- Histórico de interações e timeline de atividades
+
+### Links Externos Exclusivos
+- Geração de URL único por card/lead para acesso externo
+- Formulários personalizáveis expostos via link público
+- Permissão para terceiros preencherem ou atualizarem informações sem login
+- Controle de expiração e permissões do link
+- Notificações de atualizações via link externo
+
+### Automações Contextuais
+- Regras automáticas baseadas em mudanças de status
+- Alertas de inatividade ou marcos importantes
+- Distribuição inteligente de leads por carga/especialidade
+- Scoring automático baseado em comportamento e dados
+
+### Dashboards de Performance
+- Métricas de conversão entre etapas do funil
+- Tempo médio em cada fase do pipeline
+- Performance comparativa entre equipes/corretores
+- Previsão de fechamento baseada em histórico
+
+## 7. Funcionalidades Core de Afiliação e Gestão
+### Gestão de Imóveis
+- CRUD otimizado para rápida entrada de dados
+- Upload múltiplo de imagens com ordenação
+- Campos customizáveis por categoria de imóvel
+- Controle de visibilidade e destaque
+- Geolocalização e integração com Google Maps
+
+### Integração com Portais Imobiliários
+- Publicação centralizada e sincronizada:
+  - OLX
+  - Viva Real
+  - ZAP Imóveis
+  - Imovelweb
+  - Imobiliária Web
+  - Outros portais regionais
+- Distribuição automática de imóveis em todas plataformas
+- Sincronização bidirecional (atualizações e remoções)
+- Controle de quais imóveis são enviados para cada portal
+- Estatísticas de visualização e leads por portal
+- Importação automática de leads gerados nos portais
+
+### Engine de Afiliação
+- Marketplace interno de imóveis para afiliação
+- Configuração granular de comissões por imóvel/tipo
+- Sistema de aprovação de afiliados (manual/automático)
+- Rastreamento de leads por afiliado (UTMs próprios)
+- Relatórios de performance de afiliação
+
+### Dashboard Analítico
+- Métricas de performance por imóvel
+- Funil de conversão detalhado
+- Relatórios de atividade de leads
+- Exportação de dados em CSV/Excel
+
+## 8. CRM Integrado via N8N (Automatização de Fluxos)
+### Arquitetura de Eventos
+- Event Bus centralizado para todas ações relevantes
+- Triggers configuráveis por evento do sistema
+- Filas de processamento com retry logic
+
+### Integração Nativa com n8n
+- Conector dedicado para n8n com autenticação OAuth
+- Templates pré-configurados para casos de uso comuns
+- Documentação detalhada de eventos e payloads
+
+### Automações Prontas
+- Notificação automática via WhatsApp/Email para novos leads
+- Distribuição de leads por território/especialidade
+- Follow-ups programados após inatividade
+- Alertas de atividade importante
+
+### Designer Visual de Fluxos
+- Interface simplificada para configuração de fluxos
+- Condicionais e filtros sem código
+- Teste e debug de fluxos configurados
+
+## 9. Integrações Avançadas
+### APIs RESTful Completas
+- Endpoints para todos recursos principais
+- Autenticação via API key e JWT
+- Rate limiting e controle de acesso
+
+### Sistema de Webhooks Bidirecionais
+- Interface para configuração de endpoints
+- Filtros por tipo de evento
+- Logs de envios e respostas
+- Retry automático com backoff exponencial
+
+### Integrações com Plataformas Imobiliárias
+- Recebimento automático de leads do Facebook/Instagram no CRM
+- Integração bidirecional com portais imobiliários:
+  - OLX
+  - Viva Real
+  - ZAP Imóveis
+  - Outros portais regionais
+- Sincronização automática de imóveis e leads
+
+### Integrações com IA e Análise de Crédito
+- Painel de configuração para tokens de APIs de IA:
+  - OpenAI (GPT-4, DALL-E)
+  - Claude/Anthropic
+  - Gemini/Google
+  - Outras IAs específicas para o setor
+
+### Análise de ficha via API:
+- Consulta instantânea de CPF/CNPJ
+- Geração de relatório completo do cliente
+- Score de crédito e risco
+- Histórico financeiro relevante
+- Recomendações automáticas baseadas nos dados
+
+### Integrações Pré-construídas
+- WhatsApp/Telegram (via API oficial)
+- Email marketing (Mailchimp, SendGrid)
+- CRMs populares (Salesforce, HubSpot, Pipedrive)
+- Planilhas (Google Sheets, Airtable)
+
+### Segurança de Integrações
+- HMAC signature para verificação
+- Secrets por integração
+- Auditoria de acessos e chamadas
+
+## 10. Inteligência Artificial & Automação Avançada
+### Recomendação de Imóveis
+- Algoritmo baseado em histórico de navegação, buscas e perfil de compra/locação
+
+### Análise Preditiva de Preços
+- Séries temporais e dados de transações para estimar valor de mercado e tendências
+
+### Geração Automática de Descrições
+- IA que produz textos otimizados para SEO a partir dos dados básicos do imóvel
+
+### Precificação Inteligente
+- Sugestão de preços competitivos com base em dados históricos e atuais
+
+## 11. Marketing, Growth & Conversão
+### Campanhas de E-mail e Drip Marketing
+- Sequências automatizadas baseadas em comportamento e etapa do funil
+
+### Campanhas Automatizadas Multi-Canal
+- Google Ads, Meta, TikTok, etc.
+- Criação e otimização de campanhas via APIs
+
+### Programas de Indicação
+- Sistema de referral com rastreamento e comissionamento
+
+### Gerador de Materiais de Marketing
+- Templates para flyers, posts e newsletters
+- Personalização com marca e dados dos imóveis
+
+## 12. Ferramentas Financeiras & Negociação
+### Simulador Avançado de Financiamento
+- Integração com APIs bancárias para simulações reais
+- Comparativo entre diferentes instituições
+
+### Análise de Investimento Imobiliário
+- Calculadoras de ROI, valorização projetada
+- Comparativos de cenários de investimento
+
+### Custódia Digital de Valores
+- Gestão segura de arras, sinal e pagamentos iniciais
+- Rastreamento e comprovantes de transações
+
+## 13. Documentos & Contratos Digitais
+### Assinatura Eletrônica Nativa
+- Workflow de e-sign com certificação (e-ID)
+- Validação legal e armazenamento seguro
+
+### Controladoria de Documentos
+- Versionamento, alertas de vencimento (IPTU, laudos)
+- Checklist de due-diligence para transações
+
+## 14. Segurança, Compliance & Governança
+### Autenticação Forte & SSO
+- OAuth2/OIDC, SAML, MFA e social login (Google, Facebook, LinkedIn)
+- Sessões seguras com renovação automática
+
+### Consent Management (LGPD/GDPR)
+- Dashboard de consentimentos, logs e direitos de exportação/remoção
+- Políticas de privacidade personalizáveis
+
+### Auditoria de Ações
+- Logs imutáveis de operações críticas com exportação disponível
+- Histórico completo de modificações
+
+### Controle de Acesso Granular
+- Permissões por campo e territórios virtuais
+- Regras de acesso baseadas em hierarquia e função
+
+### Multi-fator Adaptativo
+- Segurança extra em operações sensíveis
+- Verificações adicionais em padrões suspeitos
+
+## 15. CRM Imobiliário Avançado
+### Visualização & Organização
+- Pipeline Dinâmico Customizável (venda, locação, lançamentos)
+- Visualizações Alternativas (Kanban, calendário, lista, mapa, prioridade)
+- Campos Condicionais & Regras de Movimento
+- Filtros Salvos & Templates de Cards
+
+### Enriquecimento & Dados
+- Análise de Crédito Integrada
+- Histórico de Interações Imobiliárias
+- Complemento Automático de Cadastro (CPF/CNPJ)
+- Deduplicação Avançada & Vinculação Familiar
+- Tags Automáticas por Comportamento
+
+### Produtividade & Colaboração
+- Menções, Comentários & Notificações
+- Compartilhamento de Cards com História Completa
+- Transferência Contextualizada de Leads
+- Assistente de Escrita por IA
+- Resumo Diário de Oportunidades
+- Ações em Massa Inteligentes
+
+### Funcionalidades para Imobiliárias
+- Matching Automático Lead–Imóvel
+- Histórico de Visitas e Feedback
+- Checklist de Documentação por Transação
+- Timeline de Negociação (propostas & contrapropostas)
+- Calculadora de Capacidade Financeira
+- Comparativo de Opções & Cenários de Pagamento
+- Análise de Histórico de Preços
+- Pós-venda & Programa de Fidelização
+
+## 16. Analytics & Business Intelligence
+### Data Warehouse + ELT
+- Armazenamento e processamento de dados históricos
+- Pipeline automatizado para transformação de dados
+
+### Cohort Analysis & Churn Prediction
+- Análise de comportamento de grupos de usuários
+- Previsão de abandono e estratégias de retenção
+
+### KPI em Tempo Real
+- Métricas críticas: CAC, LTV, taxa de conversão, tempo de venda
+- Alertas configuráveis para desvios significativos
+
+### Insights de Mercado Local
+- Análise de dados regionais e tendências locais
+- Comparativos de preço/m² por região
+
+### Heatmaps de Interesse
+- Visualização de áreas mais buscadas/visualizadas
+- Identificação de oportunidades por região
+
+### Dashboards Personalizáveis
+- Criação de painéis customizados por perfil de usuário
+- Exportação de relatórios em múltiplos formatos
+
+### Analytics Avançados
+- Funil multi-dimensional, previsão de receita, identificação de gargalos
+- Análise de atribuição multi-touch para marketing
+
+### Performance de Equipe
+- Gamificação, coaching insights, benchmarking interno
+- Identificação de horários e estratégias mais produtivas
+
+## 17. Entidades e Relacionamentos
+### Principais Entidades
+- Users: perfis, credenciais, permissões, planos
+- Teams: estrutura de equipe, hierarquia, relações entre corretores/agentes
+- TeamMembers: associações de usuários a equipes com funções e comissões
+- Properties: imóveis com atributos, mídia, localização, status
+- Websites: configurações de personalização, domínios, analytics
+- PixelIntegrations: configurações de pixels e rastreadores para múltiplas plataformas
+- Boards: quadros kanban configuráveis para CRM
+- Cards: leads com campos personalizados e links externos
+- CardFields: definições de campos personalizados por board/coluna
+- ExternalLinks: configurações de links públicos para cards
+- Affiliations: regras de afiliação, tracking
+- Leads: dados de contato, interesse, histórico, pipeline
+- Webhooks: configurações, endpoints, histórico de chamadas
+- Subscriptions: planos, pagamentos, limites, status
+- ClientDocuments: documentos enviados pelos clientes
+- DriveIntegration: conexões OAuth e configurações do Google Drive
+- PortalIntegrations: conexões com portais imobiliários
+- AITokens: chaves de API para integrações com serviços de IA
+- CreditAnalysis: registros de consultas e análises de crédito
+- MarketingCampaigns: configurações de campanhas multi-canal
+- FinancialSimulations: simulações de financiamento e investimento
+- Contracts: gestão de contratos e assinaturas digitais
+- ConsentRecords: registros de consentimento LGPD/GDPR
+- AuditLogs: registro imutável de operações críticas
+
+## 18. Arquitetura Técnica
+### Stack Principal
+- Backend: NestJS com arquitetura limpa, módulos desacoplados
+- API: REST com OpenAPI/Swagger, rate limiting, caching Redis
+- Database: PostgreSQL otimizado, índices estratégicos, queries eficientes
+- Frontend: Next.js com otimização de performance, bundle splitting
+- Site Generator: Sistema ISR/SSG para sites de corretores
+- UI/UX: Tailwind CSS + componentes declarativos, Storybook
+
+### Infraestrutura
+- Queue System: Bull/Redis para processamento assíncrono
+- File Storage: S3 com CDN para assets, otimização automática
+- Caching: Estratégia em múltiplas camadas (browser, CDN, API)
+- Realtime: Socket.io para atualizações em tempo real no CRM
+- Cloud Integration: APIs Google (Drive, Maps) e outros serviços
+
+## 19. DevOps & Infraestrutura
+### Pipeline e Deployment
+- CI/CD: Pipeline automatizado (GitHub Actions/CircleCI)
+- Containerization: Docker com imagens otimizadas
+- Deployment: Kubernetes ou serverless (AWS/GCP)
+
+### Monitoramento e Segurança
+- Monitoring: Datadog/New Relic para performance
+- Logging: Centralizado com busca e alertas
+- Backup: Automatizado com retenção configurável
+- Security: Scans automatizados, OWASP compliance, criptografia de dados sensíveis
+
+## 20. Recursos de Alta Conversão
+### Elementos de Engajamento
+- Call-to-Actions Inteligentes: CTAs contextuais baseados em comportamento
+- Widgets de Contato: Múltiplos canais (WhatsApp, formulário, ligação)
+- Elementos de Urgência: Contadores, alertas de visualização
+- Social Proof: Depoimentos, contador de interessados
+
+### Ferramentas de Conversão
+- Calculadoras: Financiamento, comparativo de investimento
+- Chat Inteligente: Qualificação automática de leads
+- Agendamento Online: Visitas com sincronização de calendário
+- Forms Inteligentes: Formulários adaptáveis com lógica condicional
+
+## Estrutura de Implementação Modular
+
+Para implementar este sistema complexo, recomenda-se uma abordagem modular onde cada componente funcional seja independente mas facilmente integrável:
+
+1. **Módulo Core**
+   - Gestão de usuários e autenticação
+   - Configuração e administração
+   - API Gateway e roteamento
+
+2. **Módulo Website Builder**
+   - Engine de templates
+   - Editor visual
+   - Gerador de sites estáticos
+   - Sistema de deploy e CDN
+
+3. **Módulo CRM**
+   - Interface Kanban
+   - Gestão de cards e pipeline
+   - Automações e regras
+   - Notificações e alertas
+
+4. **Módulo de Gestão de Imóveis**
+   - Cadastro e edição
+   - Galeria de mídia
+   - SEO e metadados
+   - Integração com portais
+
+5. **Módulo de Afiliação**
+   - Marketplace
+   - Tracking e comissões
+   - Painel de afiliados
+   - Relatórios de performance
+
+6. **Módulo de Documentos**
+   - Upload e gestão
+   - Integração Google Drive
+   - Assinatura eletrônica
+   - Controladoria de documentos
+
+7. **Módulo de IA e Automação**
+   - Recomendações
+   - Análise preditiva
+   - Geração de conteúdo
+   - Precificação inteligente
+
+8. **Módulo de Marketing**
+   - Campanhas multi-canal
+   - Email marketing
+   - Landing pages
+   - Gerador de material
+
+9. **Módulo Financeiro**
+   - Simuladores
+   - Análise de investimento
+   - Custódia digital
+   - Pagamentos
+
+10. **Módulo de Analytics**
+    - Dashboards
+    - Relatórios
+    - Data warehouse
+    - Business intelligence
+
+11. **Módulo de Segurança e Compliance**
+    - Autenticação forte
+    - Gestão de consentimento
+    - Auditoria
+    - Controle de acesso
+
+## Entregáveis Técnicos
+
+Gere um código completo incluindo:
+
+1. Estrutura de pastas para monorepo (backend, frontend, módulos, shared, scripts)
+2. Schema do banco de dados (Prisma) com relacionamentos e índices otimizados
+3. API completa (controllers, services, DTOs) para os módulos principais
+4. Implementação detalhada do CRM visual com cards e links externos
+5. Sistema de tema único com engine de personalização
+6. Gerador de sites estáticos com hydration para corretores
+7. Componentes de alta conversão para páginas de imóveis
+8. Implementação da integração com Google Drive para área do cliente
+9. Implementação da integração com n8n (event bus e webhooks)
+10. Painel administrativo para gestão de usuários e planos
+11. Dashboard para corretores com métricas de conversão
+12. Componentes reutilizáveis para UI (formulários, tabelas, dashboards)
+13. Implementação de autenticação JWT com refresh tokens
+14. Exemplos de testes unitários, e2e e integração
+15. Configuração de CI/CD e Docker
+16. Documentação detalhada para developers e usuários finais
+
+O código deve ser de qualidade comercial, com foco em performance, segurança e escalabilidade, incluindo comentários explicativos nas partes mais complexas. A arquitetura modular deve permitir o desenvolvimento independente de cada componente e facilitar a manutenção e escalabilidade do sistema.
