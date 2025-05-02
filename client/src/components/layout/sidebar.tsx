@@ -10,7 +10,7 @@ interface SidebarProps {
 const menuItems = [
   { path: "/", label: "Dashboard", icon: "dashboard" },
   { path: "/properties", label: "My Units", icon: "home" },
-  { path: "/properties/favorites", label: "Favorites", icon: "favorite", badge: 2 },
+  { path: "/favorites", label: "Favorites", icon: "favorite", badge: 2 },
   { path: "/analytics", label: "Analytics", icon: "bar_chart" },
   { path: "/crm", label: "Client Data", icon: "people" },
   { path: "/site-editor", label: "Documents", icon: "description" },

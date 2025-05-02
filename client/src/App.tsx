@@ -23,6 +23,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/properties" component={Properties} />
       <Route path="/properties/add" component={AddProperty} />
+      <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
       <Route path="/site-editor" component={SiteEditor} />
       <Route path="/affiliate" component={Affiliate} />
