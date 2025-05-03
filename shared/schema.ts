@@ -194,6 +194,25 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   }),
 }));
 
+// Favorites
+export const favorites = pgTable('favorites', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  propertyId: integer('property_id').references(() => properties.id).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  user: one(users, {
+    fields: [favorites.userId],
+    references: [users.id],
+  }),
+  property: one(properties, {
+    fields: [favorites.propertyId],
+    references: [properties.id],
+  }),
+}));
+
 // Create Zod Schemas for validation
 export const insertUserSchema = createInsertSchema(users, {
   email: (schema) => schema.email("Must provide a valid email"),
@@ -239,3 +258,4 @@ export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 
 export type PropertyAffiliation = typeof propertyAffiliations.$inferSelect;
 export type ActivityLog = typeof activityLogs.$inferSelect;
+export type Favorite = typeof favorites.$inferSelect;

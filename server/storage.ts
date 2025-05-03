@@ -6,7 +6,8 @@ import {
   websites, 
   propertyAffiliations, 
   documents, 
-  activityLogs 
+  activityLogs,
+  favorites
 } from "@shared/schema";
 import { 
   type User, 
