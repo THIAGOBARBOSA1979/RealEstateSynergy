@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -11,7 +11,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import PropertyView from "@/components/properties/property-view";
 
 interface PropertyTableProps {
@@ -22,19 +42,123 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
   const [page, setPage] = useState(1);
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data, isLoading, isError } = useQuery({
     queryKey: [`/api/properties?page=${page}&limit=${limit || 10}`],
   });
 
+  // Delete property mutation
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: number) => {
+      return apiRequest("DELETE", `/api/properties/${propertyId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Imóvel excluído",
+        description: "O imóvel foi excluído com sucesso",
+      });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao excluir imóvel",
+        description: "Não foi possível excluir o imóvel. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Toggle featured status mutation
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: async ({ id, featured }: { id: number; featured: boolean }) => {
+      return apiRequest("PUT", `/api/properties/${id}`, { featured });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Status de destaque atualizado",
+        description: "O status de destaque do imóvel foi atualizado com sucesso",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar status de destaque",
+        description: "Não foi possível atualizar o status de destaque. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle edit property
+  const handleEdit = (propertyId: number) => {
+    navigate(`/edit-property/${propertyId}`);
+  };
+
+  // Handle duplicate property
+  const handleDuplicate = (property: any) => {
+    // Create a duplicate with the same data
+    const duplicateData = {
+      ...property,
+      title: `Cópia de ${property.title}`,
+      status: 'inactive',
+      featured: false,
+    };
+    
+    apiRequest("POST", "/api/properties", duplicateData)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+        toast({
+          title: "Imóvel duplicado",
+          description: "Uma cópia do imóvel foi criada com sucesso",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Erro ao duplicar imóvel",
+          description: "Não foi possível duplicar o imóvel. Tente novamente.",
+          variant: "destructive",
+        });
+      });
+  };
+
+  // Handle delete confirmation
+  const handleDeleteClick = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const confirmDelete = () => {
+    if (selectedPropertyId) {
+      deletePropertyMutation.mutate(selectedPropertyId);
+    }
+  };
+
+  // Handle toggle featured status
+  const handleToggleFeatured = (property: any) => {
+    toggleFeaturedMutation.mutate({
+      id: property.id,
+      featured: !property.featured,
+    });
+  };
+
   const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
+      case 'active':
       case 'ativo':
         return 'bg-success/10 text-success';
+      case 'reserved':
       case 'reservado':
         return 'bg-warning/10 text-warning';
+      case 'sold':
       case 'vendido':
         return 'bg-info/10 text-info';
+      case 'inactive':
       case 'inativo':
         return 'bg-muted-foreground/10 text-muted-foreground';
       default:
@@ -123,32 +247,47 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-primary hover:text-primary-dark h-8 w-8"
-                      >
-                        <span className="material-icons">edit</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-primary hover:text-primary-dark h-8 w-8"
-                        onClick={() => {
-                          setSelectedPropertyId(property.id);
-                          setIsViewDialogOpen(true);
-                        }}
-                      >
-                        <span className="material-icons">visibility</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-muted-foreground hover:text-destructive h-8 w-8"
-                      >
-                        <span className="material-icons">delete_outline</span>
-                      </Button>
+                    <div className="flex items-center justify-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8">
+                            <span className="material-icons">more_vert</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => {
+                            setSelectedPropertyId(property.id);
+                            setIsViewDialogOpen(true);
+                          }}>
+                            <span className="material-icons mr-2 text-sm">visibility</span>
+                            Visualizar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(property.id)}>
+                            <span className="material-icons mr-2 text-sm">edit</span>
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleFeatured(property)}>
+                            <span className="material-icons mr-2 text-sm">
+                              {property.featured ? "star" : "star_border"}
+                            </span>
+                            {property.featured ? "Remover destaque" : "Destacar"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicate(property)}>
+                            <span className="material-icons mr-2 text-sm">content_copy</span>
+                            Duplicar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => handleDeleteClick(property.id)}
+                          >
+                            <span className="material-icons mr-2 text-sm">delete_outline</span>
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -211,6 +350,27 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
         isOpen={isViewDialogOpen}
         onClose={() => setIsViewDialogOpen(false)}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este imóvel? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
