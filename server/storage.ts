@@ -289,6 +289,8 @@ export const storage = {
       'closed': 'closed'
     };
     
+    console.log('updateLeadStage called with:', { leadId, userId, stageId });
+    
     const stage = stageMap[stageId] || stageId;
     
     const lead = await db.select().from(leads).where(eq(leads.id, leadId));
@@ -301,27 +303,44 @@ export const storage = {
       throw new Error("Unauthorized to update this lead");
     }
     
-    const result = await db.update(leads)
-      .set({
+    console.log('Updating lead stage:', {
+      leadId,
+      oldStage: lead[0].stage,
+      newStage: stage,
+      updateData: {
         stage,
         updatedAt: new Date()
-      })
-      .where(eq(leads.id, leadId))
-      .returning();
-    
-    // Log activity
-    await this.logActivity({
-      userId,
-      entityType: 'lead',
-      entityId: leadId,
-      action: 'stage_changed',
-      metadata: { 
-        previousStage: lead[0].stage,
-        newStage: stage
       }
     });
     
-    return result[0];
+    try {
+      const result = await db.update(leads)
+        .set({
+          stage,
+          updatedAt: new Date()
+        })
+        .where(eq(leads.id, leadId))
+        .returning();
+      
+      console.log('Update result:', result);
+    
+      // Log activity
+      await this.logActivity({
+        userId,
+        entityType: 'lead',
+        entityId: leadId,
+        action: 'stage_changed',
+        metadata: { 
+          previousStage: lead[0].stage,
+          newStage: stage
+        }
+      });
+      
+      return result[0];
+    } catch (error) {
+      console.error('Error updating lead stage:', error);
+      throw error;
+    }
   },
 
   // CRM operations
