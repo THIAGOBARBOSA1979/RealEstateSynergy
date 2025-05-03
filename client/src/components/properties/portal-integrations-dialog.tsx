@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PortalIntegrationsDialogProps {
   isOpen: boolean;
@@ -35,6 +39,22 @@ const PortalIntegrationsDialog = ({
   
   const [selectedPortals, setSelectedPortals] = useState<string[]>(
     property.publishedPortals || []
+  );
+  
+  const [webhookActive, setWebhookActive] = useState<boolean>(
+    property.webhookActive || false
+  );
+  
+  const [webhookUrl, setWebhookUrl] = useState<string>(
+    property.webhookUrl || ""
+  );
+  
+  const [pixelTracking, setPixelTracking] = useState<boolean>(
+    property.pixelTracking || false
+  );
+  
+  const [pixelId, setPixelId] = useState<string>(
+    property.pixelId || ""
   );
   
   // Fetch user integrations (portal credentials)
@@ -63,12 +83,65 @@ const PortalIntegrationsDialog = ({
         description: "As integrações com portais foram atualizadas com sucesso.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/properties', property.id] });
-      onClose();
     },
     onError: (error: Error) => {
       toast({
         title: "Erro ao atualizar portais",
         description: error.message || "Ocorreu um erro ao atualizar as integrações com portais.",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Mutation to update property webhook settings
+  const updatePropertyWebhook = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/properties/${property.id}/webhooks`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          webhookActive, 
+          webhookUrl 
+        }),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Webhook atualizado",
+        description: "As configurações de webhook foram atualizadas com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', property.id] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao atualizar webhook",
+        description: error.message || "Ocorreu um erro ao atualizar as configurações de webhook.",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Mutation to update property pixel tracking settings
+  const updatePropertyPixel = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/properties/${property.id}/pixel`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          pixelTracking, 
+          pixelId 
+        }),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Pixel atualizado",
+        description: "As configurações de rastreamento por pixel foram atualizadas com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', property.id] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao atualizar pixel",
+        description: error.message || "Ocorreu um erro ao atualizar as configurações de rastreamento por pixel.",
         variant: "destructive",
       });
     },
@@ -84,8 +157,34 @@ const PortalIntegrationsDialog = ({
     });
   };
   
-  const handleSave = () => {
+  const handleSavePortals = () => {
     updatePropertyPortals.mutate();
+  };
+  
+  const handleSaveWebhook = () => {
+    if (webhookActive && !webhookUrl) {
+      toast({
+        title: "URL necessária",
+        description: "Por favor, forneça uma URL para o webhook.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    updatePropertyWebhook.mutate();
+  };
+  
+  const handleSavePixel = () => {
+    if (pixelTracking && !pixelId) {
+      toast({
+        title: "ID de pixel necessário",
+        description: "Por favor, forneça um ID para o rastreamento por pixel.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    updatePropertyPixel.mutate();
   };
   
   const getPortalCredentialStatus = (portalId: string) => {
@@ -122,9 +221,12 @@ const PortalIntegrationsDialog = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[650px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Integrações com Portais</DialogTitle>
+          <DialogDescription>
+            Gerencie a distribuição de anúncios, rastreamento e notificações para esta propriedade
+          </DialogDescription>
         </DialogHeader>
         
         {isLoadingIntegrations || isLoadingPortals ? (
@@ -134,8 +236,14 @@ const PortalIntegrationsDialog = ({
             <Skeleton className="h-8 w-full" />
           </div>
         ) : (
-          <>
-            <div className="space-y-4">
+          <Tabs defaultValue="portals" className="w-full">
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="portals">Portais</TabsTrigger>
+              <TabsTrigger value="webhook">Webhook</TabsTrigger>
+              <TabsTrigger value="pixel">Pixel</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="portals" className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">Portais Imobiliários</h3>
                 <Button 
@@ -200,63 +308,156 @@ const PortalIntegrationsDialog = ({
                 </div>
               </div>
               
-              <Separator />
-              
-              <div className="flex items-center space-x-3">
-                <Switch 
-                  id="webhook-active" 
-                  checked={property.webhookActive} 
-                  disabled={true}
-                />
-                <div className="space-y-0.5">
-                  <Label htmlFor="webhook-active">Webhook para Leads</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Envia notificações de novos leads para URLs externas
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Switch 
-                  id="pixel-tracking" 
-                  checked={property.pixelTracking} 
-                  disabled={true}
-                />
-                <div className="space-y-0.5">
-                  <Label htmlFor="pixel-tracking">Rastreamento por Pixel</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Permite rastreamento avançado de visitantes
-                  </p>
-                </div>
-              </div>
-            </div>
+              <DialogFooter>
+                <Button 
+                  onClick={handleSavePortals}
+                  disabled={updatePropertyPortals.isPending}
+                >
+                  {updatePropertyPortals.isPending ? (
+                    <>
+                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons text-xs mr-1">save</span>
+                      Salvar
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
             
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={onClose}
-                disabled={updatePropertyPortals.isPending}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={updatePropertyPortals.isPending}
-              >
-                {updatePropertyPortals.isPending ? (
-                  <>
-                    <span className="material-icons animate-spin text-xs mr-1">sync</span>
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons text-xs mr-1">save</span>
-                    Salvar
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </>
+            <TabsContent value="webhook" className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Webhook para Leads</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure um webhook para receber notificações em tempo real quando um novo lead for gerado para esta propriedade.
+                </p>
+                
+                <Alert className="mb-4">
+                  <AlertDescription>
+                    Os webhooks permitem que sistemas externos recebam notificações automaticamente quando um lead é criado. 
+                    Você precisará de uma URL que possa processar requisições POST.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Switch 
+                      id="webhook-active" 
+                      checked={webhookActive} 
+                      onCheckedChange={setWebhookActive}
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="webhook-active">Ativar Webhook</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Envia notificações de novos leads para URLs externas
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="webhook-url">URL do Webhook</Label>
+                    <Input 
+                      id="webhook-url" 
+                      placeholder="https://api.seudominio.com.br/webhooks/leads" 
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      disabled={!webhookActive}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      URL que receberá as notificações de leads via POST
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  onClick={handleSaveWebhook}
+                  disabled={updatePropertyWebhook.isPending}
+                >
+                  {updatePropertyWebhook.isPending ? (
+                    <>
+                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons text-xs mr-1">save</span>
+                      Salvar Configurações
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+            
+            <TabsContent value="pixel" className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Rastreamento por Pixel</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure o rastreamento por pixel para acompanhar conversões e retargeting de visitantes interessados nesta propriedade.
+                </p>
+                
+                <Alert className="mb-4">
+                  <AlertDescription>
+                    Os pixels permitem rastrear visitantes em seu site e fazer remarketing para eles em plataformas como Facebook ou Google.
+                    Você precisará de um ID de pixel da plataforma escolhida.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Switch 
+                      id="pixel-tracking" 
+                      checked={pixelTracking} 
+                      onCheckedChange={setPixelTracking}
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="pixel-tracking">Ativar Rastreamento</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Permite rastreamento avançado de visitantes e remarketing
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="pixel-id">ID do Pixel</Label>
+                    <Input 
+                      id="pixel-id" 
+                      placeholder="123456789012345" 
+                      value={pixelId}
+                      onChange={(e) => setPixelId(e.target.value)}
+                      disabled={!pixelTracking}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      ID do pixel do Facebook ou tag do Google Analytics
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  onClick={handleSavePixel}
+                  disabled={updatePropertyPixel.isPending}
+                >
+                  {updatePropertyPixel.isPending ? (
+                    <>
+                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons text-xs mr-1">save</span>
+                      Salvar Configurações
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>
