@@ -52,6 +52,10 @@ export const properties = pgTable('properties', {
   publishedPortals: jsonb('published_portals').default([]),
   availableForAffiliation: boolean('available_for_affiliation').default(false),
   affiliationCommissionRate: decimal('affiliation_commission_rate', { precision: 5, scale: 2 }),
+  webhookActive: boolean('webhook_active').default(false),
+  webhookUrl: text('webhook_url'),
+  pixelTracking: boolean('pixel_tracking').default(false),
+  pixelId: text('pixel_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

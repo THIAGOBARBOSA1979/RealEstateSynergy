@@ -490,6 +490,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(analyticsData);
   }));
 
+  // Portal routes
+  app.get(`${apiPrefix}/portals/available`, requireAuth, asyncHandler(async (req, res) => {
+    // Lista de portais imobiliários e redes sociais disponíveis
+    res.json({
+      imobiliarios: ['zapImoveis', 'vivaReal', 'olx'],
+      sociais: ['facebook', 'linkedin']
+    });
+  }));
+
+  app.get(`${apiPrefix}/integrations`, requireAuth, asyncHandler(async (req, res) => {
+    const integrations = await storage.getUserIntegrations(req.user.id);
+    res.json(integrations);
+  }));
+
+  app.patch(`${apiPrefix}/properties/:id/portals`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "ID de propriedade inválido" });
+      }
+
+      const { portals } = req.body;
+      
+      if (!Array.isArray(portals)) {
+        return res.status(400).json({ message: "A lista de portais deve ser um array" });
+      }
+      
+      // Atualizamos a propriedade com os novos portais
+      const property = await storage.updateProperty(propertyId, {
+        publishedPortals: portals
+      });
+      
+      // Log da atividade
+      await storage.logActivity({
+        userId: req.user.id,
+        entityType: 'property',
+        entityId: propertyId,
+        action: 'update_portals',
+        metadata: {
+          portals
+        }
+      });
+      
+      res.json(property);
+    } catch (error) {
+      console.error("Erro ao atualizar portais:", error);
+      res.status(500).json({ message: "Erro ao atualizar portais" });
+    }
+  }));
+
+  // Webhooks routes
+  app.patch(`${apiPrefix}/properties/:id/webhooks`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "ID de propriedade inválido" });
+      }
+
+      const { webhookActive, webhookUrl } = req.body;
+      
+      // Atualizamos a propriedade com a configuração de webhook
+      const property = await storage.updateProperty(propertyId, {
+        webhookActive,
+        webhookUrl
+      });
+      
+      res.json(property);
+    } catch (error) {
+      console.error("Erro ao atualizar configurações de webhook:", error);
+      res.status(500).json({ message: "Erro ao atualizar configurações de webhook" });
+    }
+  }));
+
+  // Pixel tracking route
+  app.patch(`${apiPrefix}/properties/:id/pixel`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "ID de propriedade inválido" });
+      }
+
+      const { pixelTracking, pixelId } = req.body;
+      
+      // Atualizamos a propriedade com a configuração de pixel
+      const property = await storage.updateProperty(propertyId, {
+        pixelTracking,
+        pixelId
+      });
+      
+      res.json(property);
+    } catch (error) {
+      console.error("Erro ao atualizar configurações de pixel:", error);
+      res.status(500).json({ message: "Erro ao atualizar configurações de pixel" });
+    }
+  }));
+
   const httpServer = createServer(app);
   return httpServer;
 }

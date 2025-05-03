@@ -36,6 +36,8 @@ export interface Property {
   availableForAffiliation: boolean;
   affiliationCommissionRate?: number;
   affiliations?: any[]; // Lista de afiliações relacionadas a este imóvel
+  webhookActive?: boolean; // Indica se o webhook para leads está ativo
+  pixelTracking?: boolean; // Indica se o rastreamento por pixel está ativo
   createdAt: string;
   updatedAt: string;
 }
