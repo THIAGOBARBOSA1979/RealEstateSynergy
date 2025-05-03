@@ -61,7 +61,6 @@ interface PropertyFormProps {
 const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [currentStep, setCurrentStep] = useState(1);
 
   // Default values for the form
   const defaultValues: Partial<PropertyFormValues> = {
@@ -90,6 +89,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues,
+    mode: "onChange",
   });
 
   // Create property mutation
@@ -118,330 +118,331 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
   const onSubmit = (data: PropertyFormValues) => {
     createPropertyMutation.mutate(data);
   };
-  
-  const nextStep = () => {
-    const isValid = form.trigger();
-    isValid.then((valid) => {
-      if (valid) setCurrentStep(currentStep + 1);
-    });
-  };
-  
-  const prevStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {currentStep === 1 && (
-          <Card>
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-xl font-heading font-semibold">Informações Básicas</h2>
-              <Separator />
-              
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Título*</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Apartamento com 3 quartos no Centro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrição*</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descreva o imóvel, características, proximidades, etc."
-                        className="resize-none min-h-[150px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Coluna da esquerda */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                <h2 className="text-xl font-heading font-semibold">Informações Básicas</h2>
+                <Separator />
+
                 <FormField
                   control={form.control}
-                  name="propertyType"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo de Imóvel*</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o tipo"/>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="apartment">Apartamento</SelectItem>
-                          <SelectItem value="house">Casa</SelectItem>
-                          <SelectItem value="land">Terreno</SelectItem>
-                          <SelectItem value="commercial">Comercial</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Título*</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex: Apartamento com 3 quartos no Centro" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
-                  name="price"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Preço*</FormLabel>
+                      <FormLabel>Descrição*</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                        <Textarea 
+                          placeholder="Descreva o imóvel, características, proximidades, etc."
+                          className="resize-none min-h-[150px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="propertyType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de Imóvel*</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o tipo"/>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="apartment">Apartamento</SelectItem>
+                            <SelectItem value="house">Casa</SelectItem>
+                            <SelectItem value="land">Terreno</SelectItem>
+                            <SelectItem value="commercial">Comercial</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status*</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o status"/>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Ativo</SelectItem>
+                            <SelectItem value="reserved">Reservado</SelectItem>
+                            <SelectItem value="sold">Vendido</SelectItem>
+                            <SelectItem value="inactive">Inativo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Preço*</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                            <Input 
+                              type="number"
+                              placeholder="0,00"
+                              className="pl-10"
+                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value === "" ? "0" : e.target.value;
+                                field.onChange(parseFloat(value));
+                              }}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="area"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Área Total (m²)*</FormLabel>
+                        <FormControl>
                           <Input 
                             type="number"
-                            placeholder="0,00"
-                            className="pl-10"
+                            placeholder="0"
                             {...field}
                             onChange={(e) => {
                               const value = e.target.value === "" ? "0" : e.target.value;
                               field.onChange(parseFloat(value));
                             }}
                           />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status*</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o status"/>
-                          </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Ativo</SelectItem>
-                          <SelectItem value="reserved">Reservado</SelectItem>
-                          <SelectItem value="sold">Vendido</SelectItem>
-                          <SelectItem value="inactive">Inativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                <h2 className="text-xl font-heading font-semibold">Endereço</h2>
+                <Separator />
                 
                 <FormField
                   control={form.control}
-                  name="area"
+                  name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Área Total (m²)*</FormLabel>
+                      <FormLabel>Endereço*</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number"
-                          placeholder="0"
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? "0" : e.target.value;
-                            field.onChange(parseFloat(value));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="flex justify-end">
-                <Button type="button" onClick={nextStep}>
-                  Próximo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        
-        {currentStep === 2 && (
-          <Card>
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-xl font-heading font-semibold">Endereço</h2>
-              <Separator />
-              
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço*</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Rua das Flores, 123" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade*</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: São Paulo" {...field} />
+                        <Input placeholder="Ex: Rua das Flores, 123" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado*</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: SP" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade*</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: São Paulo" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estado*</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: SP" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CEP*</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: 01234-567" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna da direita */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                <h2 className="text-xl font-heading font-semibold">Características</h2>
+                <Separator />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bedrooms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quartos</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="0"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value === "" ? "0" : e.target.value;
+                              field.onChange(parseInt(value));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="bathrooms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Banheiros</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="0"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value === "" ? "0" : e.target.value;
+                              field.onChange(parseInt(value));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="garageSpots"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vagas de Garagem</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="0"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value === "" ? "0" : e.target.value;
+                              field.onChange(parseInt(value));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="featured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Destacar no site</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                <h2 className="text-xl font-heading font-semibold">Opções de Publicação</h2>
+                <Separator />
                 
                 <FormField
                   control={form.control}
-                  name="zipCode"
+                  name="published"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CEP*</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: 01234-567" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  Voltar
-                </Button>
-                <Button type="button" onClick={nextStep}>
-                  Próximo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        
-        {currentStep === 3 && (
-          <Card>
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-xl font-heading font-semibold">Características</h2>
-              <Separator />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="bedrooms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quartos</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0"
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? "0" : e.target.value;
-                            field.onChange(parseInt(value));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="bathrooms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Banheiros</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0"
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? "0" : e.target.value;
-                            field.onChange(parseInt(value));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="garageSpots"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Vagas de Garagem</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0"
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value === "" ? "0" : e.target.value;
-                            field.onChange(parseInt(value));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="featured"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -449,40 +450,20 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>Destaque</FormLabel>
+                        <FormLabel>Publicar imóvel</FormLabel>
                         <FormDescription>
-                          Marque para destacar este imóvel em seu site.
+                          Tornar este imóvel público no site
                         </FormDescription>
                       </div>
                     </FormItem>
                   )}
                 />
-              </div>
-              
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  Voltar
-                </Button>
-                <Button type="button" onClick={nextStep}>
-                  Próximo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        
-        {currentStep === 4 && (
-          <Card>
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-xl font-heading font-semibold">Afiliação e Publicação</h2>
-              <Separator />
-              
-              <div className="space-y-4">
+                
                 <FormField
                   control={form.control}
                   name="availableForAffiliation"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -492,7 +473,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                       <div className="space-y-1 leading-none">
                         <FormLabel>Disponível para Afiliação</FormLabel>
                         <FormDescription>
-                          Permite que outros corretores promovam este imóvel em troca de comissão.
+                          Permitir que outros corretores possam vender este imóvel
                         </FormDescription>
                       </div>
                     </FormItem>
@@ -505,14 +486,11 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                     name="affiliationCommissionRate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Taxa de Comissão (%)</FormLabel>
+                        <FormLabel>Taxa de Comissão para Afiliados (%)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="5"
-                            min="0"
-                            max="100"
-                            step="0.1"
+                            placeholder="0"
                             {...field}
                             onChange={(e) => {
                               const value = e.target.value === "" ? "0" : e.target.value;
@@ -521,50 +499,23 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                           />
                         </FormControl>
                         <FormDescription>
-                          Porcentagem sobre o valor da venda que será paga ao afiliado.
+                          Porcentagem do valor do imóvel para comissão aos afiliados
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 )}
-                
-                <FormField
-                  control={form.control}
-                  name="published"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Publicar</FormLabel>
-                        <FormDescription>
-                          Marque para publicar este imóvel no seu site.
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  Voltar
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={createPropertyMutation.isPending}
-                >
-                  {createPropertyMutation.isPending ? "Salvando..." : "Salvar Imóvel"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end mt-4">
+              <Button type="submit" size="lg" disabled={createPropertyMutation.isPending}>
+                {createPropertyMutation.isPending ? "Salvando..." : "Salvar Imóvel"}
+              </Button>
+            </div>
+          </div>
+        </div>
       </form>
     </Form>
   );

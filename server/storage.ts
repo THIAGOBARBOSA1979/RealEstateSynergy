@@ -877,5 +877,36 @@ export const storage = {
       default:
         return 'Ativo';
     }
+  },
+
+  // Favorites operations  
+  async getUserFavorites(userId: number) {
+    // In a real implementation, we would have a favorites table
+    // For demo purposes, we'll return some properties
+    const result = await db.select().from(properties)
+      .where(eq(properties.featured, true))
+      .limit(10);
+    
+    // Add timeAgo and format prices
+    return result.map((property) => ({
+      ...property,
+      timeAgo: this.getTimeAgo(property.createdAt),
+      formattedPrice: new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL' 
+      }).format(property.price)
+    }));
+  },
+  
+  async toggleFavorite(userId: number, propertyId: number) {
+    // In a real implementation, we would toggle the favorite status in a favorites table
+    // For demo purposes, we'll just return a success message
+    return { success: true };
+  },
+  
+  async removeFavorite(userId: number, propertyId: number) {
+    // In a real implementation, we would remove the favorite from a favorites table
+    // For demo purposes, we'll just return a success message
+    return { success: true };
   }
 };
