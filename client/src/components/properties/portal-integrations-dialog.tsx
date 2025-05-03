@@ -1,24 +1,23 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Property } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Property } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PortalIntegrationsDialogProps {
   isOpen: boolean;
@@ -26,221 +25,242 @@ interface PortalIntegrationsDialogProps {
   property: Property;
 }
 
-export default function PortalIntegrationsDialog({
+const PortalIntegrationsDialog = ({
   isOpen,
   onClose,
-  property,
-}: PortalIntegrationsDialogProps) {
-  // Local state to track changes before saving
-  const [publishedPortals, setPublishedPortals] = useState<string[]>(
+  property
+}: PortalIntegrationsDialogProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [selectedPortals, setSelectedPortals] = useState<string[]>(
     property.publishedPortals || []
   );
   
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  // Update property mutation
-  const updatePropertyMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest("PATCH", `/api/properties/${property.id}`, data);
+  // Fetch user integrations (portal credentials)
+  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
+    queryKey: ['/api/integrations'],
+    enabled: isOpen,
+  });
+  
+  // Fetch available portals
+  const { data: availablePortals, isLoading: isLoadingPortals } = useQuery({
+    queryKey: ['/api/portals/available'],
+    enabled: isOpen,
+  });
+  
+  // Mutation to update property portal integrations
+  const updatePropertyPortals = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/properties/${property.id}/portals`, {
+        method: 'PATCH',
+        body: JSON.stringify({ portals: selectedPortals }),
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
-        title: "Integrações atualizadas",
-        description: "As configurações de publicação do imóvel foram atualizadas com sucesso.",
+        title: "Portais atualizados",
+        description: "As integrações com portais foram atualizadas com sucesso.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', property.id] });
       onClose();
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar as configurações de publicação do imóvel.",
+        title: "Erro ao atualizar portais",
+        description: error.message || "Ocorreu um erro ao atualizar as integrações com portais.",
         variant: "destructive",
       });
     },
   });
-
-  // Toggle property published status
-  const togglePropertyPublished = (status: boolean) => {
-    updatePropertyMutation.mutate({
-      published: status,
-      publishedPortals: status ? publishedPortals : []
-    });
-  };
-
-  // Toggle portal selection
-  const togglePortal = (portal: string) => {
-    setPublishedPortals((current) => {
-      const exists = current.includes(portal);
-      
-      if (exists) {
-        return current.filter(p => p !== portal);
+  
+  const handlePortalToggle = (portalId: string) => {
+    setSelectedPortals(prev => {
+      if (prev.includes(portalId)) {
+        return prev.filter(id => id !== portalId);
       } else {
-        return [...current, portal];
+        return [...prev, portalId];
       }
     });
   };
-
-  // Save changes
+  
   const handleSave = () => {
-    updatePropertyMutation.mutate({
-      publishedPortals
-    });
+    updatePropertyPortals.mutate();
   };
-
-  // Format date for display
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'Não publicado';
+  
+  const getPortalCredentialStatus = (portalId: string) => {
+    if (!integrations || !integrations.portals) return false;
     
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    switch (portalId) {
+      case 'zapImoveis':
+        return integrations.portals.zapImoveis;
+      case 'vivaReal':
+        return integrations.portals.vivaReal;
+      case 'olx':
+        return integrations.portals.olx;
+      default:
+        return false;
+    }
   };
-
+  
+  const getPortalName = (portalId: string) => {
+    switch (portalId) {
+      case 'zapImoveis':
+        return 'ZAP Imóveis';
+      case 'vivaReal':
+        return 'Viva Real';
+      case 'olx':
+        return 'OLX';
+      case 'linkedin':
+        return 'LinkedIn';
+      case 'facebook':
+        return 'Facebook';
+      default:
+        return portalId;
+    }
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Integração com Portais</DialogTitle>
-          <DialogDescription>
-            Gerencie em quais portais este imóvel será publicado.
-          </DialogDescription>
+          <DialogTitle className="text-2xl">Integrações com Portais</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-base">{property.title}</h3>
-              <p className="text-sm text-muted-foreground">ID: {property.id}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Publicado</span>
-              <Switch 
-                checked={property.published || false}
-                onCheckedChange={togglePropertyPublished}
-              />
-            </div>
+        
+        {isLoadingIntegrations || isLoadingPortals ? (
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
           </div>
-
-          <Separator />
-
-          {property.published ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* ZAP Imóveis */}
-                <Card className={publishedPortals.includes('zapimoveis') ? 'border-primary' : ''}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex justify-between items-center">
-                      <span>ZAP Imóveis</span>
-                      <Checkbox 
-                        checked={publishedPortals.includes('zapimoveis')}
-                        onCheckedChange={() => togglePortal('zapimoveis')}
-                        className="h-5 w-5"
-                      />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="text-sm">
-                      <Badge variant="outline" className="mb-2">
-                        {property.status === 'active' ? 'Ativo' : 
-                         property.status === 'reserved' ? 'Reservado' :
-                         property.status === 'sold' ? 'Vendido' : 'Inativo'}
-                      </Badge>
-                      <p className="text-muted-foreground text-xs mt-2">
-                        Última atualização: <br />
-                        {formatDate(property.updatedAt)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Viva Real */}
-                <Card className={publishedPortals.includes('vivareal') ? 'border-primary' : ''}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex justify-between items-center">
-                      <span>Viva Real</span>
-                      <Checkbox 
-                        checked={publishedPortals.includes('vivareal')}
-                        onCheckedChange={() => togglePortal('vivareal')}
-                        className="h-5 w-5"
-                      />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="text-sm">
-                      <Badge variant="outline" className="mb-2">
-                        {property.status === 'active' ? 'Ativo' : 
-                         property.status === 'reserved' ? 'Reservado' :
-                         property.status === 'sold' ? 'Vendido' : 'Inativo'}
-                      </Badge>
-                      <p className="text-muted-foreground text-xs mt-2">
-                        Última atualização: <br />
-                        {formatDate(property.updatedAt)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* OLX */}
-                <Card className={publishedPortals.includes('olx') ? 'border-primary' : ''}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex justify-between items-center">
-                      <span>OLX</span>
-                      <Checkbox 
-                        checked={publishedPortals.includes('olx')}
-                        onCheckedChange={() => togglePortal('olx')}
-                        className="h-5 w-5"
-                      />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="text-sm">
-                      <Badge variant="outline" className="mb-2">
-                        {property.status === 'active' ? 'Ativo' : 
-                         property.status === 'reserved' ? 'Reservado' :
-                         property.status === 'sold' ? 'Vendido' : 'Inativo'}
-                      </Badge>
-                      <p className="text-muted-foreground text-xs mt-2">
-                        Última atualização: <br />
-                        {formatDate(property.updatedAt)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+        ) : (
+          <>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">Portais Imobiliários</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs"
+                  onClick={() => window.location.href = '/settings'}
+                >
+                  <span className="material-icons text-xs mr-1">settings</span>
+                  Configurar Credenciais
+                </Button>
               </div>
-
-              <div className="bg-muted p-4 rounded-md text-sm mt-4">
-                <span className="material-icons text-info text-base mr-2 align-middle">info</span>
-                <span>Os portais cobram por anúncio. Selecione apenas os portais em que deseja anunciar este imóvel.</span>
+              
+              <div className="grid gap-3">
+                {availablePortals?.imobiliarios?.map((portal: string) => (
+                  <div key={portal} className="flex items-center justify-between border rounded-md p-3">
+                    <div className="flex items-center gap-3">
+                      <Checkbox 
+                        id={`portal-${portal}`}
+                        checked={selectedPortals.includes(portal)}
+                        disabled={!getPortalCredentialStatus(portal)}
+                        onCheckedChange={() => handlePortalToggle(portal)}
+                      />
+                      <Label htmlFor={`portal-${portal}`} className="font-medium">
+                        {getPortalName(portal)}
+                      </Label>
+                    </div>
+                    
+                    {getPortalCredentialStatus(portal) ? (
+                      <Badge variant="outline" className="bg-success/10 text-success">
+                        Configurado
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-destructive/10 text-destructive">
+                        Não Configurado
+                      </Badge>
+                    )}
+                  </div>
+                ))}
               </div>
-            </>
-          ) : (
-            <div className="p-8 text-center">
-              <span className="material-icons text-muted-foreground text-4xl mb-2">cloud_off</span>
-              <h3 className="font-medium text-base mb-1">Imóvel não publicado</h3>
-              <p className="text-sm text-muted-foreground">
-                Ative a publicação para selecionar os portais em que deseja anunciar este imóvel.
-              </p>
+              
+              <Separator />
+              
+              <div>
+                <h3 className="text-lg font-medium mb-3">Redes Sociais</h3>
+                
+                <div className="grid gap-3">
+                  {availablePortals?.sociais?.map((portal: string) => (
+                    <div key={portal} className="flex items-center justify-between border rounded-md p-3">
+                      <div className="flex items-center gap-3">
+                        <Checkbox 
+                          id={`social-${portal}`}
+                          checked={selectedPortals.includes(portal)}
+                          onCheckedChange={() => handlePortalToggle(portal)}
+                        />
+                        <Label htmlFor={`social-${portal}`} className="font-medium">
+                          {getPortalName(portal)}
+                        </Label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center space-x-3">
+                <Switch 
+                  id="webhook-active" 
+                  checked={property.webhookActive} 
+                  disabled={true}
+                />
+                <div className="space-y-0.5">
+                  <Label htmlFor="webhook-active">Webhook para Leads</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Envia notificações de novos leads para URLs externas
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Switch 
+                  id="pixel-tracking" 
+                  checked={property.pixelTracking} 
+                  disabled={true}
+                />
+                <div className="space-y-0.5">
+                  <Label htmlFor="pixel-tracking">Rastreamento por Pixel</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Permite rastreamento avançado de visitantes
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={updatePropertyMutation.isPending || !property.published}
-          >
-            {updatePropertyMutation.isPending ? "Salvando..." : "Salvar Configurações"}
-          </Button>
-        </DialogFooter>
+            
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={updatePropertyPortals.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleSave}
+                disabled={updatePropertyPortals.isPending}
+              >
+                {updatePropertyPortals.isPending ? (
+                  <>
+                    <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons text-xs mr-1">save</span>
+                    Salvar
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default PortalIntegrationsDialog;

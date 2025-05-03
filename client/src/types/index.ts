@@ -35,6 +35,7 @@ export interface Property {
   publishedPortals: string[];
   availableForAffiliation: boolean;
   affiliationCommissionRate?: number;
+  affiliations?: any[]; // Lista de afiliações relacionadas a este imóvel
   createdAt: string;
   updatedAt: string;
 }
