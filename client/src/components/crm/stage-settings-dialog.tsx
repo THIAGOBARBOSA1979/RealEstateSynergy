@@ -18,6 +18,25 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+// Color palette for stages
+const STAGE_COLORS = [
+  { label: "Azul", value: "#4F46E5" },
+  { label: "Roxo", value: "#8B5CF6" },
+  { label: "Verde", value: "#10B981" },
+  { label: "Amarelo", value: "#F59E0B" },
+  { label: "Vermelho", value: "#EF4444" },
+  { label: "Rosa", value: "#EC4899" },
+  { label: "Índigo", value: "#6366F1" },
+  { label: "Ciano", value: "#06B6D4" },
+  { label: "Azul-marinho", value: "#1D4ED8" },
+  { label: "Cinza", value: "#6B7280" },
+];
 
 // Define a stage type that includes the display name and other properties
 interface StageConfig {
@@ -150,6 +169,13 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
       stage.id === id ? { ...stage, name: newName } : stage
     ));
   };
+  
+  // Handle stage color update
+  const handleUpdateStageColor = (id: string, newColor: string) => {
+    setStageConfigs(stageConfigs.map(stage => 
+      stage.id === id ? { ...stage, color: newColor } : stage
+    ));
+  };
 
   // Handle drag end
   const handleDragEnd = (result: DropResult) => {
@@ -243,6 +269,44 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
                                 />
                               </div>
                               <div className="flex items-center gap-2">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      className="w-8 h-8 p-0"
+                                      style={{ 
+                                        backgroundColor: stage.color || '#6B7280',
+                                        borderColor: stage.color || '#6B7280'
+                                      }}
+                                      disabled={updateStagesMutation.isPending}
+                                    >
+                                      <span className="sr-only">Escolher cor</span>
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-64 p-2">
+                                    <div className="grid grid-cols-5 gap-2">
+                                      {STAGE_COLORS.map((color) => (
+                                        <Button
+                                          key={color.value}
+                                          variant="outline"
+                                          className="w-8 h-8 p-0 border-2"
+                                          style={{ 
+                                            backgroundColor: color.value,
+                                            borderColor: stage.color === color.value ? 'white' : color.value
+                                          }}
+                                          onClick={() => handleUpdateStageColor(stage.id, color.value)}
+                                          title={color.label}
+                                        >
+                                          {stage.color === color.value && (
+                                            <span className="material-icons text-white text-sm">check</span>
+                                          )}
+                                          <span className="sr-only">{color.label}</span>
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                                
                                 {stage.isDefault && (
                                   <Badge variant="outline" className="bg-primary/10 text-primary">
                                     Padrão

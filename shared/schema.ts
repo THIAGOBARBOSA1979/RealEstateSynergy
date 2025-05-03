@@ -256,6 +256,35 @@ export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
 export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 
+// CRM Stage Configurations
+export const crmStageConfigs = pgTable('crm_stage_configs', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  stageId: text('stage_id').notNull(),
+  name: text('name').notNull(),
+  color: text('color'),
+  position: integer('position').notNull(),
+  isDefault: boolean('is_default').default(false),
+  isArchive: boolean('is_archive').default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const crmStageConfigsRelations = relations(crmStageConfigs, ({ one }) => ({
+  user: one(users, {
+    fields: [crmStageConfigs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertCrmStageConfigSchema = createInsertSchema(crmStageConfigs, {
+  name: (schema) => schema.min(2, "Name must be at least 2 characters"),
+  stageId: (schema) => schema.min(1, "Stage ID is required"),
+  position: (schema) => schema.refine((val) => Number(val) >= 0, "Position must be non-negative"),
+});
+
 export type PropertyAffiliation = typeof propertyAffiliations.$inferSelect;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type Favorite = typeof favorites.$inferSelect;
+export type CrmStageConfig = typeof crmStageConfigs.$inferSelect;
+export type InsertCrmStageConfig = z.infer<typeof insertCrmStageConfigSchema>;

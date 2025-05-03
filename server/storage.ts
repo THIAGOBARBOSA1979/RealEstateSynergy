@@ -7,7 +7,8 @@ import {
   propertyAffiliations, 
   documents, 
   activityLogs,
-  favorites
+  favorites,
+  crmStageConfigs
 } from "@shared/schema";
 import { 
   type User, 
@@ -17,7 +18,8 @@ import {
   type Document, 
   type PropertyAffiliation, 
   type ActivityLog,
-  type Favorite 
+  type Favorite,
+  type CrmStageConfig
 } from "@shared/schema";
 import { eq, like, and, or, desc, asc, inArray, ne, isNull, sql } from "drizzle-orm";
 import { hash } from "bcrypt";
@@ -324,11 +326,15 @@ export const storage = {
 
   // CRM operations
   async getCrmStages(userId: number) {
-    // Get all leads for the user
-    const userLeads = await db.select().from(leads).where(eq(leads.userId, userId));
+    // Get user's custom stage configurations
+    const customStageConfigs = await db
+      .select()
+      .from(crmStageConfigs)
+      .where(eq(crmStageConfigs.userId, userId))
+      .orderBy(crmStageConfigs.position);
     
-    // Define all stages
-    const stages = [
+    // Default stages if no custom configurations
+    const defaultStages = [
       { id: 'initial_contact', name: 'Contato Inicial', count: 0, leads: [] },
       { id: 'qualification', name: 'Qualificação', count: 0, leads: [] },
       { id: 'scheduled_visit', name: 'Visita Agendada', count: 0, leads: [] },
@@ -337,28 +343,106 @@ export const storage = {
       { id: 'closed', name: 'Fechado', count: 0, leads: [] }
     ];
     
+    // Use custom stages if available, otherwise use defaults
+    const stageConfigs = customStageConfigs.length > 0 
+      ? customStageConfigs.map(config => ({ 
+          id: config.stageId, 
+          name: config.name, 
+          count: 0, 
+          leads: [],
+          color: config.color
+        }))
+      : defaultStages;
+    
+    // Get all leads for the user
+    const userLeads = await db.select().from(leads).where(eq(leads.userId, userId));
+    
     // Map leads to their stages
     for (const lead of userLeads) {
-      const stageIndex = stages.findIndex(s => s.id === lead.stage);
+      const stage = stageConfigs.find(s => s.id === lead.stage);
       
-      if (stageIndex !== -1) {
-        stages[stageIndex].count++;
+      if (stage) {
+        stage.count++;
         
-        // Only add the most recent leads to each stage (limit to 3 for preview)
-        if (stages[stageIndex].leads.length < 3) {
-          stages[stageIndex].leads.push({
+        // Add all leads to the response for the full CRM view
+        stage.leads.push({
+          id: lead.id,
+          name: lead.fullName,
+          source: lead.source || 'Site',
+          description: lead.message || `Interessado em ${lead.propertyId ? 'imóvel específico' : 'imóveis na região'}`,
+          timeAgo: this.getTimeAgo(lead.createdAt),
+          stageId: lead.stage
+        });
+      } else {
+        // If lead has a stage that's not in the configurations, add it to the first stage
+        if (stageConfigs.length > 0) {
+          stageConfigs[0].count++;
+          stageConfigs[0].leads.push({
             id: lead.id,
             name: lead.fullName,
             source: lead.source || 'Site',
             description: lead.message || `Interessado em ${lead.propertyId ? 'imóvel específico' : 'imóveis na região'}`,
             timeAgo: this.getTimeAgo(lead.createdAt),
-            stageId: lead.stage
+            stageId: stageConfigs[0].id
           });
         }
       }
     }
     
-    return stages;
+    return stageConfigs;
+  },
+  
+  // Get CRM stage configurations
+  async getCrmStageConfigs(userId: number) {
+    const configs = await db
+      .select()
+      .from(crmStageConfigs)
+      .where(eq(crmStageConfigs.userId, userId))
+      .orderBy(crmStageConfigs.position);
+    
+    if (configs.length === 0) {
+      // Return default configurations if none exist
+      return [
+        { id: 1, userId, stageId: 'initial_contact', name: 'Contato Inicial', position: 0, isDefault: true, color: '#4F46E5' },
+        { id: 2, userId, stageId: 'qualification', name: 'Qualificação', position: 1, isDefault: true, color: '#8B5CF6' },
+        { id: 3, userId, stageId: 'scheduled_visit', name: 'Visita Agendada', position: 2, isDefault: true, color: '#10B981' },
+        { id: 4, userId, stageId: 'proposal', name: 'Proposta', position: 3, isDefault: true, color: '#F59E0B' },
+        { id: 5, userId, stageId: 'documentation', name: 'Documentação', position: 4, isDefault: true, color: '#EF4444' },
+        { id: 6, userId, stageId: 'closed', name: 'Fechado', position: 5, isArchive: true, color: '#6B7280' }
+      ];
+    }
+    
+    return configs;
+  },
+  
+  // Update CRM stage configurations
+  async updateCrmStageConfigs(userId: number, configsData: any[]) {
+    // First, delete existing configurations
+    await db.delete(crmStageConfigs).where(eq(crmStageConfigs.userId, userId));
+    
+    // Then, insert the new configurations
+    const newConfigs = [];
+    for (const config of configsData) {
+      try {
+        // Create config entry
+        const [insertedConfig] = await db.insert(crmStageConfigs).values({
+          userId,
+          stageId: config.id,
+          name: config.name,
+          color: config.color || null,
+          position: config.position,
+          isDefault: config.isDefault || false,
+          isArchive: config.isArchive || false
+        }).returning();
+        
+        newConfigs.push(insertedConfig);
+      } catch (error) {
+        console.error("Error inserting stage config:", error);
+        throw new Error(`Failed to save stage configuration for ${config.name}`);
+      }
+    }
+    
+    return newConfigs;
   },
 
   // Activity log operations

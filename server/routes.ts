@@ -91,6 +91,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(crmStages);
   }));
 
+  app.get(`${apiPrefix}/crm/stages/config`, requireAuth, asyncHandler(async (req, res) => {
+    const stageConfigs = await storage.getCrmStageConfigs(req.user.id);
+    res.json(stageConfigs);
+  }));
+
+  app.put(`${apiPrefix}/crm/stages/config`, requireAuth, asyncHandler(async (req, res) => {
+    const { stages } = req.body;
+    
+    if (!Array.isArray(stages)) {
+      return res.status(400).json({ message: "O campo 'stages' deve ser um array" });
+    }
+    
+    try {
+      const updatedConfigs = await storage.updateCrmStageConfigs(req.user.id, stages);
+      res.json(updatedConfigs);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      throw error;
+    }
+  }));
+
   app.patch(`${apiPrefix}/crm/leads/:leadId`, requireAuth, asyncHandler(async (req, res) => {
     const leadId = parseInt(req.params.leadId);
     const { stageId } = req.body;
