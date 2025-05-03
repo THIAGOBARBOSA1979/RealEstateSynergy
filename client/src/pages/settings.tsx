@@ -28,8 +28,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
+import PortalCredentials from "@/components/settings/portal-credentials";
+
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
+  const [isPortalCredentialsOpen, setIsPortalCredentialsOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
