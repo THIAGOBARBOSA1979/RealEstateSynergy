@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/utils";
 import StatCard from "@/components/dashboard/stat-card";
 import CrmPreview from "@/components/dashboard/crm-preview";
 import LeadActivity from "@/components/dashboard/lead-activity";
+import PerformanceRanking from "@/components/dashboard/performance-ranking";
 import { DashboardStats } from "@/types";
 
 const Dashboard = () => {
@@ -29,7 +30,7 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-heading font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Bem-vindo, {userLoading ? <Skeleton className="h-4 w-24 inline-block" /> : user?.fullName || 'Usuário'}!</p>
+          <div className="text-muted-foreground">Bem-vindo, {userLoading ? <Skeleton className="h-4 w-24 inline-block" /> : user?.fullName || 'Usuário'}!</div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="text-sm gap-1">
@@ -184,61 +185,8 @@ const Dashboard = () => {
           {/* Lead Activity Component */}
           <LeadActivity />
 
-          {/* Performance Card */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-heading font-semibold">Desempenho</CardTitle>
-              <CardDescription>Resumo de vendas e reservas</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle 
-                    cx="50" 
-                    cy="50" 
-                    r="45" 
-                    fill="transparent" 
-                    stroke="#e5e7eb" 
-                    strokeWidth="10" 
-                  />
-                  <circle 
-                    cx="50" 
-                    cy="50" 
-                    r="45" 
-                    fill="transparent" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth="10" 
-                    strokeDasharray="283"
-                    strokeDashoffset="141.5" 
-                    transform="rotate(-90 50 50)" 
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center">
-                  <span className="text-4xl font-bold">50%</span>
-                  <span className="text-xs text-muted-foreground">do objetivo mensal</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 w-full mt-6">
-                <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-muted-foreground">Vendas</h4>
-                  <p className="font-semibold">{formatCurrency(580000)}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-muted-foreground">Meta</h4>
-                  <p className="font-semibold">{formatCurrency(1000000)}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-muted-foreground">Imóveis Vendidos</h4>
-                  <p className="font-semibold">12</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-muted-foreground">Conversão</h4>
-                  <p className="font-semibold">25%</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Performance Ranking */}
+          <PerformanceRanking />
         </div>
       </div>
     </div>
