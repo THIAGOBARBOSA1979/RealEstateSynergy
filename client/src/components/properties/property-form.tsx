@@ -144,31 +144,40 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
     mode: "onChange",
   });
 
-  // Create property mutation
-  const createPropertyMutation = useMutation({
+  // Property mutation (create or update)
+  const propertyMutation = useMutation({
     mutationFn: async (data: PropertyFormValues) => {
-      return apiRequest("POST", "/api/properties", data);
+      if (initialData?.id) {
+        // Update existing property
+        return apiRequest("PUT", `/api/properties/${initialData.id}`, data);
+      } else {
+        // Create new property
+        return apiRequest("POST", "/api/properties", data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
-        title: "Imóvel criado com sucesso",
-        description: "O imóvel foi adicionado à sua lista",
+        title: initialData?.id ? "Imóvel atualizado com sucesso" : "Imóvel criado com sucesso",
+        description: initialData?.id 
+          ? "O imóvel foi atualizado com sucesso" 
+          : "O imóvel foi adicionado à sua lista",
       });
       if (onSuccess) onSuccess();
     },
     onError: (error) => {
       toast({
-        title: "Erro ao criar imóvel",
+        title: initialData?.id ? "Erro ao atualizar imóvel" : "Erro ao criar imóvel",
         description: "Verifique os dados e tente novamente",
         variant: "destructive",
       });
+      console.error("Error:", error);
     },
   });
 
   // Submit handler
   const onSubmit = (data: PropertyFormValues) => {
-    createPropertyMutation.mutate(data);
+    propertyMutation.mutate(data);
   };
 
   return (

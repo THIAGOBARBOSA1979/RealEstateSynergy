@@ -7,6 +7,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import Dashboard from "@/pages/dashboard";
 import Properties from "@/pages/properties";
 import AddProperty from "@/pages/add-property";
+import EditProperty from "@/pages/edit-property";
 import Favorites from "@/pages/favorites";
 import CRM from "@/pages/crm";
 import SiteEditor from "@/pages/site-editor";
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/properties" component={Properties} />
       <Route path="/add-property" component={AddProperty} />
+      <Route path="/edit-property/:id" component={EditProperty} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
       <Route path="/site-editor" component={SiteEditor} />

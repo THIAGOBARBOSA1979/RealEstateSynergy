@@ -226,7 +226,10 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
               <Button variant="outline" onClick={onClose}>
                 Fechar
               </Button>
-              <Button>
+              <Button onClick={() => {
+                onClose();
+                window.location.href = `/edit-property/${property.id}`;
+              }}>
                 <span className="material-icons text-xs mr-1">edit</span>
                 Editar
               </Button>
