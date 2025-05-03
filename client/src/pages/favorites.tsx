@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import DashboardLayout from "@/components/layout/dashboard-layout";
 import PropertyView from "@/components/properties/property-view";
 
 const Favorites = () => {
@@ -49,7 +48,6 @@ const Favorites = () => {
     : [];
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -198,7 +196,6 @@ const Favorites = () => {
           onClose={() => setIsViewDialogOpen(false)}
         />
       </div>
-    </DashboardLayout>
   );
 };
 
