@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import PortalIntegrationsDialog from "./portal-integrations-dialog";
 
 interface PropertyViewProps {
   propertyId: number | null;
@@ -27,6 +28,7 @@ interface PropertyViewProps {
 const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("details");
+  const [isPortalIntegrationsOpen, setIsPortalIntegrationsOpen] = useState(false);
 
   // Fetch property details
   const { data: property, isLoading } = useQuery<Property>({
@@ -226,6 +228,14 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={onClose}>
                 Fechar
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsPortalIntegrationsOpen(true)}
+                disabled={!property.id}
+              >
+                <span className="material-icons text-xs mr-1">share</span>
+                Portais
               </Button>
               <Button onClick={() => {
                 onClose();
