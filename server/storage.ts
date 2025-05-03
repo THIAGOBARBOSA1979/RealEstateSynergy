@@ -304,7 +304,7 @@ export const storage = {
     const result = await db.update(leads)
       .set({
         stage,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date()
       })
       .where(eq(leads.id, leadId))
       .returning();
@@ -449,7 +449,7 @@ export const storage = {
   async logActivity(activityData: any) {
     await db.insert(activityLogs).values({
       ...activityData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     });
   },
 
@@ -747,8 +747,8 @@ export const storage = {
         ownerId: property.userId,
         status: 'pending',
         commissionRate: property.affiliationCommissionRate || 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date(),
+        updatedAt: new Date()
       })
       .returning();
     
@@ -776,7 +776,7 @@ export const storage = {
     const result = await db.update(propertyAffiliations)
       .set({
         status,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date()
       })
       .where(eq(propertyAffiliations.id, affiliationId))
       .returning();
