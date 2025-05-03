@@ -16,7 +16,8 @@ import {
   type Website, 
   type Document, 
   type PropertyAffiliation, 
-  type ActivityLog 
+  type ActivityLog,
+  type Favorite 
 } from "@shared/schema";
 import { eq, like, and, or, desc, asc, inArray, ne, isNull, sql } from "drizzle-orm";
 import { hash } from "bcrypt";
@@ -882,32 +883,71 @@ export const storage = {
 
   // Favorites operations  
   async getUserFavorites(userId: number) {
-    // In a real implementation, we would have a favorites table
-    // For demo purposes, we'll return some properties
-    const result = await db.select().from(properties)
-      .where(eq(properties.featured, true))
-      .limit(10);
+    // Join favorites with properties to get property details
+    const favoriteProps = await db.query.favorites.findMany({
+      where: eq(favorites.userId, userId),
+      with: {
+        property: true
+      }
+    });
     
-    // Add timeAgo and format prices
-    return result.map((property) => ({
-      ...property,
-      timeAgo: this.getTimeAgo(property.createdAt),
+    if (!favoriteProps || favoriteProps.length === 0) {
+      return [];
+    }
+    
+    // Map the result to return the properties with additional information
+    return favoriteProps.map((favorite) => ({
+      ...favorite.property,
+      timeAgo: this.getTimeAgo(favorite.property.createdAt),
       formattedPrice: new Intl.NumberFormat('pt-BR', { 
         style: 'currency', 
         currency: 'BRL' 
-      }).format(property.price)
+      }).format(favorite.property.price)
     }));
   },
   
   async toggleFavorite(userId: number, propertyId: number) {
-    // In a real implementation, we would toggle the favorite status in a favorites table
-    // For demo purposes, we'll just return a success message
+    // Check if the property exists
+    const property = await this.getPropertyById(propertyId);
+    
+    if (!property) {
+      throw new Error('Property not found');
+    }
+    
+    // Check if the favorite already exists
+    const existingFavorite = await db.query.favorites.findFirst({
+      where: and(
+        eq(favorites.userId, userId),
+        eq(favorites.propertyId, propertyId)
+      )
+    });
+    
+    if (existingFavorite) {
+      // If it exists, remove it
+      await db.delete(favorites)
+        .where(and(
+          eq(favorites.userId, userId),
+          eq(favorites.propertyId, propertyId)
+        ));
+    } else {
+      // If it doesn't exist, add it
+      await db.insert(favorites).values({
+        userId,
+        propertyId
+      });
+    }
+      
     return { success: true };
   },
   
   async removeFavorite(userId: number, propertyId: number) {
-    // In a real implementation, we would remove the favorite from a favorites table
-    // For demo purposes, we'll just return a success message
+    // Remove from favorites table
+    await db.delete(favorites)
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.propertyId, propertyId)
+      ));
+      
     return { success: true };
   }
 };
