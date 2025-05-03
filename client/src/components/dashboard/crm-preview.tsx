@@ -46,14 +46,14 @@ const CrmPreview = () => {
       </div>
 
       {isLoading ? (
-        <div className="kanban-board mb-4">
-          {[...Array(4)].map((_, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          {[...Array(3)].map((_, index) => (
             <Skeleton key={index} className="h-64 w-full rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="kanban-board mb-4">
-          {(Array.isArray(stages) ? stages : []).map((stage: CrmStage) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 overflow-auto">
+          {(Array.isArray(stages) ? stages.slice(0, 3) : []).map((stage: CrmStage) => (
             <Card key={stage.id} className="h-fit">
               <CardHeader className="py-3 px-4">
                 <div className="flex items-center justify-between">
@@ -65,7 +65,7 @@ const CrmPreview = () => {
               </CardHeader>
               <CardContent className="p-3 space-y-3">
                 {stage.leads.length > 0 ? (
-                  stage.leads.map((lead) => (
+                  stage.leads.slice(0, 2).map((lead) => (
                     <div 
                       key={lead.id}
                       className="bg-background rounded-lg p-3 cursor-grab hover:shadow-md transition-shadow border border-border"
