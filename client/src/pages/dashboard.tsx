@@ -1,85 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { isMobile } from "react-device-detect";
-
-// Temporary mock data
-const incomeData = [
-  { name: 'Jan', rent: 200000, sale: 300000 },
-  { name: 'Feb', rent: 280000, sale: 250000 },
-  { name: 'Mar', rent: 320000, sale: 220000 },
-  { name: 'Apr', rent: 350000, sale: 280000 },
-  { name: 'May', rent: 500000, sale: 320000 },
-  { name: 'Jun', rent: 450000, sale: 350000 },
-  { name: 'Jul', rent: 400000, sale: 390000 },
-  { name: 'Aug', rent: 450000, sale: 400000 },
-  { name: 'Sep', rent: 500000, sale: 450000 },
-  { name: 'Oct', rent: 480000, sale: 420000 },
-  { name: 'Nov', rent: 460000, sale: 430000 },
-  { name: 'Dec', rent: 500000, sale: 450000 },
-];
-
-const unitData = [
-  { 
-    id: 1, 
-    name: 'Meadow View', 
-    type: 'Rent', 
-    location: 'Yogyakarta', 
-    price: '$80,000', 
-    status: 'Sold',
-    img: '/m1.png'
-  },
-  { 
-    id: 2, 
-    name: 'Corner Unit', 
-    type: 'Sell', 
-    location: 'Jakarta', 
-    price: '$180,000', 
-    status: 'Available',
-    img: '/m2.png'
-  },
-  { 
-    id: 3, 
-    name: 'Balcony Unit', 
-    type: 'Rent', 
-    location: 'Bandung', 
-    price: '$95,000', 
-    status: 'Sold',
-    img: '/m3.png'
-  },
-  { 
-    id: 4, 
-    name: 'The Old Rectory', 
-    type: 'Sell', 
-    location: 'Sleman', 
-    price: '$190,000', 
-    status: 'Available',
-    img: '/m4.png'
-  },
-  { 
-    id: 5, 
-    name: 'White Cottage', 
-    type: 'Rent', 
-    location: 'Bali', 
-    price: '$125,000', 
-    status: 'Sold',
-    img: '/m5.png'
-  },
-];
-
-const agentData = [
-  { name: 'Karen Hope', location: 'Jakarta', units: 15, total: '$150K', profit: true },
-  { name: 'Brandon', location: 'Bali', units: 10, total: '$100K', profit: false },
-  { name: 'Marcus', location: 'Yogyakarta', units: 9, total: '$90K', profit: true },
-  { name: 'Alfonso', location: 'Bandung', units: 8, total: '$80K', profit: false },
-  { name: 'Cristofer', location: 'Yogyakarta', units: 7, total: '$70K', profit: true },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency } from "@/lib/utils";
+import StatCard from "@/components/dashboard/stat-card";
+import CrmPreview from "@/components/dashboard/crm-preview";
+import LeadActivity from "@/components/dashboard/lead-activity";
+import { DashboardStats } from "@/types";
 
 const Dashboard = () => {
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/dashboard/stats'],
   });
 
@@ -87,137 +19,179 @@ const Dashboard = () => {
     queryKey: ['/api/users/me'],
   });
 
+  const { data: properties, isLoading: propertiesLoading } = useQuery({
+    queryKey: ['/api/properties'],
+  });
+
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Sales Analytics Section */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Sales Analytics</h2>
-        <div className="flex items-center">
-          <span>Today</span>
-          <Button variant="ghost" size="icon" className="ml-2">
-            <span className="material-icons">expand_more</span>
+    <div className="max-w-7xl mx-auto p-4 space-y-8">
+      {/* Dashboard Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-heading font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Bem-vindo, {userLoading ? <Skeleton className="h-4 w-24 inline-block" /> : user?.fullName || 'Usuário'}!</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="text-sm gap-1">
+            <span className="material-icons text-sm">calendar_today</span>
+            Hoje
+          </Button>
+          <Button variant="outline" className="text-sm gap-1">
+            <span className="material-icons text-sm">tune</span>
+            Filtros
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Customer Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                <span className="material-icons text-[20px]">people</span>
-              </div>
-              <span className="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-600">7% vs. previous month</span>
-            </div>
-            <h3 className="text-2xl font-bold mt-2">350</h3>
-            <p className="text-sm text-gray-500">Customers</p>
-            <div className="mt-2">
-              <svg className="w-full h-12 text-blue-400" viewBox="0 0 100 30" preserveAspectRatio="none">
-                <path
-                  d="M0,15 Q20,5 40,15 T80,15 T100,15"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Income Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600">
-                <span className="material-icons text-[20px]">monetization_on</span>
-              </div>
-              <span className="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-600">11% vs. previous month</span>
-            </div>
-            <h3 className="text-2xl font-bold mt-2">$500,000</h3>
-            <p className="text-sm text-gray-500">Total Income</p>
-            <div className="mt-2">
-              <svg className="w-full h-12 text-green-400" viewBox="0 0 100 30" preserveAspectRatio="none">
-                <path
-                  d="M0,20 Q30,5 50,15 T100,10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Property Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-600">
-                <span className="material-icons text-[20px]">home</span>
-              </div>
-              <span className="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-600">-3.4% vs. previous month</span>
-            </div>
-            <h3 className="text-2xl font-bold mt-2">500</h3>
-            <p className="text-sm text-gray-500">Total Property</p>
-            <div className="mt-2">
-              <svg className="w-full h-12 text-red-400" viewBox="0 0 100 30" preserveAspectRatio="none">
-                <path
-                  d="M0,10 Q30,20 50,10 T100,20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statsLoading ? (
+          [...Array(4)].map((_, index) => (
+            <Skeleton key={index} className="h-36 w-full rounded-lg" />
+          ))
+        ) : (
+          <>
+            <StatCard
+              title="Leads Totais"
+              value={stats?.leads || 0}
+              icon="people"
+              change={{
+                percentage: stats?.leadsChange || 0,
+                label: "vs. mês anterior"
+              }}
+              iconColor="primary"
+            />
+            <StatCard
+              title="Visitas ao Site"
+              value={stats?.websiteVisits || 0}
+              icon="language"
+              change={{
+                percentage: stats?.websiteVisitsChange || 0,
+                label: "vs. mês anterior"
+              }}
+              iconColor="info"
+            />
+            <StatCard
+              title="Imóveis Ativos"
+              value={stats?.activeProperties || 0}
+              icon="home"
+              change={{
+                percentage: stats?.propertiesChange || 0,
+                label: "vs. mês anterior"
+              }}
+              iconColor="accent"
+            />
+            <StatCard
+              title="Visitas Agendadas"
+              value={stats?.visits || 0}
+              icon="calendar_month"
+              change={{
+                percentage: stats?.visitsChange || 0,
+                label: "vs. mês anterior"
+              }}
+              iconColor="secondary"
+            />
+          </>
+        )}
       </div>
 
-      {/* Income Statistics Card */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <div className="lg:col-span-2">
-          <Card className="h-full">
-            <CardHeader className="pb-0">
-              <CardTitle className="text-lg font-semibold">Income Statistics</CardTitle>
-              <div className="flex items-center space-x-2 text-xs">
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1D</Button>
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1M</Button>
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md bg-orange-100 text-orange-500 border-orange-500">3M</Button>
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">1Y</Button>
-                <Button size="sm" variant="outline" className="h-7 px-3 rounded-md">ALL</Button>
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - CRM Preview */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* CRM Preview Component */}
+          <CrmPreview />
+
+          {/* Properties Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div>
+                <CardTitle className="text-lg font-heading font-semibold">Meus Imóveis</CardTitle>
+                <CardDescription>Visualize seus imóveis ativos</CardDescription>
               </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/properties">Ver Todos</Link>
+              </Button>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="h-[300px] flex items-center justify-center flex-col">
-                <span className="material-icons text-6xl text-gray-300 mb-4">insert_chart</span>
-                <p className="text-sm text-gray-500">Chart visualization simplified for mobile view</p>
-
-                <div className="grid grid-cols-2 gap-8 w-full mt-8">
-                  <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
-                    <div className="w-3 h-3 rounded-full bg-orange-500 mb-2"></div>
-                    <h4 className="text-sm text-gray-700 font-medium">Rent Income</h4>
-                    <p className="text-lg font-bold text-gray-900">$480,000</p>
-                  </div>
-                  <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
-                    <div className="w-3 h-3 rounded-full bg-blue-500 mb-2"></div>
-                    <h4 className="text-sm text-gray-700 font-medium">Sale Income</h4>
-                    <p className="text-lg font-bold text-gray-900">$520,000</p>
-                  </div>
+              {propertiesLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <Skeleton key={index} className="h-16 w-full rounded-lg" />
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <div className="overflow-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left font-medium px-4 py-3">Imóvel</th>
+                        <th className="text-left font-medium px-4 py-3 hidden md:table-cell">Tipo</th>
+                        <th className="text-left font-medium px-4 py-3 hidden md:table-cell">Cidade</th>
+                        <th className="text-right font-medium px-4 py-3">Preço</th>
+                        <th className="text-center font-medium px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {properties && Array.isArray(properties.properties) 
+                        ? properties.properties.slice(0, 4).map((property: any) => (
+                            <tr key={property.id} className="border-b border-border hover:bg-muted/50">
+                              <td className="px-4 py-3">
+                                <div className="flex items-center">
+                                  <div className="w-8 h-8 mr-3 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <span className="material-icons text-primary text-sm">home</span>
+                                  </div>
+                                  <span className="font-medium truncate max-w-[120px]">{property.title}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 hidden md:table-cell">{property.propertyType}</td>
+                              <td className="px-4 py-3 hidden md:table-cell">{property.city}</td>
+                              <td className="px-4 py-3 text-right">{formatCurrency(property.price)}</td>
+                              <td className="px-4 py-3">
+                                <div className="flex justify-center">
+                                  <Badge className={`${
+                                    property.status === 'sold' ? 'bg-red-100 text-red-600' : 
+                                    property.status === 'reserved' ? 'bg-amber-100 text-amber-600' : 
+                                    'bg-green-100 text-green-600'
+                                  }`}>
+                                    {property.status === 'active' ? 'Disponível' : 
+                                     property.status === 'reserved' ? 'Reservado' : 
+                                     property.status === 'sold' ? 'Vendido' : 
+                                     property.status}
+                                  </Badge>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        : (
+                          <tr>
+                            <td colSpan={5} className="text-center p-4 text-muted-foreground">
+                              Nenhum imóvel encontrado
+                            </td>
+                          </tr>
+                        )
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        <div>
-          <Card className="h-full">
-            <CardHeader className="pb-0">
-              <CardTitle className="text-lg font-semibold">Sales Analytics</CardTitle>
+        {/* Right Column - Activities and Stats */}
+        <div className="space-y-8">
+          {/* Lead Activity Component */}
+          <LeadActivity />
+
+          {/* Performance Card */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-heading font-semibold">Desempenho</CardTitle>
+              <CardDescription>Resumo de vendas e reservas</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 flex flex-col items-center">
-              <div className="relative h-48 w-48 flex items-center justify-center">
+            <CardContent className="p-6">
+              <div className="relative h-48 w-48 mx-auto flex items-center justify-center">
                 <svg className="w-full h-full" viewBox="0 0 100 100">
                   <circle 
                     cx="50" 
@@ -232,7 +206,7 @@ const Dashboard = () => {
                     cy="50" 
                     r="45" 
                     fill="transparent" 
-                    stroke="#f97316" 
+                    stroke="hsl(var(--primary))" 
                     strokeWidth="10" 
                     strokeDasharray="283"
                     strokeDashoffset="141.5" 
@@ -241,138 +215,31 @@ const Dashboard = () => {
                 </svg>
                 <div className="absolute flex flex-col items-center">
                   <span className="text-4xl font-bold">50%</span>
+                  <span className="text-xs text-muted-foreground">do objetivo mensal</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 w-full mt-4">
+              <div className="grid grid-cols-2 gap-4 w-full mt-6">
                 <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-gray-500">Agent Sales</h4>
-                  <p className="font-semibold">$40,000</p>
+                  <h4 className="text-sm text-muted-foreground">Vendas</h4>
+                  <p className="font-semibold">{formatCurrency(580000)}</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-gray-500">Office Sales</h4>
-                  <p className="font-semibold">$10,000</p>
+                  <h4 className="text-sm text-muted-foreground">Meta</h4>
+                  <p className="font-semibold">{formatCurrency(1000000)}</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-gray-500">Marketing Sales</h4>
-                  <p className="font-semibold">$20,000</p>
+                  <h4 className="text-sm text-muted-foreground">Imóveis Vendidos</h4>
+                  <p className="font-semibold">12</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <h4 className="text-sm text-gray-500">Online Sales</h4>
-                  <p className="font-semibold">$30,000</p>
+                  <h4 className="text-sm text-muted-foreground">Conversão</h4>
+                  <p className="font-semibold">25%</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      {/* My Property Unit */}
-      <div className="mb-8">
-        <Card>
-          <CardHeader className="pb-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">My Property Unit</CardTitle>
-              <Button variant="outline" size="sm" className="text-accent border-accent hover:text-white hover:bg-accent">
-                See All
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="overflow-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left font-medium px-4 py-3">Unit Name</th>
-                    <th className="text-left font-medium px-4 py-3">Type</th>
-                    <th className="text-left font-medium px-4 py-3">Location</th>
-                    <th className="text-right font-medium px-4 py-3">Price</th>
-                    <th className="text-center font-medium px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unitData.map((unit) => (
-                    <tr key={unit.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 mr-3 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span className="material-icons text-gray-500 text-sm">home</span>
-                          </div>
-                          <span>{unit.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">{unit.type}</td>
-                      <td className="px-4 py-3">{unit.location}</td>
-                      <td className="px-4 py-3 text-right">{unit.price}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <Badge className={`${unit.status === 'Sold' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                            {unit.status}
-                          </Badge>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Agents */}
-      <div className="mb-8">
-        <Card>
-          <CardHeader className="pb-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Top Agents</CardTitle>
-              <Button variant="ghost" size="icon">
-                <span className="material-icons">more_vert</span>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left font-medium px-4 py-3">Agent Name</th>
-                  <th className="text-center font-medium px-4 py-3">Total Sold</th>
-                  <th className="text-right font-medium px-4 py-3">Profit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {agentData.map((agent, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 mr-3 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                          {index === 0 ? (
-                            <span className="material-icons text-accent text-sm">face</span>
-                          ) : (
-                            <span className="material-icons text-gray-500 text-sm">person</span>
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-medium">{agent.name}</div>
-                          <div className="text-xs text-gray-500">{agent.location}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">{agent.units} Units</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end">
-                        <span className="font-medium">{agent.total}</span>
-                        <span className={`material-icons text-sm ml-1 ${agent.profit ? 'text-green-500' : 'text-red-500'}`}>
-                          {agent.profit ? 'arrow_upward' : 'arrow_downward'}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
