@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
+import { Property } from "@/types";
 
 import {
   Dialog,
@@ -28,7 +29,7 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
   const [activeTab, setActiveTab] = useState("details");
 
   // Fetch property details
-  const { data: property, isLoading } = useQuery({
+  const { data: property, isLoading } = useQuery<Property>({
     queryKey: ['/api/properties', propertyId],
     enabled: isOpen && !!propertyId,
   });

@@ -1017,8 +1017,11 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
             </Button>
           </div>
           
-          <Button type="submit" size="lg" disabled={createPropertyMutation.isPending}>
-            {createPropertyMutation.isPending ? "Salvando..." : "Salvar Imóvel"}
+          <Button type="submit" size="lg" disabled={propertyMutation.isPending}>
+            {propertyMutation.isPending ? 
+              "Salvando..." : 
+              initialData?.id ? "Atualizar Imóvel" : "Salvar Imóvel"
+            }
           </Button>
         </div>
       </form>
