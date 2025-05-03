@@ -1,0 +1,69 @@
+Melhorias Requeridas por Módulo
+1. Dashboard (Painel Principal)
+
+- Aprimorar o layout e a usabilidade do painel principal existente
+- Implementar sistema de gamificação para equipe de vendas que inclua:
+
+- Rankings de performance individual e por equipe
+- Indicadores de metas atingidas
+- Painéis de progresso com gráficos comparativos
+
+
+
+2. CRM (Pipeline de Vendas)
+
+- Corrigir problema atual dos cards que não podem ser movidos corretamente entre etapas
+- Adicionar relatórios personalizados filtráveis por período, status, corretor, origem e outros parâmetros
+- Implementar funcionalidade de associação de cada card a um cliente já cadastrado
+- Permitir vínculo de um ou mais imóveis ao card conforme interesse do cliente
+- Adicionar suporte para vincular cards à origem da captação (portais, campanhas, indicações)
+- Criar funcionalidade de conversão de card em cliente ativo para iniciar fluxo de documentação
+- Adicionar campo "Finalidade" no formulário de cadastro com opções: Compra, Aluguel, Investimento
+- Implementar funcionalidade do botão "Settings – Configurar Etapas", implementar:
+
+
+3. Cadastro de Imóveis – Estrutura e Funcionalidades
+
+- Reestruturar o sistema para permitir cadastro hierárquico de empreendimentos
+- Implementar estrutura de múltiplas unidades vinculadas a um mesmo projeto
+- Adicionar suporte a diferentes tipos de planta e metragem (Aptos tipo 1, tipo 2, Garden, Cobertura)
+- Para condomínios horizontais, permitir cadastro de casas repetidas com variação de lote/localização
+- Implementar espelho de vendas com status de disponibilidade (disponível, reservado, vendido)
+
+
+4. Integração com Portais Imobiliários
+
+- Modificar integração para funcionar por imóvel individualmente
+- Respeitar lógica comercial das plataformas que cobram por anúncio
+- Implementar gerenciamento individual de anúncios por imóvel
+- Adicionar controle de status, data e histórico de envio para portais
+
+5. Portal do Cliente
+
+- Adicionar funcionalidade de importação e exportação de clientes via planilhas (.csv e .xlsx)
+
+- Implementar funcionalidade do botão "add Novo Cliente"
+
+Implementar funcionalidade de "documento"
+- Envio de Documentos
+- Google Drive
+- Documentos Recentes
+
+6. Editor do Site e Configurações
+
+- Unificar as seções "Editor do Site" e "Configurações" em uma interface integrada
+- Melhorar experiência de personalização e gestão da plataforma
+
+7. Configurações – Portais Imobiliários
+
+- em "Configurar Credenciais dos Portais" configuração de credenciais para cada portal
+- Implementar armazenamento seguro de login, senha, token de API e chaves de autenticação
+- Permitir ativação/desativação individual de integração por portal
+
+Observações Técnicas
+
+Utilizar as bibliotecas e frameworks já existentes no projeto
+Seguir os padrões de código, nomenclatura e design já implementados
+Garantir compatibilidade com os dados existentes
+Implementar medidas de segurança para tratamento de credenciais e documentos
+Priorizar abordagem modular para facilitar manutenção futuras

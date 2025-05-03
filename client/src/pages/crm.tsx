@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 // Components
 import LeadForm from "@/components/crm/lead-form";
+import StageSettingsDialog from "@/components/crm/stage-settings-dialog";
 
 // Styles and helper functions imported from CrmPreview
 import { getSourceBadgeClass } from "@/components/dashboard/crm-preview";
@@ -35,6 +36,7 @@ const CRM = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [draggingLeadId, setDraggingLeadId] = useState<number | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [isStageSettingsOpen, setIsStageSettingsOpen] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -100,7 +102,7 @@ const CRM = () => {
             <span className="material-icons text-sm mr-1">add</span>
             Novo Lead
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setIsStageSettingsOpen(true)}>
             <span className="material-icons text-sm mr-1">settings</span>
             Configurar Etapas
           </Button>
@@ -211,6 +213,12 @@ const CRM = () => {
           setSelectedStageId(null);
         }}
         initialStage={selectedStageId || undefined}
+      />
+
+      {/* Stage Settings Dialog */}
+      <StageSettingsDialog
+        isOpen={isStageSettingsOpen}
+        onClose={() => setIsStageSettingsOpen(false)}
       />
     </div>
   );
