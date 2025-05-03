@@ -22,7 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/properties" component={Properties} />
-      <Route path="/properties/add" component={AddProperty} />
+      <Route path="/add-property" component={AddProperty} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
       <Route path="/site-editor" component={SiteEditor} />
