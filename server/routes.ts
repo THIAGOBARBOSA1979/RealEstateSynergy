@@ -107,6 +107,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
 
   // Properties routes
+  
+  // Favorites routes - IMPORTANT: must be placed before /:id routes to avoid path conflicts
+  app.get(`${apiPrefix}/properties/favorites`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const favorites = await storage.getUserFavorites(req.user.id);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Error fetching favorite properties" });
+    }
+  }));
+  
   app.get(`${apiPrefix}/properties`, requireAuth, asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -417,17 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(updatedIntegrations);
   }));
 
-  // Favorites routes
-  app.get(`${apiPrefix}/properties/favorites`, requireAuth, asyncHandler(async (req, res) => {
-    try {
-      const favorites = await storage.getUserFavorites(req.user.id);
-      res.json(favorites);
-    } catch (error) {
-      console.error("Error fetching favorites:", error);
-      res.status(500).json({ message: "Error fetching favorite properties" });
-    }
-  }));
-
+  // Favorite toggle route
   app.post(`${apiPrefix}/properties/:id/favorite`, requireAuth, asyncHandler(async (req, res) => {
     try {
       const propertyId = parseInt(req.params.id);
