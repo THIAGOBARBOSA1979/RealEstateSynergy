@@ -337,6 +337,40 @@ const PropertyDetail = () => {
     );
   }
   
+  // SEO Meta setup (in a production app, use Next.js Head or React Helmet)
+  useEffect(() => {
+    // Sempre defina um título padrão, mesmo que property seja null
+    document.title = property ? `${property.title} - ImobCloud` : 'Detalhes do Imóvel - ImobCloud';
+    
+    // Limpe quaisquer tags meta anteriores
+    const existingMetaTags = document.head.querySelectorAll('meta[name="description"], meta[property="og:image"]');
+    existingMetaTags.forEach(tag => tag.remove());
+    
+    // Só crie novas tags meta se property existir
+    if (property) {
+      // Create meta description
+      const metaDesc = document.createElement('meta');
+      metaDesc.name = 'description';
+      metaDesc.content = `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} ${property.bathrooms ? `e ${property.bathrooms} banheiros` : ''}, ${property.status === 'active' ? 'à venda' : 'vendido'} em ${property.city}. ${property.description?.substring(0, 100)}...`;
+      document.head.appendChild(metaDesc);
+      
+      // Create og:image if there are images
+      if (property.images?.length > 0) {
+        const ogImage = document.createElement('meta');
+        ogImage.setAttribute('property', 'og:image');
+        ogImage.content = property.images[0];
+        document.head.appendChild(ogImage);
+      }
+    }
+    
+    return () => {
+      // Clean up meta tags when component unmounts
+      document.title = 'ImobCloud';
+      const metaTags = document.head.querySelectorAll('meta[name="description"], meta[property="og:image"]');
+      metaTags.forEach(tag => tag.remove());
+    };
+  }, [property]);
+  
   // Not found state
   if (!property) {
     return (
@@ -351,34 +385,6 @@ const PropertyDetail = () => {
       </div>
     );
   }
-  
-  // SEO Meta setup (in a production app, use Next.js Head or React Helmet)
-  useEffect(() => {
-    if (property) {
-      document.title = `${property.title} - ImobCloud`;
-      
-      // Create meta description
-      const metaDesc = document.createElement('meta');
-      metaDesc.name = 'description';
-      metaDesc.content = `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} ${property.bathrooms ? `e ${property.bathrooms} banheiros` : ''}, ${property.status === 'active' ? 'à venda' : 'vendido'} em ${property.city}. ${property.description?.substring(0, 100)}...`;
-      document.head.appendChild(metaDesc);
-      
-      // Create og:image if there are images
-      if (property.images?.length > 0) {
-        const ogImage = document.createElement('meta');
-        ogImage.property = 'og:image';
-        ogImage.content = property.images[0];
-        document.head.appendChild(ogImage);
-      }
-      
-      return () => {
-        // Clean up meta tags when component unmounts
-        document.title = 'ImobCloud';
-        const metaTags = document.head.querySelectorAll('meta[name="description"], meta[property="og:image"]');
-        metaTags.forEach(tag => tag.remove());
-      };
-    }
-  }, [property]);
   
   return (
     <div className="property-detail bg-gray-50 min-h-screen">

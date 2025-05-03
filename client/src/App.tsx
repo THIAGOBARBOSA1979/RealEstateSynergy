@@ -19,10 +19,10 @@ import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 // Novas páginas
-import LandingPage from "@/pages/landing-page";
-import AgentWebsite from "@/pages/agent-website";
-import SuperAdminPanel from "@/pages/super-admin";
-import PropertyDetail from "@/pages/property-detail";
+import LandingPage from "./pages/landing-page";
+import AgentWebsite from "./pages/agent-website";
+import SuperAdminPanel from "./pages/super-admin";
+import PropertyDetail from "./pages/property-detail";
 
 function Router() {
   return (
