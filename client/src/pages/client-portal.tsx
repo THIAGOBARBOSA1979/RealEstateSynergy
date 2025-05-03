@@ -27,6 +27,8 @@ import ImportExportDialog from "@/components/client-portal/import-export-dialog"
 const ClientPortal = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("clients");
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+  const [isImportExportDialogOpen, setIsImportExportDialogOpen] = useState(false);
 
   const { data: clients, isLoading: isLoadingClients } = useQuery({
     queryKey: ['/api/clients'],
@@ -73,12 +75,25 @@ const ClientPortal = () => {
           {/* Clients Tab */}
           <TabsContent value="clients" className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <Input 
-                placeholder="Buscar clientes por nome, email ou telefone" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-md"
-              />
+              <div className="flex gap-4 w-full md:w-auto">
+                <Input 
+                  placeholder="Buscar clientes por nome, email ou telefone" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-md"
+                />
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsImportExportDialogOpen(true)}
+                >
+                  <span className="material-icons text-sm mr-1">import_export</span>
+                  Importar/Exportar
+                </Button>
+              </div>
             </div>
 
             <div className="bg-card rounded-lg overflow-hidden shadow-sm">
@@ -127,7 +142,11 @@ const ClientPortal = () => {
                                 <span className="material-icons text-xs mr-1">visibility</span>
                                 Ver
                               </Button>
-                              <Button size="sm" variant="outline">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setSelectedClientId(client.id)}
+                              >
                                 <span className="material-icons text-xs mr-1">upload</span>
                                 Docs
                               </Button>
@@ -308,6 +327,28 @@ const ClientPortal = () => {
           </TabsContent>
         </div>
       </Tabs>
+      {/* DocumentManager Dialog */}
+      {selectedClientId && (
+        <Dialog open={!!selectedClientId} onOpenChange={() => setSelectedClientId(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Documentos do Cliente</DialogTitle>
+              <DialogDescription>
+                Gerencie os documentos do cliente
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <DocumentManager clientId={selectedClientId} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* ImportExport Dialog */}
+      <ImportExportDialog
+        isOpen={isImportExportDialogOpen}
+        onClose={() => setIsImportExportDialogOpen(false)}
+      />
     </div>
   );
 };
