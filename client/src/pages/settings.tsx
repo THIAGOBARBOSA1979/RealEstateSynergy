@@ -109,6 +109,15 @@ const Settings = () => {
         <h1 className="text-2xl font-heading font-bold">Configurações</h1>
       </div>
 
+      {/* Portal Credentials Dialog */}
+      {integrationSettings && (
+        <PortalCredentials 
+          isOpen={isPortalCredentialsOpen}
+          onClose={() => setIsPortalCredentialsOpen(false)}
+          integrationSettings={integrationSettings}
+        />
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-5 w-full max-w-md">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
@@ -1041,7 +1050,11 @@ const Settings = () => {
                             </div>
                           </div>
                         </div>
-                        <Button variant="secondary" size="sm">
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => setIsPortalCredentialsOpen(true)}
+                        >
                           Configurar Credenciais dos Portais
                         </Button>
                       </div>
