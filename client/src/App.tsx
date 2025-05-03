@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,9 +18,22 @@ import Team from "@/pages/team";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
+// Novas páginas
+import LandingPage from "@/pages/landing-page";
+import AgentWebsite from "@/pages/agent-website";
+import SuperAdminPanel from "@/pages/super-admin";
+
 function Router() {
   return (
     <Switch>
+      {/* Páginas públicas */}
+      <Route path="/landing" component={LandingPage} />
+      <Route path="/agente/:agentId" component={AgentWebsite} />
+      
+      {/* Painel Admin */}
+      <Route path="/super-admin" component={SuperAdminPanel} />
+      
+      {/* Painel do Usuário */}
       <Route path="/" component={Dashboard} />
       <Route path="/properties" component={Properties} />
       <Route path="/add-property" component={AddProperty} />
@@ -39,11 +52,28 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  
+  // Verifica se está em uma página pública ou administrativa
+  const isPublicPage = location.startsWith("/landing") || location.startsWith("/agente");
+  const isSuperAdmin = location.startsWith("/super-admin");
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <DashboardLayout>
+      {isPublicPage ? (
+        // Renderiza sem o layout de dashboard para páginas públicas
         <Router />
-      </DashboardLayout>
+      ) : isSuperAdmin ? (
+        // Layout específico para super admin
+        <div className="super-admin-layout">
+          <Router />
+        </div>
+      ) : (
+        // Layout normal para usuário logado
+        <DashboardLayout>
+          <Router />
+        </DashboardLayout>
+      )}
       <Toaster />
     </QueryClientProvider>
   );
