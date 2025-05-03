@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import DocumentManager from "@/components/client-portal/document-manager";
+import ImportExportDialog from "@/components/client-portal/import-export-dialog";
 
 const ClientPortal = () => {
   const [searchTerm, setSearchTerm] = useState("");
