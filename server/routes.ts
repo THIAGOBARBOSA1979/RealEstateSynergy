@@ -417,6 +417,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(updatedIntegrations);
   }));
 
+  // Favorites routes
+  app.get(`${apiPrefix}/properties/favorites`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const favorites = await storage.getUserFavorites(req.user.id);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Error fetching favorite properties" });
+    }
+  }));
+
+  app.post(`${apiPrefix}/properties/:id/favorite`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property ID" });
+      }
+      
+      await storage.toggleFavorite(req.user.id, propertyId);
+      res.status(200).json({ message: "Favorite status updated" });
+    } catch (error) {
+      console.error("Error updating favorite status:", error);
+      res.status(500).json({ message: "Error updating favorite status" });
+    }
+  }));
+
+  app.delete(`${apiPrefix}/properties/:id/favorite`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property ID" });
+      }
+      
+      await storage.removeFavorite(req.user.id, propertyId);
+      res.status(200).json({ message: "Property removed from favorites" });
+    } catch (error) {
+      console.error("Error removing from favorites:", error);
+      res.status(500).json({ message: "Error removing from favorites" });
+    }
+  }));
+
   // Analytics routes
   app.get(`${apiPrefix}/analytics`, requireAuth, asyncHandler(async (req, res) => {
     const timeframe = req.query.timeframe as string || "month";
