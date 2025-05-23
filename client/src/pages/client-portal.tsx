@@ -23,6 +23,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import DocumentManager from "@/components/client-portal/document-manager";
 import ImportExportDialog from "@/components/client-portal/import-export-dialog";
+import { Plus, Settings, Eye, Upload, Download, ArrowDownUp } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const ClientPortal = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,8 +67,8 @@ const ClientPortal = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-2xl font-heading font-bold">Portal do Cliente</h1>
-        <Button>
-          <span className="material-icons text-sm mr-1">add</span>
+        <Button className="gap-1">
+          <Plus className="h-4 w-4" />
           Novo Cliente
         </Button>
       </div>
@@ -89,8 +97,9 @@ const ClientPortal = () => {
                   variant="outline" 
                   size="sm"
                   onClick={() => setIsImportExportDialogOpen(true)}
+                  className="gap-1"
                 >
-                  <span className="material-icons text-sm mr-1">import_export</span>
+                  <ArrowDownUp className="h-4 w-4" />
                   Importar/Exportar
                 </Button>
               </div>
@@ -138,16 +147,17 @@ const ClientPortal = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button size="sm" variant="outline">
-                                <span className="material-icons text-xs mr-1">visibility</span>
+                              <Button size="sm" variant="outline" className="gap-1">
+                                <Eye className="h-3.5 w-3.5" />
                                 Ver
                               </Button>
                               <Button 
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => setSelectedClientId(client.id)}
+                                className="gap-1"
                               >
-                                <span className="material-icons text-xs mr-1">upload</span>
+                                <Upload className="h-3.5 w-3.5" />
                                 Docs
                               </Button>
                             </div>
@@ -183,8 +193,8 @@ const ClientPortal = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Personalize o formulário e os tipos de documentos que os clientes podem enviar.
                     </p>
-                    <Button variant="outline" className="w-full">
-                      <span className="material-icons text-sm mr-1">settings</span>
+                    <Button variant="outline" className="w-full gap-1">
+                      <Settings className="h-4 w-4" />
                       Configurar Formulário
                     </Button>
                   </div>
@@ -210,8 +220,8 @@ const ClientPortal = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    <span className="material-icons text-sm mr-1">settings</span>
+                  <Button variant="outline" className="w-full gap-1">
+                    <Settings className="h-4 w-4" />
                     Gerenciar Integração
                   </Button>
                 </CardFooter>
@@ -301,12 +311,12 @@ const ClientPortal = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button size="sm" variant="outline">
-                                <span className="material-icons text-xs mr-1">visibility</span>
+                              <Button size="sm" variant="outline" className="gap-1">
+                                <Eye className="h-3.5 w-3.5" />
                                 Ver
                               </Button>
-                              <Button size="sm" variant="outline">
-                                <span className="material-icons text-xs mr-1">download</span>
+                              <Button size="sm" variant="outline" className="gap-1">
+                                <Download className="h-3.5 w-3.5" />
                                 Baixar
                               </Button>
                             </div>
