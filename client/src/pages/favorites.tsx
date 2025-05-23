@@ -165,13 +165,13 @@ const Favorites = () => {
                 <CardFooter>
                   <Button 
                     variant="outline" 
-                    className="w-full" 
+                    className="w-full gap-1" 
                     onClick={() => {
                       setSelectedPropertyId(property.id);
                       setIsViewDialogOpen(true);
                     }}
                   >
-                    <span className="material-icons text-sm mr-1">visibility</span>
+                    <Eye className="h-4 w-4" />
                     Ver detalhes
                   </Button>
                 </CardFooter>
@@ -181,7 +181,7 @@ const Favorites = () => {
         ) : (
           <div className="text-center py-12 px-4">
             <div className="inline-block p-3 rounded-full bg-muted mb-4">
-              <span className="material-icons text-4xl text-muted-foreground">favorite_border</span>
+              <HeartOff className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-medium mb-2">Nenhum imóvel favorito</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
