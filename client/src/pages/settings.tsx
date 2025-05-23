@@ -268,19 +268,19 @@ const Settings = () => {
                     <h3 className="font-semibold">Recursos do seu plano</h3>
                     <ul className="space-y-2">
                       <li className="flex items-center">
-                        <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                        <CheckCircle className="text-success mr-2 h-4 w-4" />
                         <span>{subscriptionData?.features?.propertyLimit || 50} imóveis</span>
                       </li>
                       <li className="flex items-center">
-                        <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                        <CheckCircle className="text-success mr-2 h-4 w-4" />
                         <span>{subscriptionData?.features?.teamMembers || 5} membros de equipe</span>
                       </li>
                       <li className="flex items-center">
-                        <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                        <CheckCircle className="text-success mr-2 h-4 w-4" />
                         <span>Site personalizado</span>
                       </li>
                       <li className="flex items-center">
-                        <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                        <CheckCircle className="text-success mr-2 h-4 w-4" />
                         <span>Integração com portais</span>
                       </li>
                     </ul>
@@ -304,15 +304,15 @@ const Settings = () => {
                 <div className="text-3xl font-bold mb-2">R$ 99<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>10 imóveis</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>1 membro de equipe</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Site básico</span>
                   </li>
                 </ul>
@@ -334,19 +334,19 @@ const Settings = () => {
                 <div className="text-3xl font-bold mb-2">R$ 199<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>50 imóveis</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>5 membros de equipe</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Site personalizado</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Integração com portais</span>
                   </li>
                 </ul>
@@ -365,23 +365,23 @@ const Settings = () => {
                 <div className="text-3xl font-bold mb-2">R$ 399<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Imóveis ilimitados</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Equipe ilimitada</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Site avançado</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Todas as integrações</span>
                   </li>
                   <li className="flex items-center text-sm">
-                    <span className="material-icons text-success mr-2 text-sm">check_circle</span>
+                    <CheckCircle className="text-success mr-2 h-4 w-4" />
                     <span>Suporte prioritário</span>
                   </li>
                 </ul>
