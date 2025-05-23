@@ -36,6 +36,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   UserPlus,
+  ShieldCheck,
 } from "lucide-react";
 
 interface SuperAdminStat {
@@ -192,7 +193,7 @@ const SuperAdminPanel = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center gap-2 mb-8">
-          <span className="material-icons text-primary text-2xl">admin_panel_settings</span>
+          <ShieldCheck className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
         
