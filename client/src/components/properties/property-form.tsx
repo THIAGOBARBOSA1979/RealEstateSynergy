@@ -966,7 +966,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                 
                 <div className="border-2 border-dashed rounded-lg p-12 text-center">
                   <div className="mx-auto flex flex-col items-center justify-center">
-                    <span className="material-icons text-4xl text-muted-foreground mb-4">cloud_upload</span>
+                    <CloudUpload className="h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="font-medium text-lg mb-2">Arraste e solte as imagens aqui</h3>
                     <p className="text-muted-foreground mb-4">
                       Ou clique para selecionar imagens do seu computador
