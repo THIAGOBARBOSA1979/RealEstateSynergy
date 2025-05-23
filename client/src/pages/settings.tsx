@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { CheckCircle } from "lucide-react";
+import { 
+  CheckCircle, 
+  MessageSquare, 
+  Link, 
+  Webhook, 
+  LayoutDashboard, 
+  Share2, 
+  Code, 
+  GanttChart,
+  HardDrive,
+  LogOut
+} from "lucide-react";
 
 import {
   Card,

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { WebsiteSection } from "@/types";
+import { PlusCircle, Edit, Trash2, GripVertical } from "lucide-react";
 
 interface SectionEditorProps {
   websiteData: any;
@@ -147,7 +148,7 @@ export default function SectionEditor({ websiteData, updateWebsiteData }: Sectio
       <div className="flex flex-row justify-between items-center">
         <h3 className="text-lg font-medium">Seções do Site</h3>
         <Button onClick={() => setIsAddDialogOpen(true)}>
-          <span className="material-icons text-sm mr-2">add</span>
+          <PlusCircle className="h-4 w-4 mr-2" />
           Adicionar Seção
         </Button>
       </div>
@@ -159,7 +160,7 @@ export default function SectionEditor({ websiteData, updateWebsiteData }: Sectio
               Seu site não tem seções. Adicione seções para construir seu site.
             </p>
             <Button onClick={() => setIsAddDialogOpen(true)} className="mt-4">
-              <span className="material-icons text-sm mr-2">add</span>
+              <PlusCircle className="h-4 w-4 mr-2" />
               Adicionar Primeira Seção
             </Button>
           </CardContent>
@@ -187,9 +188,7 @@ export default function SectionEditor({ websiteData, updateWebsiteData }: Sectio
                               {...provided.dragHandleProps}
                               className="cursor-grab mr-2"
                             >
-                              <span className="material-icons text-muted-foreground">
-                                drag_indicator
-                              </span>
+                              <GripVertical className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <CardTitle className="text-base font-medium">
                               {getSectionTypeLabel(section.type)}
@@ -203,7 +202,7 @@ export default function SectionEditor({ websiteData, updateWebsiteData }: Sectio
                               size="sm"
                               onClick={() => handleEditSection(section)}
                             >
-                              <span className="material-icons text-sm">edit</span>
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -211,7 +210,7 @@ export default function SectionEditor({ websiteData, updateWebsiteData }: Sectio
                               className="text-destructive"
                               onClick={() => handleDeleteSection(section.id)}
                             >
-                              <span className="material-icons text-sm">delete</span>
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </CardHeader>

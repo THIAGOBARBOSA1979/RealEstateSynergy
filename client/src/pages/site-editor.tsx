@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import SectionEditor from "@/components/site-editor/section-editor";
+import { Eye, Save } from "lucide-react";
 
 const SiteEditor = () => {
   const [activeTab, setActiveTab] = useState("geral");
@@ -111,7 +112,7 @@ const SiteEditor = () => {
         <div className="flex gap-2">
           <Button variant="outline" asChild>
             <a href={website.domain ? `https://${website.domain}` : "#"} target="_blank" rel="noopener noreferrer">
-              <span className="material-icons text-sm mr-1">visibility</span>
+              <Eye className="h-4 w-4 mr-1" />
               Visualizar
             </a>
           </Button>
@@ -120,7 +121,7 @@ const SiteEditor = () => {
               <>Salvando...</>
             ) : (
               <>
-                <span className="material-icons text-sm mr-1">save</span>
+                <Save className="h-4 w-4 mr-1" />
                 Salvar Alterações
               </>
             )}
