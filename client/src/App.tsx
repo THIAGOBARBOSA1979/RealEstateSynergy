@@ -22,7 +22,7 @@ import NotFound from "@/pages/not-found";
 import LandingPage from "./pages/landing-page";
 import AgentWebsite from "./pages/agent-website";
 import SuperAdminPanel from "./pages/super-admin";
-import PropertyDetail from "./pages/property-detail";
+import PropertyDetailNew from "./pages/property-detail-new";
 
 function Router() {
   return (
@@ -30,7 +30,7 @@ function Router() {
       {/* Páginas públicas */}
       <Route path="/landing" component={LandingPage} />
       <Route path="/agente/:agentId" component={AgentWebsite} />
-      <Route path="/imovel/:id" component={PropertyDetail} />
+      <Route path="/imovel/:id" component={PropertyDetailNew} />
       
       {/* Painel Admin */}
       <Route path="/super-admin" component={SuperAdminPanel} />
