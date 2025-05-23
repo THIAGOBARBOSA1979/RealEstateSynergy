@@ -183,7 +183,7 @@ const CRM = () => {
                         onClick={() => handleAddLeadToStage(stage.id)}
                         className="text-xs"
                       >
-                        <span className="material-icons text-xs mr-1">add</span>
+                        <Plus className="h-3 w-3 mr-1" />
                         Adicionar Lead
                       </Button>
                     </div>
@@ -196,7 +196,7 @@ const CRM = () => {
                     className="w-full flex items-center justify-center text-xs text-muted-foreground hover:text-primary"
                     onClick={() => handleAddLeadToStage(stage.id)}
                   >
-                    <span className="material-icons text-xs mr-1">add</span>
+                    <Plus className="h-3 w-3 mr-1" />
                     Adicionar Lead
                   </Button>
                 )}
