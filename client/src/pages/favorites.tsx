@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyView from "@/components/properties/property-view";
+import { Search, Plus, Heart, HeartOff, Image, Eye } from "lucide-react";
 
 const Favorites = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,7 +61,7 @@ const Favorites = () => {
           <div className="flex gap-2">
             <div className="relative w-full max-w-sm">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <span className="material-icons text-sm">search</span>
+                <Search className="h-4 w-4" />
               </span>
               <Input
                 placeholder="Buscar por título, endereço ou tipo..."
@@ -72,8 +73,9 @@ const Favorites = () => {
             <Button 
               onClick={() => navigate("/properties")}
               variant="secondary"
+              className="gap-1"
             >
-              <span className="material-icons text-sm mr-2">add</span>
+              <Plus className="h-4 w-4" />
               Explorar Imóveis
             </Button>
           </div>
@@ -126,7 +128,7 @@ const Favorites = () => {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground">
-                      <span className="material-icons text-4xl">image</span>
+                      <Image className="h-16 w-16 opacity-25" />
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
@@ -139,8 +141,8 @@ const Favorites = () => {
                     </Badge>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <Badge className="bg-transparent hover:bg-primary/20 border-primary/50 text-white cursor-pointer">
-                      <span className="material-icons text-sm mr-1">favorite</span>
+                    <Badge className="bg-transparent hover:bg-primary/20 border-primary/50 text-white cursor-pointer gap-1">
+                      <Heart className="h-3 w-3 fill-current" />
                       Favorito
                     </Badge>
                   </div>
