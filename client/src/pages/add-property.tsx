@@ -2,6 +2,7 @@ import { useLocation, Link } from "wouter";
 import PropertyForm from "@/components/properties/property-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Plus } from "lucide-react";
 
 const AddProperty = () => {
   const [, navigate] = useLocation();
@@ -15,8 +16,8 @@ const AddProperty = () => {
             Preencha os dados do novo imóvel para adicionar ao seu catálogo
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate("/properties")}>
-          <span className="material-icons text-sm mr-2">arrow_back</span>
+        <Button variant="outline" onClick={() => navigate("/properties")} className="gap-1">
+          <ArrowLeft className="h-4 w-4" />
           Voltar para Imóveis
         </Button>
       </div>

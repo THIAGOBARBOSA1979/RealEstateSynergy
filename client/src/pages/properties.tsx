@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PropertyTable from "@/components/dashboard/property-table";
+import { Plus } from "lucide-react";
 
 const Properties = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,8 +23,8 @@ const Properties = () => {
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-heading font-bold">Meus Imóveis</h1>
-        <Button onClick={() => navigate("/add-property")}>
-          <span className="material-icons text-sm mr-1">add</span>
+        <Button onClick={() => navigate("/add-property")} className="gap-1">
+          <Plus className="h-4 w-4" />
           Adicionar Imóvel
         </Button>
       </div>
