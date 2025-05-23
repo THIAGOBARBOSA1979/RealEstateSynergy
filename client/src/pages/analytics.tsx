@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bar, Line, Pie } from "recharts";
+import { Download, Globe, Users, TrendingUp, Home } from "lucide-react";
 
 const Analytics = () => {
   const [timeframe, setTimeframe] = useState("month");
@@ -48,8 +49,8 @@ const Analytics = () => {
               <SelectItem value="year">Último Ano</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
-            <span className="material-icons text-sm mr-1">download</span>
+          <Button variant="outline" className="gap-1">
+            <Download className="h-4 w-4" />
             Exportar
           </Button>
         </div>
@@ -78,7 +79,7 @@ const Analytics = () => {
                       <CardTitle className="text-sm font-medium">
                         Visitantes Totais
                       </CardTitle>
-                      <span className="material-icons text-muted-foreground">language</span>
+                      <Globe className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
@@ -96,7 +97,7 @@ const Analytics = () => {
                       <CardTitle className="text-sm font-medium">
                         Leads Gerados
                       </CardTitle>
-                      <span className="material-icons text-muted-foreground">people</span>
+                      <Users className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
@@ -114,7 +115,7 @@ const Analytics = () => {
                       <CardTitle className="text-sm font-medium">
                         Taxa de Conversão
                       </CardTitle>
-                      <span className="material-icons text-muted-foreground">trending_up</span>
+                      <TrendingUp className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
@@ -132,7 +133,7 @@ const Analytics = () => {
                       <CardTitle className="text-sm font-medium">
                         Imóveis Vendidos
                       </CardTitle>
-                      <span className="material-icons text-muted-foreground">real_estate_agent</span>
+                      <Home className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
