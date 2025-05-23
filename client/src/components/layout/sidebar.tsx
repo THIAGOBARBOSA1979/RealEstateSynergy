@@ -2,26 +2,65 @@ import { useLocation, Link } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { 
+  LayoutDashboard,
+  Home,
+  Heart,
+  BarChart2,
+  Users,
+  FileText,
+  User,
+  Link as LinkIcon,
+  Globe,
+  Settings,
+  Sun,
+  Moon
+} from "lucide-react";
+import { ReactNode } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
-const menuItems = [
-  { path: "/", label: "Dashboard", icon: "dashboard" },
-  { path: "/properties", label: "My Units", icon: "home" },
-  { path: "/favorites", label: "Favorites", icon: "favorite", badge: 2 },
-  { path: "/analytics", label: "Analytics", icon: "bar_chart" },
-  { path: "/crm", label: "Client Data", icon: "people" },
-  { path: "/site-editor", label: "Documents", icon: "description" },
-  { path: "/team", label: "Team", icon: "group" },
-  { path: "/affiliate", label: "Affiliation", icon: "link" },
-  { path: "/client-portal", label: "Client Portal", icon: "public" },
-  { path: "/settings", label: "Settings", icon: "settings" },
-];
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: string;
+  badge?: number;
+}
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
   const [location] = useLocation();
+
+  // Mapeamento de ícones string para componentes React
+  const getIcon = (iconName: string): ReactNode => {
+    switch (iconName) {
+      case "dashboard": return <LayoutDashboard className="w-5 h-5" />;
+      case "home": return <Home className="w-5 h-5" />;
+      case "favorite": return <Heart className="w-5 h-5" />;
+      case "bar_chart": return <BarChart2 className="w-5 h-5" />;
+      case "people": return <Users className="w-5 h-5" />;
+      case "description": return <FileText className="w-5 h-5" />;
+      case "group": return <Users className="w-5 h-5" />;
+      case "link": return <LinkIcon className="w-5 h-5" />;
+      case "public": return <Globe className="w-5 h-5" />;
+      case "settings": return <Settings className="w-5 h-5" />;
+      default: return <Home className="w-5 h-5" />;
+    }
+  };
+
+  const menuItems: MenuItem[] = [
+    { path: "/", label: "Dashboard", icon: "dashboard" },
+    { path: "/properties", label: "My Units", icon: "home" },
+    { path: "/favorites", label: "Favorites", icon: "favorite", badge: 2 },
+    { path: "/analytics", label: "Analytics", icon: "bar_chart" },
+    { path: "/crm", label: "Client Data", icon: "people" },
+    { path: "/site-editor", label: "Documents", icon: "description" },
+    { path: "/team", label: "Team", icon: "group" },
+    { path: "/affiliate", label: "Affiliation", icon: "link" },
+    { path: "/client-portal", label: "Client Portal", icon: "public" },
+    { path: "/settings", label: "Settings", icon: "settings" },
+  ];
 
   return (
     <aside 
@@ -34,14 +73,14 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
         {/* Logo Area */}
         <div className="px-4 py-4 border-b border-gray-100">
           <h1 className="text-xl font-bold flex items-center text-primary">
-            <span className="material-icons mr-2 text-accent">home</span>
-            MyProperty
+            <Home className="w-5 h-5 mr-2 text-accent" />
+            <span className={cn(!isOpen && "md:hidden")}>MyProperty</span>
           </h1>
         </div>
         
         {/* Menu Category */}
-        <div className="px-4 pt-6 pb-2">
-          <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+        <div className={cn("px-4 pt-6 pb-2", !isOpen && "md:px-2")}>
+          <h2 className={cn("text-xs font-medium text-gray-400 uppercase tracking-wider", !isOpen && "md:hidden")}>
             MAIN MENUS
           </h2>
         </div>
@@ -60,17 +99,17 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
                       : "text-gray-700 hover:bg-gray-50"
                   )}
                 >
-                  <span 
+                  <div 
                     className={cn(
-                      "material-icons mr-3 text-[20px]",
+                      "mr-3",
                       location === item.path ? "text-orange-500" : "text-gray-500"
                     )}
                   >
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
+                    {getIcon(item.icon)}
+                  </div>
+                  <span className={cn(!isOpen && "md:hidden")}>{item.label}</span>
                   {item.badge && (
-                    <Badge variant="outline" className="ml-auto border-red-200 bg-red-50 text-red-500 hover:bg-red-50">
+                    <Badge variant="outline" className={cn("ml-auto border-red-200 bg-red-50 text-red-500 hover:bg-red-50", !isOpen && "md:hidden")}>
                       {item.badge}
                     </Badge>
                   )}
@@ -81,7 +120,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
         </nav>
         
         {/* Current Plan Section */}
-        <div className="p-4 mx-3 my-4 bg-orange-50 rounded-xl">
+        <div className={cn("p-4 mx-3 my-4 bg-orange-50 rounded-xl", !isOpen && "md:hidden")}>
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-semibold text-gray-800">Current Plan</h3>
             <Badge className="bg-orange-500 hover:bg-orange-600">
@@ -105,13 +144,13 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
         </div>
         
         {/* Theme Toggle */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+        <div className={cn("flex items-center justify-between px-4 py-3 border-t border-gray-100", !isOpen && "md:hidden")}>
           <Button variant="ghost" size="sm" className="text-xs flex items-center text-gray-500 px-2">
-            <span className="material-icons text-sm mr-1">light_mode</span>
+            <Sun className="w-4 h-4 mr-1" />
             Light
           </Button>
           <Button variant="ghost" size="sm" className="text-xs flex items-center text-gray-500 px-2">
-            <span className="material-icons text-sm mr-1">dark_mode</span>
+            <Moon className="w-4 h-4 mr-1" />
             Dark
           </Button>
         </div>
