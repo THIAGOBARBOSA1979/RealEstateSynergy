@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/queryClient";
+import { Plus, Settings, Edit, MoreVertical } from "lucide-react";
 
 // Components
 import LeadForm from "@/components/crm/lead-form";
@@ -98,12 +99,12 @@ const CRM = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-heading font-bold">CRM (Pipeline de Vendas)</h1>
         <div className="flex gap-2">
-          <Button onClick={() => setIsAddLeadOpen(true)}>
-            <span className="material-icons text-sm mr-1">add</span>
+          <Button onClick={() => setIsAddLeadOpen(true)} className="gap-1">
+            <Plus className="h-4 w-4" />
             Novo Lead
           </Button>
-          <Button variant="outline" onClick={() => setIsStageSettingsOpen(true)}>
-            <span className="material-icons text-sm mr-1">settings</span>
+          <Button variant="outline" onClick={() => setIsStageSettingsOpen(true)} className="gap-1">
+            <Settings className="h-4 w-4" />
             Configurar Etapas
           </Button>
         </div>
@@ -163,10 +164,10 @@ const CRM = () => {
                         <span className="text-xs text-muted-foreground">{lead.timeAgo}</span>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-primary">
-                            <span className="material-icons text-sm">edit</span>
+                            <Edit className="h-3.5 w-3.5" />
                           </Button>
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-primary">
-                            <span className="material-icons text-sm">more_vert</span>
+                            <MoreVertical className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>

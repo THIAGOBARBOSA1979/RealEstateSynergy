@@ -40,6 +40,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@/types";
+import { UserPlus, Edit, Plus } from "lucide-react";
 
 const Team = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -154,8 +155,8 @@ const Team = () => {
         <h1 className="text-2xl font-heading font-bold">Gerenciamento de Equipe</h1>
         <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <span className="material-icons text-sm mr-1">person_add</span>
+            <Button className="gap-1">
+              <UserPlus className="h-4 w-4" />
               Adicionar Membro
             </Button>
           </DialogTrigger>
@@ -295,7 +296,7 @@ const Team = () => {
                             {member.active ? "Desativar" : "Ativar"}
                           </Button>
                           <Button variant="outline" size="sm">
-                            <span className="material-icons text-sm">edit</span>
+                            <Edit className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
