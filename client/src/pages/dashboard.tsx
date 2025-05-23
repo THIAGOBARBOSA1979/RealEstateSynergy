@@ -57,8 +57,8 @@ const Dashboard = () => {
     year: 'numeric'
   });
   
-  // Determinar o status de progressão dos objetivos
-  const leadsTarget = 50; // Meta fictícia para demonstração
+  // Meta fictícia para demonstração
+  const leadsTarget = 50;
   const progressStatus = stats?.leads
     ? (stats.leads / leadsTarget) * 100 
     : 0;
