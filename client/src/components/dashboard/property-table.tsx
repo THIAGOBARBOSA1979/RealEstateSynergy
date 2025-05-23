@@ -14,6 +14,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  MoreVertical, 
+  ChevronLeft, 
+  ChevronRight, 
+  Eye, 
+  Edit, 
+  Star, 
+  StarOff, 
+  Copy, 
+  Trash2 
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -251,7 +262,7 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="text-muted-foreground h-8 w-8">
-                            <span className="material-icons">more_vert</span>
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -261,21 +272,23 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
                             setSelectedPropertyId(property.id);
                             setIsViewDialogOpen(true);
                           }}>
-                            <span className="material-icons mr-2 text-sm">visibility</span>
+                            <Eye className="h-4 w-4 mr-2" />
                             Visualizar
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleEdit(property.id)}>
-                            <span className="material-icons mr-2 text-sm">edit</span>
+                            <Edit className="h-4 w-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleFeatured(property)}>
-                            <span className="material-icons mr-2 text-sm">
-                              {property.featured ? "star" : "star_border"}
-                            </span>
+                            {property.featured ? (
+                              <StarOff className="h-4 w-4 mr-2" />
+                            ) : (
+                              <Star className="h-4 w-4 mr-2" />
+                            )}
                             {property.featured ? "Remover destaque" : "Destacar"}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDuplicate(property)}>
-                            <span className="material-icons mr-2 text-sm">content_copy</span>
+                            <Copy className="h-4 w-4 mr-2" />
                             Duplicar
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -283,7 +296,7 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
                             className="text-destructive focus:text-destructive"
                             onClick={() => handleDeleteClick(property.id)}
                           >
-                            <span className="material-icons mr-2 text-sm">delete_outline</span>
+                            <Trash2 className="h-4 w-4 mr-2" />
                             Excluir
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -316,7 +329,7 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
-              <span className="material-icons">chevron_left</span>
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             
             {[...Array(Math.min(3, data.totalPages))].map((_, index) => (
@@ -338,7 +351,7 @@ const PropertyTable = ({ limit }: PropertyTableProps) => {
               disabled={page === data.totalPages}
               onClick={() => setPage(page + 1)}
             >
-              <span className="material-icons">chevron_right</span>
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
