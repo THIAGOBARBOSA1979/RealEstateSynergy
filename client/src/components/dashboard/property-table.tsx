@@ -196,6 +196,36 @@ const PropertyTable = ({
       featured: !property.featured,
     });
   };
+  
+  // Converter propriedade em empreendimento
+  const handleConvertToDevelopment = (propertyId: number) => {
+    if (confirm("Tem certeza que deseja converter este imóvel em um empreendimento com uma unidade? Esta ação não pode ser desfeita.")) {
+      // Usar diretamente apiRequest em vez de criar uma mutation dentro da função
+      apiRequest(`/api/properties/${propertyId}/convert-to-development`, {
+        method: 'POST'
+      })
+      .then((data) => {
+        toast({
+          title: "Conversão realizada",
+          description: "Imóvel convertido em empreendimento com sucesso.",
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/developments'] });
+        
+        // Redirecionar para o novo empreendimento
+        setTimeout(() => {
+          navigate(`/development-detail/${data.development.id}`);
+        }, 1500);
+      })
+      .catch((error) => {
+        toast({
+          title: "Erro na conversão",
+          description: error.message || "Não foi possível converter o imóvel em empreendimento.",
+          variant: "destructive",
+        });
+      });
+    }
+  };
 
   const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
