@@ -203,6 +203,7 @@ const EnhancedPropertyForm = ({ initialData, onSuccess }: EnhancedPropertyFormPr
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [highlightFeature, setHighlightFeature] = useState("");
+  const { fetchAddressByCep, isLoading: isCepLoading } = useCep();
 
   // Default values for the form
   const defaultValues: Partial<PropertyFormValues> = {
@@ -337,6 +338,33 @@ const EnhancedPropertyForm = ({ initialData, onSuccess }: EnhancedPropertyFormPr
     const currentFeatures = form.getValues('highlightFeatures');
     const newFeatures = currentFeatures.filter((_, index) => index !== indexToRemove);
     form.setValue('highlightFeatures', newFeatures);
+  };
+  
+  // Função para buscar e preencher os campos de endereço com base no CEP
+  const handleCepSearch = async () => {
+    const cep = form.getValues('zipCode');
+    if (!cep || cep.length < 8) {
+      toast({
+        title: "CEP incompleto",
+        description: "Digite um CEP válido com 8 dígitos",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const addressData = await fetchAddressByCep(cep);
+    if (addressData) {
+      form.setValue('address', addressData.street);
+      form.setValue('neighborhood', addressData.neighborhood);
+      form.setValue('city', addressData.city);
+      form.setValue('state', addressData.state);
+      
+      toast({
+        title: "Endereço encontrado",
+        description: "Os campos de endereço foram preenchidos automaticamente",
+        variant: "default"
+      });
+    }
   };
 
   return (
@@ -677,6 +705,54 @@ const EnhancedPropertyForm = ({ initialData, onSuccess }: EnhancedPropertyFormPr
               <TabsContent value="location" className="space-y-6 mt-4">
                 <h2 className="text-xl font-heading font-semibold">Localização</h2>
                 <Separator />
+                
+                {/* Campo de CEP com busca automática */}
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4 text-blue-500" />
+                    <h3 className="text-sm font-medium">Busca por CEP</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Digite o CEP para preencher automaticamente os campos de endereço
+                  </p>
+                  
+                  <div className="flex gap-2">
+                    <FormField
+                      control={form.control}
+                      name="zipCode"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input 
+                              placeholder="Digite o CEP: 00000-000" 
+                              {...field}
+                              className="h-10" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={handleCepSearch}
+                      disabled={isCepLoading}
+                      className="h-10"
+                    >
+                      {isCepLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                          <span>Buscando...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Search className="h-4 w-4" />
+                          <span>Buscar</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
