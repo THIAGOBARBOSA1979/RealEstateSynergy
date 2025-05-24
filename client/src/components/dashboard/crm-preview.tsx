@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { MoreVertical } from "lucide-react";
 
 interface CrmStage {
   id: string;
@@ -80,7 +81,7 @@ const CrmPreview = () => {
                       <div className="flex items-center justify-between mt-3">
                         <span className="text-xs text-muted-foreground">{lead.timeAgo}</span>
                         <Button variant="ghost" size="sm" className="h-auto p-1 text-muted-foreground hover:text-primary">
-                          <span className="material-icons text-sm">more_vert</span>
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

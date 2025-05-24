@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronRight, Clock, UserPlus, Calendar, FileText } from "lucide-react";
 
 interface ActivityItem {
   id: number;

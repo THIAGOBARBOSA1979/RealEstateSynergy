@@ -231,7 +231,7 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
                   className="flex-1"
                 />
                 <Button onClick={handleAddStage} disabled={updateStagesMutation.isPending}>
-                  <span className="material-icons text-sm mr-1">add</span>
+                  <Plus className="h-4 w-4 mr-1" />
                   Adicionar
                 </Button>
               </div>
@@ -260,7 +260,7 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
                               className="p-3 flex items-center justify-between gap-2 border"
                             >
                               <div {...provided.dragHandleProps} className="cursor-grab">
-                                <span className="material-icons">drag_indicator</span>
+                                <GripVertical className="h-5 w-5" />
                               </div>
                               <div className="flex-1">
                                 <Input
@@ -299,7 +299,7 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
                                           title={color.label}
                                         >
                                           {stage.color === color.value && (
-                                            <span className="material-icons text-white text-sm">check</span>
+                                            <Check className="h-3 w-3 text-white" />
                                           )}
                                           <span className="sr-only">{color.label}</span>
                                         </Button>
@@ -325,7 +325,7 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
                                   disabled={stage.isDefault || stage.isArchive || updateStagesMutation.isPending}
                                   className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 >
-                                  <span className="material-icons">delete</span>
+                                  <Trash className="h-4 w-4" />
                                 </Button>
                               </div>
                             </Card>
@@ -340,7 +340,7 @@ const StageSettingsDialog = ({ isOpen, onClose }: StageSettingsDialogProps) => {
 
               <div className="text-sm text-muted-foreground mt-4">
                 <p className="flex items-center gap-1">
-                  <span className="material-icons text-sm">info</span>
+                  <Info className="h-3.5 w-3.5" />
                   Etapas padrão e arquivadas não podem ser removidas.
                 </p>
               </div>
