@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
+import { Menu, Search, ChevronDown } from "lucide-react";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -29,10 +30,10 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
             className="mr-2 text-gray-500 md:hidden"
             onClick={toggleSidebar}
           >
-            <span className="material-icons">menu</span>
+            <Menu className="h-5 w-5" />
           </Button>
           
-          <span className="material-icons text-gray-400 mr-2 hidden md:block">menu</span>
+          <Menu className="text-gray-400 mr-2 hidden md:block h-5 w-5" />
           
           {/* Search Input */}
           <div className="relative w-64 md:w-80">
@@ -40,7 +41,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               placeholder="Search properties, customers, etc..." 
               className="pl-10 pr-4 py-2 h-9 text-sm bg-gray-50 border-gray-200 rounded-lg" 
             />
-            <span className="material-icons absolute left-3 top-2 text-gray-400">search</span>
+            <Search className="h-4 w-4 absolute left-3 top-2.5 text-gray-400" />
           </div>
         </div>
         
@@ -50,7 +51,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
           </div>
           
           <Button variant="ghost" size="icon" className="text-gray-500">
-            <span className="material-icons">expand_more</span>
+            <ChevronDown className="h-5 w-5" />
           </Button>
         </div>
       </div>
