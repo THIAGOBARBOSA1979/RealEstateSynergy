@@ -27,7 +27,25 @@ import {
   DialogHeader,
   DialogFooter
 } from "@/components/ui/dialog";
-import { Plus, Building, Home, CheckCircle, AlertCircle } from "lucide-react";
+import { 
+  Plus, 
+  Building, 
+  Home, 
+  CheckCircle, 
+  AlertCircle, 
+  BarChart, 
+  Search, 
+  RefreshCcw, 
+  MessageSquare,
+  Rocket,
+  Megaphone,
+  Mail,
+  Smartphone,
+  Facebook,
+  Instagram
+} from "lucide-react";
+import { FaGoogle, FaFacebook, FaTiktok, FaPinterest, FaYoutube, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { SiTiktok, SiGoogleads, SiGoogleanalytics, SiMailchimp, SiHubspot } from "react-icons/si";
 import { UseMutationResult } from "@tanstack/react-query";
 
 const portalsList = [
@@ -340,94 +358,608 @@ export default function PortalIntegrations({
         </TabsContent>
 
         <TabsContent value="other" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Outras Integrações</CardTitle>
-              <CardDescription>
-                Configure outras integrações para aprimorar sua plataforma
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingIntegrations ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="googleDrive">Google Drive</Label>
-                      <p className="text-xs text-muted-foreground">Salve documentos automaticamente no Google Drive</p>
+          <Tabs defaultValue="marketing" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="marketing">Marketing e Tracking</TabsTrigger>
+              <TabsTrigger value="productivity">Produtividade</TabsTrigger>
+              <TabsTrigger value="social">Redes Sociais</TabsTrigger>
+              <TabsTrigger value="crm">CRM e Comunicação</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="marketing" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Integrações de Marketing e Analytics</CardTitle>
+                  <CardDescription>
+                    Configure rastreamento de conversões e métricas para suas campanhas
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isLoadingIntegrations ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </div>
-                    <Switch 
-                      id="googleDrive"
-                      checked={integrationSettings?.googleDrive?.enabled || false}
-                      onCheckedChange={(checked) => handleOtherIntegrationToggle('googleDrive', checked)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="whatsapp">WhatsApp</Label>
-                      <p className="text-xs text-muted-foreground">Envie mensagens automaticamente via WhatsApp</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <SiGoogleanalytics className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="googleAnalytics">Google Analytics</Label>
+                              <p className="text-xs text-muted-foreground">Monitore o tráfego e conversões</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="googleAnalytics"
+                            checked={integrationSettings?.googleAnalytics?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('googleAnalytics', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.googleAnalytics?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="gaMeasurementId" className="text-xs">Measurement ID</Label>
+                              <Input 
+                                id="gaMeasurementId" 
+                                placeholder="G-XXXXXXXXXX" 
+                                value={integrationSettings?.googleAnalytics?.measurementId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    googleAnalytics: {
+                                      ...currentSettings.googleAnalytics,
+                                      measurementId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaFacebook className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="facebook">Facebook Pixel</Label>
+                              <p className="text-xs text-muted-foreground">Rastreie conversões e eventos</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="facebook"
+                            checked={integrationSettings?.facebook?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('facebook', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.facebook?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="fbPixelId" className="text-xs">Pixel ID</Label>
+                              <Input 
+                                id="fbPixelId" 
+                                placeholder="XXXXXXXXXXXXXXXXXX" 
+                                value={integrationSettings?.facebook?.pixelId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    facebook: {
+                                      ...currentSettings.facebook,
+                                      pixelId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <SiGoogleads className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="googleAds">Google Ads</Label>
+                              <p className="text-xs text-muted-foreground">Rastreie conversões de anúncios</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="googleAds"
+                            checked={integrationSettings?.googleAds?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('googleAds', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.googleAds?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="googleAdsId" className="text-xs">Conversion ID</Label>
+                              <Input 
+                                id="googleAdsId" 
+                                placeholder="AW-XXXXXXXXXX" 
+                                value={integrationSettings?.googleAds?.conversionId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    googleAds: {
+                                      ...currentSettings.googleAds,
+                                      conversionId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <SiTiktok className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="tiktok">TikTok Pixel</Label>
+                              <p className="text-xs text-muted-foreground">Rastreie eventos do TikTok Ads</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="tiktok"
+                            checked={integrationSettings?.tiktok?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('tiktok', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.tiktok?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="tiktokPixelId" className="text-xs">Pixel ID</Label>
+                              <Input 
+                                id="tiktokPixelId" 
+                                placeholder="XXXXXXXXXXXXXXXXXX" 
+                                value={integrationSettings?.tiktok?.pixelId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    tiktok: {
+                                      ...currentSettings.tiktok,
+                                      pixelId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <Rocket className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="gtm">Google Tag Manager</Label>
+                              <p className="text-xs text-muted-foreground">Gerencie todos os scripts</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="gtm"
+                            checked={integrationSettings?.gtm?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('gtm', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.gtm?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="gtmId" className="text-xs">Container ID</Label>
+                              <Input 
+                                id="gtmId" 
+                                placeholder="GTM-XXXXXXX" 
+                                value={integrationSettings?.gtm?.containerId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    gtm: {
+                                      ...currentSettings.gtm,
+                                      containerId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <SiHubspot className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="hubspot">HubSpot</Label>
+                              <p className="text-xs text-muted-foreground">Marketing automation e tracking</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="hubspot"
+                            checked={integrationSettings?.hubspot?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('hubspot', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.hubspot?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="hubspotId" className="text-xs">Tracking Code ID</Label>
+                              <Input 
+                                id="hubspotId" 
+                                placeholder="XXXXXXXX" 
+                                value={integrationSettings?.hubspot?.trackingId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    hubspot: {
+                                      ...currentSettings.hubspot,
+                                      trackingId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <Switch 
-                      id="whatsapp"
-                      checked={integrationSettings?.whatsapp?.enabled || false}
-                      onCheckedChange={(checked) => handleOtherIntegrationToggle('whatsapp', checked)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="googleSheets">Google Sheets</Label>
-                      <p className="text-xs text-muted-foreground">Sincronize dados com planilhas do Google</p>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={() => handleIntegrationUpdate(integrationSettings)}
+                    disabled={updateIntegrationsMutation.isPending}
+                    className="ml-auto"
+                  >
+                    {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="productivity" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Integrações de Produtividade</CardTitle>
+                  <CardDescription>
+                    Conecte com ferramentas que aumentam sua produtividade
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isLoadingIntegrations ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </div>
-                    <Switch 
-                      id="googleSheets"
-                      checked={integrationSettings?.googleSheets?.enabled || false}
-                      onCheckedChange={(checked) => handleOtherIntegrationToggle('googleSheets', checked)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="facebook">Facebook Pixel</Label>
-                      <p className="text-xs text-muted-foreground">Rastreie conversões e eventos no Facebook</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaGoogle className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="googleDrive">Google Drive</Label>
+                              <p className="text-xs text-muted-foreground">Armazenamento de documentos</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="googleDrive"
+                            checked={integrationSettings?.googleDrive?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('googleDrive', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.googleDrive?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="flex items-center space-x-1 text-xs text-green-600 mb-2">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>Conectado</span>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="w-full text-xs"
+                            >
+                              Configurar Pastas
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <RefreshCcw className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="googleSheets">Google Sheets</Label>
+                              <p className="text-xs text-muted-foreground">Sincronize seus dados</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="googleSheets"
+                            checked={integrationSettings?.googleSheets?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('googleSheets', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.googleSheets?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="spreadsheetId" className="text-xs">ID da Planilha</Label>
+                              <Input 
+                                id="spreadsheetId" 
+                                placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms" 
+                                value={integrationSettings?.googleSheets?.spreadsheetId || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    googleSheets: {
+                                      ...currentSettings.googleSheets,
+                                      spreadsheetId: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <Switch 
-                      id="facebook"
-                      checked={integrationSettings?.facebook?.enabled || false}
-                      onCheckedChange={(checked) => handleOtherIntegrationToggle('facebook', checked)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="googleAnalytics">Google Analytics</Label>
-                      <p className="text-xs text-muted-foreground">Monitore o tráfego e conversões em seu site</p>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={() => handleIntegrationUpdate(integrationSettings)}
+                    disabled={updateIntegrationsMutation.isPending}
+                    className="ml-auto"
+                  >
+                    {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="social" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Redes Sociais</CardTitle>
+                  <CardDescription>
+                    Conecte com suas redes sociais para automatizar postagens
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isLoadingIntegrations ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </div>
-                    <Switch 
-                      id="googleAnalytics"
-                      checked={integrationSettings?.googleAnalytics?.enabled || false}
-                      onCheckedChange={(checked) => handleOtherIntegrationToggle('googleAnalytics', checked)}
-                    />
-                  </div>
-                </>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={() => handleIntegrationUpdate(integrationSettings)}
-                disabled={updateIntegrationsMutation.isPending}
-                className="ml-auto"
-              >
-                {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-              </Button>
-            </CardFooter>
-          </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaInstagram className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="instagram">Instagram</Label>
+                              <p className="text-xs text-muted-foreground">Publique fotos de imóveis</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="instagram"
+                            checked={integrationSettings?.instagram?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('instagram', checked)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaFacebook className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="facebookPage">Facebook Page</Label>
+                              <p className="text-xs text-muted-foreground">Publique imóveis automaticamente</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="facebookPage"
+                            checked={integrationSettings?.facebookPage?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('facebookPage', checked)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaLinkedin className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="linkedin">LinkedIn</Label>
+                              <p className="text-xs text-muted-foreground">Compartilhe com sua rede</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="linkedin"
+                            checked={integrationSettings?.linkedin?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('linkedin', checked)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FaYoutube className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="youtube">YouTube</Label>
+                              <p className="text-xs text-muted-foreground">Upload de vídeos de imóveis</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="youtube"
+                            checked={integrationSettings?.youtube?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('youtube', checked)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={() => handleIntegrationUpdate(integrationSettings)}
+                    disabled={updateIntegrationsMutation.isPending}
+                    className="ml-auto"
+                  >
+                    {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="crm" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>CRM e Comunicação</CardTitle>
+                  <CardDescription>
+                    Integre ferramentas de comunicação com clientes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isLoadingIntegrations ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <Smartphone className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="whatsapp">WhatsApp Business</Label>
+                              <p className="text-xs text-muted-foreground">Envie mensagens automaticamente</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="whatsapp"
+                            checked={integrationSettings?.whatsapp?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('whatsapp', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.whatsapp?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="whatsappNumber" className="text-xs">Número de Telefone</Label>
+                              <Input 
+                                id="whatsappNumber" 
+                                placeholder="5511999999999" 
+                                value={integrationSettings?.whatsapp?.phoneNumber || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    whatsapp: {
+                                      ...currentSettings.whatsapp,
+                                      phoneNumber: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <Mail className="h-5 w-5 text-primary" />
+                            <div>
+                              <Label htmlFor="mailchimp">Mailchimp</Label>
+                              <p className="text-xs text-muted-foreground">Email marketing automatizado</p>
+                            </div>
+                          </div>
+                          <Switch 
+                            id="mailchimp"
+                            checked={integrationSettings?.mailchimp?.enabled || false}
+                            onCheckedChange={(checked) => handleOtherIntegrationToggle('mailchimp', checked)}
+                          />
+                        </div>
+                        
+                        {integrationSettings?.mailchimp?.enabled && (
+                          <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="mailchimpApiKey" className="text-xs">API Key</Label>
+                              <Input 
+                                id="mailchimpApiKey" 
+                                placeholder="xxxxxxxxxxxxxxxxxxxx-usXX" 
+                                value={integrationSettings?.mailchimp?.apiKey || ''}
+                                onChange={(e) => {
+                                  const currentSettings = integrationSettings || {};
+                                  handleIntegrationUpdate({
+                                    ...currentSettings,
+                                    mailchimp: {
+                                      ...currentSettings.mailchimp,
+                                      apiKey: e.target.value
+                                    }
+                                  });
+                                }}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={() => handleIntegrationUpdate(integrationSettings)}
+                    disabled={updateIntegrationsMutation.isPending}
+                    className="ml-auto"
+                  >
+                    {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="webhooks" className="space-y-4">
