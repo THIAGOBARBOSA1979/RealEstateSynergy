@@ -51,19 +51,80 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     }
   };
 
+  // Interface de menu aprimorada com descrições
+  interface MenuItemWithDescription extends MenuItem {
+    description?: string;
+  }
+
   // Menu com submenus para organizar Imóveis e Empreendimentos
-  const menuItems: MenuItem[] = [
-    { path: "/", label: "Dashboard", icon: "dashboard" },
-    { path: "/catalog", label: "Catálogo Imobiliário", icon: "home" },
-    { path: "/developments", label: "→ Empreendimentos", icon: "building" },
-    { path: "/properties", label: "→ Imóveis Avulsos", icon: "home" },
-    { path: "/favorites", label: "Favoritos", icon: "favorite", badge: 2 },
-    { path: "/analytics", label: "Analytics", icon: "bar_chart" },
-    { path: "/crm", label: "CRM Clientes", icon: "people" },
-    { path: "/team", label: "Equipe", icon: "group" },
-    { path: "/affiliate", label: "Afiliação", icon: "link" },
-    { path: "/client-portal", label: "Portal Cliente", icon: "public" },
-    { path: "/settings", label: "Configurações", icon: "settings" },
+  const menuItems: MenuItemWithDescription[] = [
+    { 
+      path: "/", 
+      label: "Dashboard", 
+      icon: "dashboard",
+      description: "Visão geral do seu negócio imobiliário"
+    },
+    { 
+      path: "/catalog", 
+      label: "Catálogo Imobiliário", 
+      icon: "home",
+      description: "Gerenciamento completo de imóveis e empreendimentos"
+    },
+    { 
+      path: "/developments", 
+      label: "→ Empreendimentos", 
+      icon: "building",
+      description: "Gerencie seus projetos imobiliários"
+    },
+    { 
+      path: "/properties", 
+      label: "→ Imóveis Avulsos", 
+      icon: "home",
+      description: "Gerencie propriedades individuais"
+    },
+    { 
+      path: "/favorites", 
+      label: "Favoritos", 
+      icon: "favorite", 
+      badge: 2,
+      description: "Acesse seus imóveis marcados como favoritos"
+    },
+    { 
+      path: "/analytics", 
+      label: "Analytics", 
+      icon: "bar_chart",
+      description: "Estatísticas e relatórios de desempenho"
+    },
+    { 
+      path: "/crm", 
+      label: "CRM Clientes", 
+      icon: "people",
+      description: "Gestão de leads e oportunidades de vendas"
+    },
+    { 
+      path: "/team", 
+      label: "Equipe", 
+      icon: "group",
+      description: "Gerenciamento de corretores e colaboradores"
+    },
+    { 
+      path: "/affiliate", 
+      label: "Afiliação", 
+      icon: "link",
+      description: "Programa de afiliação para imobiliárias parceiras"
+    },
+    { 
+      path: "/client-portal", 
+      label: "Portal Cliente", 
+      icon: "public",
+      description: "Acesso e configuração da área do cliente"
+    },
+    { 
+      path: "/settings", 
+      label: "Configurações", 
+      icon: "settings",
+      description: "Preferências e configurações do sistema"
+    },
   ];
 
   return (
@@ -97,7 +158,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
                 <Link 
                   href={item.path}
                   className={cn(
-                    "flex items-center px-3 py-3 rounded-lg text-sm transition-colors",
+                    "flex items-start group px-3 py-3 rounded-lg text-sm transition-colors",
                     location === item.path 
                       ? "bg-orange-50 text-orange-500 font-medium"
                       : "text-gray-700 hover:bg-gray-50"
@@ -105,13 +166,20 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
                 >
                   <div 
                     className={cn(
-                      "mr-3",
+                      "mr-3 mt-0.5",
                       location === item.path ? "text-orange-500" : "text-gray-500"
                     )}
                   >
                     {getIcon(item.icon)}
                   </div>
-                  <span className={cn(!isOpen && "md:hidden")}>{item.label}</span>
+                  <div className="flex flex-col">
+                    <span className={cn(!isOpen && "md:hidden")}>{item.label}</span>
+                    {item.description && isOpen && (
+                      <span className="text-xs text-muted-foreground mt-0.5 max-w-[160px] opacity-70 group-hover:opacity-100 transition-opacity">
+                        {item.description}
+                      </span>
+                    )}
+                  </div>
                   {item.badge && (
                     <Badge variant="outline" className={cn("ml-auto border-red-200 bg-red-50 text-red-500 hover:bg-red-50", !isOpen && "md:hidden")}>
                       {item.badge}
