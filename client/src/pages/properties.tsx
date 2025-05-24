@@ -134,37 +134,138 @@ const Properties = () => {
     }
   };
 
+  // Fetch properties data
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['/api/properties', {
+      search: searchTerm,
+      propertyType,
+      status,
+      minPrice: priceRange.min,
+      maxPrice: priceRange.max,
+      bedrooms: bedrooms !== 'all' ? bedrooms : undefined,
+      featured: showFeatured ? 'true' : undefined
+    }]
+  });
+
+  // Process and filter properties
+  const filteredProperties = data?.properties || [];
+
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-heading font-bold">Meus Imóveis</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-2xl font-bold flex items-center">
+            <HomeIcon className="h-6 w-6 mr-2" /> Meus Imóveis
+          </h1>
+          <p className="text-muted-foreground">
             Gerencie suas propriedades, veja estatísticas e atualize informações
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
             <Filter className="h-4 w-4 mr-2" />
             Filtros {showAdvancedFilters ? 'Simples' : 'Avançados'}
           </Button>
-          <Button onClick={() => navigate("/add-property")} className="gap-1">
-            <Plus className="h-4 w-4" />
+          <Button onClick={() => navigate("/add-property")} className="bg-orange-500 hover:bg-orange-600">
+            <Plus className="h-4 w-4 mr-2" />
             Adicionar Imóvel
           </Button>
         </div>
       </div>
 
+      {/* Barra de filtros e visualização */}
+      <div className="flex items-center justify-between gap-4 flex-wrap mt-6">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Buscar imóveis..."
+              className="pl-9 w-[300px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
+            className="mr-2"
+          >
+            {viewMode === "list" ? (
+              <LayoutGrid className="h-4 w-4" />
+            ) : (
+              <LayoutList className="h-4 w-4" />
+            )}
+          </Button>
+          
+          <Select value={sortOrder} onValueChange={setSortOrder}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue>
+                <div className="flex items-center">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  Ordenar
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Mais recentes</SelectItem>
+              <SelectItem value="oldest">Mais antigos</SelectItem>
+              <SelectItem value="price_asc">Menor preço</SelectItem>
+              <SelectItem value="price_desc">Maior preço</SelectItem>
+              <SelectItem value="title_asc">Título (A-Z)</SelectItem>
+              <SelectItem value="title_desc">Título (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Select value={propertyType} onValueChange={setPropertyType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Todos os Tipos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Tipos</SelectItem>
+              <SelectItem value="apartment">Apartamento</SelectItem>
+              <SelectItem value="house">Casa</SelectItem>
+              <SelectItem value="commercial">Comercial</SelectItem>
+              <SelectItem value="land">Terreno</SelectItem>
+              <SelectItem value="rural">Rural</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Todos os Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Status</SelectItem>
+              <SelectItem value="active">Ativo</SelectItem>
+              <SelectItem value="reserved">Reservado</SelectItem>
+              <SelectItem value="sold">Vendido</SelectItem>
+              <SelectItem value="inactive">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
       {/* Tabs para segmentar propriedades */}
-      <Tabs defaultValue="all" className="mb-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="all">Todos os Imóveis</TabsTrigger>
-          <TabsTrigger value="active">Ativos</TabsTrigger>
-          <TabsTrigger value="featured" className="flex items-center gap-1">
+      <Tabs defaultValue="all" className="mt-4">
+        <TabsList className="w-full max-w-md grid grid-cols-4">
+          <TabsTrigger value="all" onClick={() => setStatus("all")}>
+            Todos os Imóveis
+          </TabsTrigger>
+          <TabsTrigger value="active" onClick={() => setStatus("active")}>
+            Ativos
+          </TabsTrigger>
+          <TabsTrigger value="featured" className="flex items-center gap-1" onClick={() => setShowFeatured(!showFeatured)}>
             <Star className="h-4 w-4" />
             Destacados
           </TabsTrigger>
-          <TabsTrigger value="inactive">Inativos</TabsTrigger>
+          <TabsTrigger value="inactive" onClick={() => setStatus("inactive")}>
+            Inativos
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-0">
