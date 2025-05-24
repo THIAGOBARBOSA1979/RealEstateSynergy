@@ -20,6 +20,8 @@ import {
   Eye
 } from "lucide-react";
 import SiteTab from "@/components/settings/site-tab";
+import AppearanceTab from "@/components/settings/appearance-tab";
+import PortalIntegrations from "@/components/settings/portal-integrations";
 
 import {
   Card,
@@ -1085,25 +1087,25 @@ const Settings = () => {
         </TabsContent>
 
         {/* Integrations Settings */}
-        <TabsContent value="integrations" className="space-y-4">
+        <TabsContent value="integrations">
+          <PortalIntegrations
+            isLoadingIntegrations={isLoadingIntegrations}
+            integrationSettings={integrationSettings}
+            updateIntegrationsMutation={updateIntegrationsMutation}
+            handleIntegrationUpdate={handleIntegrationUpdate}
+          />
+        </TabsContent>
+        
+        {/* Security Settings */}
+        <TabsContent value="security" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Integrações de API</CardTitle>
+              <CardTitle>Segurança</CardTitle>
               <CardDescription>
-                Configure as integrações com serviços externos.
+                Configurações de segurança de sua conta.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {isLoadingIntegrations ? (
-                <div className="space-y-6">
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                </div>
-              ) : (
-                <>
-                  {/* Google Drive Integration */}
-                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">

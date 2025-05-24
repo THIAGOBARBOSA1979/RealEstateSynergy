@@ -7,17 +7,17 @@ import {
   CardContent, 
   CardFooter 
 } from "@/components/ui/card";
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Switch, 
-  Skeleton,
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent
-} from "@/components/ui/";
+} from "@/components/ui/tabs";
 import { 
   Dialog, 
   DialogContent, 

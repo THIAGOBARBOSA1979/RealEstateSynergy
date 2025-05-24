@@ -2,27 +2,18 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { 
-  CheckCircle, 
-  MessageSquare, 
+  User, 
+  Settings as SettingsIcon, 
+  Palette, 
   Link, 
-  Webhook, 
-  LayoutDashboard, 
-  Share2, 
-  Code, 
-  GanttChart,
-  HardDrive,
-  LogOut,
-  Info,
-  AlertTriangle,
-  Plus,
-  Trash,
-  Save,
-  Eye
+  KeyRound,
+  Laptop,
+  FileText,
+  LogOut
 } from "lucide-react";
-import SiteTab from "@/components/settings/site-tab";
-import AppearanceTab from "@/components/settings/appearance-tab";
-import PortalIntegrations from "@/components/settings/portal-integrations";
+import { useToast } from "@/hooks/use-toast";
 
+// Componentes de UI
 import {
   Card,
   CardContent,
@@ -34,87 +25,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
-import PortalCredentials from "@/components/settings/portal-credentials";
+// Componentes de Configurações
+import SiteTab from "@/components/settings/site-tab";
+import AppearanceTab from "@/components/settings/appearance-tab";
+import PortalIntegrations from "@/components/settings/portal-integrations";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const [isPortalCredentialsOpen, setIsPortalCredentialsOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch user profile data
+  // Queries
   const { data: profileData, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['/api/users/me'],
   });
 
-  // Fetch subscription data
   const { data: subscriptionData, isLoading: isLoadingSubscription } = useQuery({
     queryKey: ['/api/users/me/subscription'],
   });
 
-  // Fetch integration settings
+  const { data: websiteData, isLoading: isLoadingWebsite } = useQuery({
+    queryKey: ['/api/users/me/website'],
+    staleTime: 0 // Sempre refetcha ao visitar a página
+  });
+
   const { data: integrationSettings, isLoading: isLoadingIntegrations } = useQuery({
     queryKey: ['/api/users/me/integrations'],
   });
-  
-  // Fetch website data
-  const { data: websiteData, isLoading: isLoadingWebsite, isError: isWebsiteError } = useQuery({
-    queryKey: ['/api/users/me/website'],
-    onError: () => {
-      console.log("Erro ao carregar dados do website");
-    }
-  });
 
-  // Dados temporários do website caso ocorra erro de autorização
-  const tempWebsiteData = {
-    siteName: "Meu Site Imobiliário",
-    tagline: "Os melhores imóveis da região",
-    description: "Profissional especializado no mercado imobiliário local",
-    logoUrl: "",
-    heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
-    themeColor: "#FF5A00",
-    secondaryColor: "#222222",
-    fontFamily: "inter",
-    contactEmail: "",
-    contactPhone: "",
-    address: "",
-    whatsapp: "",
-    creci: "",
-    showTestimonials: true,
-    showFeaturedProperties: true,
-    showAboutSection: true,
-    socialMedia: {
-      instagram: "",
-      facebook: "",
-      youtube: ""
-    },
-    stats: {
-      visitsToday: 0,
-      leadsGenerated: 0
-    }
-  };
-
-  // Update profile mutation
+  // Mutations
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest("PATCH", "/api/users/me", data);
-    },
+    mutationFn: (updatedProfile) => apiRequest('/api/users/me', 'PUT', updatedProfile),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
       toast({
@@ -122,178 +69,158 @@ const Settings = () => {
         description: "Suas informações foram atualizadas com sucesso.",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar suas informações.",
+        title: "Erro ao atualizar perfil",
+        description: error.message || "Houve um erro ao atualizar seu perfil.",
         variant: "destructive",
       });
     },
   });
 
-  // Update integrations mutation
-  const updateIntegrationsMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest("PATCH", "/api/users/me/integrations", data);
+  const updateWebsiteMutation = useMutation({
+    mutationFn: (updatedWebsite) => apiRequest('/api/users/me/website', 'PUT', updatedWebsite),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users/me/website'] });
+      toast({
+        title: "Website atualizado",
+        description: "As configurações do seu website foram atualizadas com sucesso.",
+      });
     },
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar website",
+        description: error.message || "Houve um erro ao atualizar as configurações do website.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateIntegrationsMutation = useMutation({
+    mutationFn: (updatedIntegrations) => apiRequest('/api/users/me/integrations', 'PUT', updatedIntegrations),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users/me/integrations'] });
       toast({
         title: "Integrações atualizadas",
-        description: "Suas configurações de integração foram atualizadas com sucesso.",
+        description: "Suas integrações foram atualizadas com sucesso.",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar suas configurações de integração.",
+        title: "Erro ao atualizar integrações",
+        description: error.message || "Houve um erro ao atualizar suas integrações.",
         variant: "destructive",
       });
     },
   });
-  
-  // Update website mutation
-  const updateWebsiteMutation = useMutation({
-    mutationFn: async (data: any) => {
-      try {
-        return await apiRequest("PUT", "/api/users/me/website", data);
-      } catch (error) {
-        console.error("Erro ao atualizar website:", error);
-        // Retorna dados temporários em caso de erro
-        return tempWebsiteData;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users/me/website'] });
-      toast({
-        title: "Site atualizado",
-        description: "As alterações do seu site foram salvas com sucesso.",
-        variant: "default",
-      });
-    },
-    onError: (error) => {
-      console.error("Erro na mutação do website:", error);
-      toast({
-        title: "Erro ao salvar",
-        description: "Estamos enfrentando problemas temporários. Seus dados foram salvos localmente.",
-        variant: "default",
-      });
-      
-      // Atualizar a UI com os dados temporários
-      queryClient.setQueryData(['/api/users/me/website'], tempWebsiteData);
-    },
-  });
 
-  // Handle profile update
-  const handleProfileUpdate = (formData: any) => {
-    updateProfileMutation.mutate(formData);
+  // Handlers
+  const handleProfileUpdate = (updatedProfile) => {
+    updateProfileMutation.mutate(updatedProfile);
   };
 
-  // Handle integration update
-  const handleIntegrationUpdate = (integrationData: any) => {
-    updateIntegrationsMutation.mutate(integrationData);
+  const handleWebsiteUpdate = (updatedWebsite) => {
+    updateWebsiteMutation.mutate(updatedWebsite);
   };
-  
-  // Handle website update - usa dados temporários se necessário
-  const handleWebsiteUpdate = (websiteData: any) => {
-    try {
-      updateWebsiteMutation.mutate(websiteData);
-    } catch (error) {
-      console.error("Erro ao atualizar website:", error);
-      // Atualiza a UI com os dados fornecidos
-      queryClient.setQueryData(['/api/users/me/website'], { ...tempWebsiteData, ...websiteData });
-      
-      toast({
-        title: "Alterações salvas localmente",
-        description: "As alterações serão sincronizadas quando a conexão for restabelecida.",
-        variant: "default",
-      });
-    }
+
+  const handleIntegrationUpdate = (updatedIntegrations) => {
+    updateIntegrationsMutation.mutate(updatedIntegrations);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl font-heading font-bold">Configurações</h1>
+    <div className="container py-8 relative w-full mx-auto space-y-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
+          <p className="text-muted-foreground">
+            Gerencie suas configurações e preferências
+          </p>
+        </div>
       </div>
 
-      {/* Portal Credentials Dialog */}
-      {integrationSettings && (
-        <PortalCredentials 
-          isOpen={isPortalCredentialsOpen}
-          onClose={() => setIsPortalCredentialsOpen(false)}
-          integrationSettings={integrationSettings}
-        />
-      )}
+      <Separator className="my-6" />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-7 w-full max-w-3xl">
+      <Tabs defaultValue="profile" className="space-y-4" onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-6 w-full">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
-          <TabsTrigger value="subscription">Assinatura</TabsTrigger>
-          <TabsTrigger value="notifications">Notificações</TabsTrigger>
-          <TabsTrigger value="domain">Domínio</TabsTrigger>
           <TabsTrigger value="site">Site</TabsTrigger>
           <TabsTrigger value="appearance">Aparência</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
+          <TabsTrigger value="security">Segurança</TabsTrigger>
+          <TabsTrigger value="advanced">Avançado</TabsTrigger>
         </TabsList>
 
-        {/* Profile Settings */}
+        {/* Perfil Settings */}
         <TabsContent value="profile" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Informações do Perfil</CardTitle>
+              <CardTitle>Perfil</CardTitle>
               <CardDescription>
-                Atualize seus dados pessoais e informações de contato.
+                Gerencie suas informações pessoais e de contato.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               {isLoadingProfile ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full" />
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
                 </div>
               ) : (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="fullName">Nome Completo</Label>
-                    <Input
-                      id="fullName"
-                      defaultValue={profileData?.fullName}
+                    <Label htmlFor="name">Nome Completo</Label>
+                    <Input 
+                      id="name" 
+                      defaultValue={profileData?.name || ""} 
                       onChange={(e) => {
-                        queryClient.setQueryData(['/api/users/me'], {
+                        handleProfileUpdate({
                           ...profileData,
-                          fullName: e.target.value,
+                          name: e.target.value
                         });
                       }}
                     />
                   </div>
+                  
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      defaultValue={profileData?.email}
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      defaultValue={profileData?.email || ""} 
                       onChange={(e) => {
-                        queryClient.setQueryData(['/api/users/me'], {
+                        handleProfileUpdate({
                           ...profileData,
-                          email: e.target.value,
+                          email: e.target.value
                         });
                       }}
                     />
                   </div>
+                  
                   <div className="grid gap-2">
                     <Label htmlFor="phone">Telefone</Label>
-                    <Input
-                      id="phone"
-                      defaultValue={profileData?.phone}
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      defaultValue={profileData?.phone || ""} 
                       onChange={(e) => {
-                        queryClient.setQueryData(['/api/users/me'], {
+                        handleProfileUpdate({
                           ...profileData,
-                          phone: e.target.value,
+                          phone: e.target.value
+                        });
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="creci">CRECI</Label>
+                    <Input 
+                      id="creci" 
+                      defaultValue={profileData?.creci || ""} 
+                      onChange={(e) => {
+                        handleProfileUpdate({
+                          ...profileData,
+                          creci: e.target.value
                         });
                       }}
                     />
@@ -305,1246 +232,149 @@ const Settings = () => {
               <Button variant="outline">Cancelar</Button>
               <Button
                 onClick={() => handleProfileUpdate(profileData)}
-                disabled={updateProfileMutation.isPending || isLoadingProfile}
+                disabled={updateProfileMutation.isPending}
               >
                 {updateProfileMutation.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
 
+        {/* Site Settings */}
+        <TabsContent value="site">
+          <SiteTab 
+            isLoadingWebsite={isLoadingWebsite}
+            websiteData={websiteData}
+            updateWebsiteMutation={updateWebsiteMutation}
+            handleWebsiteUpdate={handleWebsiteUpdate}
+            subscriptionData={subscriptionData}
+          />
+        </TabsContent>
+
+        {/* Appearance Settings */}
+        <TabsContent value="appearance">
+          <AppearanceTab 
+            isLoadingWebsite={isLoadingWebsite}
+            websiteData={websiteData}
+            updateWebsiteMutation={updateWebsiteMutation}
+            handleWebsiteUpdate={handleWebsiteUpdate}
+          />
+        </TabsContent>
+
+        {/* Integrations Settings */}
+        <TabsContent value="integrations">
+          <PortalIntegrations
+            isLoadingIntegrations={isLoadingIntegrations}
+            integrationSettings={integrationSettings}
+            updateIntegrationsMutation={updateIntegrationsMutation}
+            handleIntegrationUpdate={handleIntegrationUpdate}
+          />
+        </TabsContent>
+
+        {/* Security Settings */}
+        <TabsContent value="security" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Segurança</CardTitle>
               <CardDescription>
-                Atualize sua senha e configure as opções de segurança da conta.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="currentPassword">Senha Atual</Label>
-                <Input id="currentPassword" type="password" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="newPassword">Nova Senha</Label>
-                <Input id="newPassword" type="password" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
-                <Input id="confirmPassword" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Alterar Senha</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        {/* Subscription Settings */}
-        <TabsContent value="subscription" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Seu Plano</CardTitle>
-              <CardDescription>
-                Gerenciamento do seu plano atual e faturamento.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingSubscription ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-20 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                </div>
-              ) : (
-                <>
-                  <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-bold text-lg">
-                          Plano {subscriptionData?.plan?.name || "Básico"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Renovação em {subscriptionData?.nextBillingDate || "01/01/2024"}
-                        </p>
-                      </div>
-                      <Badge className="bg-primary text-primary-foreground">
-                        {subscriptionData?.status || "Ativo"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-semibold">Recursos do seu plano</h3>
-                    <ul className="space-y-2">
-                      <li className="flex items-center">
-                        <CheckCircle className="text-success mr-2 h-4 w-4" />
-                        <span>{subscriptionData?.features?.propertyLimit || 50} imóveis</span>
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="text-success mr-2 h-4 w-4" />
-                        <span>{subscriptionData?.features?.teamMembers || 5} membros de equipe</span>
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="text-success mr-2 h-4 w-4" />
-                        <span>Site personalizado</span>
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="text-success mr-2 h-4 w-4" />
-                        <span>Integração com portais</span>
-                      </li>
-                    </ul>
-                  </div>
-                </>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">Histórico de Faturas</Button>
-              <Button>Alterar Plano</Button>
-            </CardFooter>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Plano Básico</CardTitle>
-                <CardDescription>Ideal para corretores iniciantes</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold mb-2">R$ 99<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>10 imóveis</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>1 membro de equipe</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Site básico</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">Selecionar</Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="border-primary">
-              <CardHeader className="bg-primary/5">
-                <div className="absolute -top-3 right-4">
-                  <Badge className="bg-primary text-primary-foreground">POPULAR</Badge>
-                </div>
-                <CardTitle>Plano Professional</CardTitle>
-                <CardDescription>Para corretores e pequenas imobiliárias</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold mb-2">R$ 199<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>50 imóveis</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>5 membros de equipe</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Site personalizado</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Integração com portais</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full">Selecionar</Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Plano Enterprise</CardTitle>
-                <CardDescription>Para imobiliárias e construtoras</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold mb-2">R$ 399<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Imóveis ilimitados</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Equipe ilimitada</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Site avançado</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Todas as integrações</span>
-                  </li>
-                  <li className="flex items-center text-sm">
-                    <CheckCircle className="text-success mr-2 h-4 w-4" />
-                    <span>Suporte prioritário</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">Selecionar</Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Notifications Settings */}
-        {/* Site Settings */}
-        <TabsContent value="site" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações do Site</CardTitle>
-              <CardDescription>
-                Configure informações gerais do seu site para clientes e visitantes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingWebsite ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-20 w-full" />
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="siteName">Nome do Site</Label>
-                      <Input 
-                        id="siteName" 
-                        placeholder="Nome do seu site" 
-                        defaultValue={websiteData?.siteName || ''}
-                        onChange={(e) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            siteName: e.target.value
-                          });
-                        }}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="tagline">Slogan</Label>
-                      <Input 
-                        id="tagline" 
-                        placeholder="Slogan ou frase de efeito" 
-                        defaultValue={websiteData?.tagline || ''}
-                        onChange={(e) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            tagline: e.target.value
-                          });
-                        }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="siteDescription">Descrição do Site</Label>
-                    <Textarea 
-                      id="siteDescription" 
-                      placeholder="Descreva seu site e serviços em poucas palavras..." 
-                      className="resize-none h-20"
-                      defaultValue={websiteData?.description || ''}
-                      onChange={(e) => {
-                        handleWebsiteUpdate({
-                          ...websiteData,
-                          description: e.target.value
-                        });
-                      }}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Esta descrição será usada para SEO e meta tags.
-                    </p>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-md font-medium">Informações de Contato</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="contactEmail">Email de Contato</Label>
-                        <Input 
-                          id="contactEmail" 
-                          type="email" 
-                          placeholder="seu@email.com" 
-                          defaultValue={websiteData?.contactEmail || ''}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              contactEmail: e.target.value
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPhone">Telefone de Contato</Label>
-                        <Input 
-                          id="contactPhone" 
-                          placeholder="(00) 00000-0000" 
-                          defaultValue={websiteData?.contactPhone || ''}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              contactPhone: e.target.value
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Endereço</Label>
-                      <Input 
-                        id="address" 
-                        placeholder="Seu endereço comercial" 
-                        defaultValue={websiteData?.address || ''}
-                        onChange={(e) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            address: e.target.value
-                          });
-                        }}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="whatsapp">WhatsApp</Label>
-                        <Input 
-                          id="whatsapp" 
-                          placeholder="(00) 00000-0000" 
-                          defaultValue={websiteData?.whatsapp || ''}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              whatsapp: e.target.value
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="creci">CRECI</Label>
-                        <Input 
-                          id="creci" 
-                          placeholder="Seu número de CRECI" 
-                          defaultValue={websiteData?.creci || ''}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              creci: e.target.value
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end mt-6">
-                    <Button 
-                      onClick={() => window.open(`/agent-website`, '_blank')}
-                      variant="outline"
-                      className="mr-2"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Visualizar Site
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Appearance Settings */}
-        <TabsContent value="appearance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Aparência do Site</CardTitle>
-              <CardDescription>
-                Personalize a aparência do seu site com cores, fontes e layout.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingWebsite ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-36 w-full" />
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="themeColor">Cor Principal</Label>
-                      <div className="flex">
-                        <Input 
-                          id="themeColor"
-                          type="color" 
-                          className="w-12 h-10 p-1"
-                          defaultValue={websiteData?.themeColor || '#FF5A00'}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              themeColor: e.target.value
-                            });
-                          }}
-                        />
-                        <Input 
-                          value={websiteData?.themeColor || '#FF5A00'} 
-                          className="ml-2"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="secondaryColor">Cor Secundária</Label>
-                      <div className="flex">
-                        <Input 
-                          id="secondaryColor"
-                          type="color" 
-                          className="w-12 h-10 p-1"
-                          defaultValue={websiteData?.secondaryColor || '#222222'}
-                          onChange={(e) => {
-                            handleWebsiteUpdate({
-                              ...websiteData,
-                              secondaryColor: e.target.value
-                            });
-                          }}
-                        />
-                        <Input 
-                          value={websiteData?.secondaryColor || '#222222'} 
-                          className="ml-2"
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="fontFamily">Família de Fonte</Label>
-                    <Select 
-                      defaultValue={websiteData?.fontFamily || 'inter'}
-                      onValueChange={(value) => {
-                        handleWebsiteUpdate({
-                          ...websiteData,
-                          fontFamily: value
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma fonte" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="inter">Inter</SelectItem>
-                        <SelectItem value="roboto">Roboto</SelectItem>
-                        <SelectItem value="montserrat">Montserrat</SelectItem>
-                        <SelectItem value="poppins">Poppins</SelectItem>
-                        <SelectItem value="oswald">Oswald</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-md font-medium">Logo e Imagens</h3>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="logoUrl">URL do Logo</Label>
-                      <Input 
-                        id="logoUrl" 
-                        placeholder="https://exemplo.com/logo.png" 
-                        defaultValue={websiteData?.logoUrl || ''}
-                        onChange={(e) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            logoUrl: e.target.value
-                          });
-                        }}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Coloque a URL do seu logo, recomendamos formato PNG ou SVG.
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="heroImageUrl">Imagem de Destaque</Label>
-                      <Input 
-                        id="heroImageUrl" 
-                        placeholder="https://exemplo.com/imagem.jpg" 
-                        defaultValue={websiteData?.heroImageUrl || ''}
-                        onChange={(e) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            heroImageUrl: e.target.value
-                          });
-                        }}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Imagem que aparecerá na seção principal do seu site.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-md font-medium">Elementos do Site</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="showTestimonials" 
-                        checked={websiteData?.showTestimonials || false}
-                        onCheckedChange={(checked) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            showTestimonials: checked
-                          });
-                        }}
-                      />
-                      <Label htmlFor="showTestimonials">Mostrar Depoimentos</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="showFeaturedProperties" 
-                        checked={websiteData?.showFeaturedProperties || true}
-                        onCheckedChange={(checked) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            showFeaturedProperties: checked
-                          });
-                        }}
-                      />
-                      <Label htmlFor="showFeaturedProperties">Mostrar Imóveis em Destaque</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="showAboutSection" 
-                        checked={websiteData?.showAboutSection || true}
-                        onCheckedChange={(checked) => {
-                          handleWebsiteUpdate({
-                            ...websiteData,
-                            showAboutSection: checked
-                          });
-                        }}
-                      />
-                      <Label htmlFor="showAboutSection">Mostrar Seção Sobre</Label>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end mt-6">
-                    <Button 
-                      onClick={() => window.open(`/agent-website`, '_blank')}
-                      variant="outline"
-                      className="mr-2"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Visualizar Site
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notifications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Preferências de Notificações</CardTitle>
-              <CardDescription>
-                Configure como e quando você deseja receber notificações.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Email</h3>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Novos Leads</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber emails quando um novo lead for gerado
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Agendamentos</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber emails sobre agendamentos de visitas
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Documentos</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber emails quando novos documentos forem enviados
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Novidades</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber emails sobre novidades da plataforma
-                    </p>
-                  </div>
-                  <Switch />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">WhatsApp</h3>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Novos Leads</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber notificações no WhatsApp para novos leads
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Agendamentos</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber lembretes de agendamentos via WhatsApp
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">In-App</h3>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Atividades</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber notificações sobre atividades no sistema
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Atualizações</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber notificações sobre atualizações da plataforma
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Salvar Preferências</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        {/* Domain Settings */}
-        <TabsContent value="domain" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações de Domínio</CardTitle>
-              <CardDescription>
-                Configure seu domínio personalizado e subdomínios para seu site de imóveis.
+                Configurações de segurança de sua conta.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {isLoadingProfile ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full" />
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
                 </div>
               ) : (
                 <>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Domínio padrão</h3>
-                      <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
-                        <Info className="h-4 w-4 mr-2" />
-                        <span className="text-sm">
-                          Seu site está disponível em <span className="font-medium text-foreground">admin-12345.meusite.com.br</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Domínio personalizado</h3>
-                      <div className="flex items-center p-3 bg-yellow-50 rounded-md text-yellow-700 mb-4 border border-yellow-200">
-                        <AlertTriangle className="h-4 w-4 mr-2" />
-                        <span className="text-sm">
-                          A configuração de domínio personalizado está disponível apenas para planos Professional e Enterprise.
-                        </span>
-                      </div>
-
-                      <div className="grid gap-2">
-                        <Label htmlFor="customDomain">Seu domínio personalizado</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            id="customDomain"
-                            placeholder="seudominio.com.br"
-                            defaultValue={profileData?.website?.domain || ""}
-                            disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
-                          />
-                          <Button 
-                            disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
-                          >
-                            Verificar
-                          </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Digite seu domínio sem "www" ou "http://".
-                        </p>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Configuração de DNS</h3>
-                      <p className="text-sm mb-3 text-muted-foreground">
-                        Para conectar seu domínio personalizado, adicione os seguintes registros DNS ao seu provedor de domínio:
-                      </p>
-
-                      <div className="bg-muted p-3 rounded-md mb-4 overflow-x-auto">
-                        <table className="text-sm w-full">
-                          <thead>
-                            <tr className="border-b">
-                              <th className="text-left pb-2 font-medium">Tipo</th>
-                              <th className="text-left pb-2 font-medium">Nome</th>
-                              <th className="text-left pb-2 font-medium">Valor</th>
-                              <th className="text-left pb-2 font-medium">TTL</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr className="border-b">
-                              <td className="py-2 pr-4">A</td>
-                              <td className="py-2 pr-4">@</td>
-                              <td className="py-2 pr-4">192.168.10.123</td>
-                              <td className="py-2">3600</td>
-                            </tr>
-                            <tr>
-                              <td className="py-2 pr-4">CNAME</td>
-                              <td className="py-2 pr-4">www</td>
-                              <td className="py-2 pr-4">seudominio.com.br</td>
-                              <td className="py-2">3600</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-
-                      <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
-                        <Info className="h-4 w-4 mr-2" />
-                        <span className="text-sm">
-                          As alterações de DNS podem levar até 48 horas para se propagar.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">Cancelar</Button>
-              <Button
-                disabled={subscriptionData?.plan?.name !== "Professional" && subscriptionData?.plan?.name !== "Enterprise"}
-              >
-                Salvar Configurações
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        {/* Integrations Settings */}
-        <TabsContent value="integrations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Integrações de API</CardTitle>
-              <CardDescription>
-                Configure as integrações com serviços externos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {isLoadingIntegrations ? (
-                <div className="space-y-6">
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                </div>
-              ) : (
-                <>
-                  {/* Google Drive Integration */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                          <HardDrive className="h-6 w-6 text-secondary" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Google Drive</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Para armazenamento de documentos
-                          </p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={integrationSettings?.googleDrive?.enabled || false}
-                        onCheckedChange={(checked) => {
-                          queryClient.setQueryData(['/api/users/me/integrations'], {
-                            ...integrationSettings,
-                            googleDrive: {
-                              ...integrationSettings?.googleDrive,
-                              enabled: checked,
-                            },
-                          });
-                        }}
-                      />
-                    </div>
-                    {integrationSettings?.googleDrive?.enabled && (
-                      <div className="border rounded-md p-4 space-y-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="googleDriveToken">Token de Acesso</Label>
-                          <Input
-                            id="googleDriveToken"
-                            value={integrationSettings?.googleDrive?.token || ""}
-                            onChange={(e) => {
-                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                ...integrationSettings,
-                                googleDrive: {
-                                  ...integrationSettings?.googleDrive,
-                                  token: e.target.value,
-                                },
-                              });
-                            }}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="googleDriveFolder">Pasta Base</Label>
-                          <Input
-                            id="googleDriveFolder"
-                            value={integrationSettings?.googleDrive?.folder || "ImobConnect"}
-                            onChange={(e) => {
-                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                ...integrationSettings,
-                                googleDrive: {
-                                  ...integrationSettings?.googleDrive,
-                                  folder: e.target.value,
-                                },
-                              });
-                            }}
-                          />
-                        </div>
-                        <Button variant="secondary" size="sm">
-                          Conectar com Google Drive
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* WhatsApp Integration */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
-                          <MessageSquare className="h-6 w-6 text-success" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">WhatsApp</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Para comunicação com clientes
-                          </p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={integrationSettings?.whatsapp?.enabled || false}
-                        onCheckedChange={(checked) => {
-                          queryClient.setQueryData(['/api/users/me/integrations'], {
-                            ...integrationSettings,
-                            whatsapp: {
-                              ...integrationSettings?.whatsapp,
-                              enabled: checked,
-                            },
-                          });
-                        }}
-                      />
-                    </div>
-                    {integrationSettings?.whatsapp?.enabled && (
-                      <div className="border rounded-md p-4 space-y-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="whatsappApiKey">API Key</Label>
-                          <Input
-                            id="whatsappApiKey"
-                            value={integrationSettings?.whatsapp?.apiKey || ""}
-                            onChange={(e) => {
-                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                ...integrationSettings,
-                                whatsapp: {
-                                  ...integrationSettings?.whatsapp,
-                                  apiKey: e.target.value,
-                                },
-                              });
-                            }}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="whatsappPhone">Número de Telefone</Label>
-                          <Input
-                            id="whatsappPhone"
-                            value={integrationSettings?.whatsapp?.phone || ""}
-                            onChange={(e) => {
-                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                ...integrationSettings,
-                                whatsapp: {
-                                  ...integrationSettings?.whatsapp,
-                                  phone: e.target.value,
-                                },
-                              });
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Webhooks Integration */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <Webhook className="h-6 w-6 text-indigo-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Webhooks</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Para integração com sistemas externos
-                          </p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={integrationSettings?.webhooks?.enabled || false}
-                        onCheckedChange={(checked) => {
-                          queryClient.setQueryData(['/api/users/me/integrations'], {
-                            ...integrationSettings,
-                            webhooks: {
-                              ...integrationSettings?.webhooks,
-                              enabled: checked,
-                              endpoints: integrationSettings?.webhooks?.endpoints || [],
-                            },
-                          });
-                        }}
-                      />
-                    </div>
-                    {integrationSettings?.webhooks?.enabled && (
-                      <div className="border rounded-md p-4 space-y-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-medium">Endpoints de Webhook</h4>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              const currentEndpoints = integrationSettings?.webhooks?.endpoints || [];
-                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                ...integrationSettings,
-                                webhooks: {
-                                  ...integrationSettings?.webhooks,
-                                  endpoints: [
-                                    ...currentEndpoints,
-                                    { id: Date.now(), url: '', events: [], active: true }
-                                  ],
-                                },
-                              });
-                            }}
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Adicionar
-                          </Button>
-                        </div>
-                        
-                        {/* Webhook List */}
-                        <div className="space-y-3">
-                          {Array.isArray(integrationSettings?.webhooks?.endpoints) && 
-                           integrationSettings.webhooks.endpoints.length > 0 ? (
-                            integrationSettings.webhooks.endpoints.map((endpoint: any, index: number) => (
-                              <div key={endpoint.id || index} className="border p-3 rounded-md">
-                                <div className="flex items-center justify-between mb-3">
-                                  <div className="flex items-center">
-                                    <Badge 
-                                      variant={endpoint.active ? "default" : "outline"}
-                                      className={endpoint.active ? "bg-success text-success-foreground" : ""}
-                                    >
-                                      {endpoint.active ? "Ativo" : "Inativo"}
-                                    </Badge>
-                                    <span className="text-xs text-muted-foreground ml-2">ID: {endpoint.id}</span>
-                                  </div>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => {
-                                      const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
-                                      newEndpoints.splice(index, 1);
-                                      queryClient.setQueryData(['/api/users/me/integrations'], {
-                                        ...integrationSettings,
-                                        webhooks: {
-                                          ...integrationSettings?.webhooks,
-                                          endpoints: newEndpoints,
-                                        },
-                                      });
-                                    }}
-                                  >
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                
-                                <div className="grid gap-3">
-                                  <div className="grid gap-1">
-                                    <Label htmlFor={`webhook-url-${index}`} className="text-xs">URL do Webhook</Label>
-                                    <Input
-                                      id={`webhook-url-${index}`}
-                                      placeholder="https://seu-servidor.com/webhook"
-                                      value={endpoint.url || ''}
-                                      onChange={(e) => {
-                                        const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
-                                        newEndpoints[index] = {
-                                          ...newEndpoints[index],
-                                          url: e.target.value,
-                                        };
-                                        queryClient.setQueryData(['/api/users/me/integrations'], {
-                                          ...integrationSettings,
-                                          webhooks: {
-                                            ...integrationSettings?.webhooks,
-                                            endpoints: newEndpoints,
-                                          },
-                                        });
-                                      }}
-                                    />
-                                  </div>
-                                  
-                                  <div className="grid gap-1">
-                                    <Label className="text-xs">Eventos para Notificar</Label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {['lead.created', 'lead.updated', 'property.created', 'property.updated'].map((event) => (
-                                        <div key={event} className="flex items-center space-x-2">
-                                          <Checkbox 
-                                            id={`event-${index}-${event}`}
-                                            checked={endpoint.events?.includes(event) || false}
-                                            onCheckedChange={(checked) => {
-                                              const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
-                                              const currentEvents = newEndpoints[index].events || [];
-                                              
-                                              if (checked) {
-                                                newEndpoints[index] = {
-                                                  ...newEndpoints[index],
-                                                  events: [...currentEvents, event],
-                                                };
-                                              } else {
-                                                newEndpoints[index] = {
-                                                  ...newEndpoints[index],
-                                                  events: currentEvents.filter((e: string) => e !== event),
-                                                };
-                                              }
-                                              
-                                              queryClient.setQueryData(['/api/users/me/integrations'], {
-                                                ...integrationSettings,
-                                                webhooks: {
-                                                  ...integrationSettings?.webhooks,
-                                                  endpoints: newEndpoints,
-                                                },
-                                              });
-                                            }}
-                                          />
-                                          <Label htmlFor={`event-${index}-${event}`} className="text-xs">{event}</Label>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      id={`webhook-active-${index}`}
-                                      checked={endpoint.active}
-                                      onCheckedChange={(checked) => {
-                                        const newEndpoints = [...(integrationSettings?.webhooks?.endpoints || [])];
-                                        newEndpoints[index] = {
-                                          ...newEndpoints[index],
-                                          active: checked,
-                                        };
-                                        queryClient.setQueryData(['/api/users/me/integrations'], {
-                                          ...integrationSettings,
-                                          webhooks: {
-                                            ...integrationSettings?.webhooks,
-                                            endpoints: newEndpoints,
-                                          },
-                                        });
-                                      }}
-                                    />
-                                    <Label htmlFor={`webhook-active-${index}`}>Ativo</Label>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="text-center py-6 text-muted-foreground">
-                              <p>Nenhum webhook configurado. Clique em "Adicionar" para criar um novo.</p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="bg-muted rounded-md p-3 text-xs text-muted-foreground">
-                          <p>Os webhooks permitem que sua aplicação receba notificações automáticas quando eventos importantes ocorrem em sua conta.</p>
-                          <p className="mt-1">Exemplo de payload de notificação:</p>
-                          <pre className="bg-card p-2 mt-1 rounded text-xs overflow-x-auto">
-{`{
-  "event": "lead.created",
-  "timestamp": "2023-05-02T12:34:56Z",
-  "data": {
-    "id": 123,
-    "fullName": "João Silva",
-    "email": "joao@exemplo.com",
-    "propertyId": 456
-  }
-}`}
-                          </pre>
-                        </div>
-                      </div>
-                    )}
+                  <div className="grid gap-2">
+                    <Label htmlFor="current-password">Senha Atual</Label>
+                    <Input id="current-password" type="password" />
                   </div>
                   
-                  {/* Portals Integration */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Share2 className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Portais Imobiliários</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Para publicação de imóveis em portais
-                          </p>
-                        </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="new-password">Nova Senha</Label>
+                    <Input id="new-password" type="password" />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
+                    <Input id="confirm-password" type="password" />
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="2fa">Autenticação de dois fatores</Label>
+                      <div className="text-sm text-muted-foreground">
+                        Adicione segurança extra à sua conta.
                       </div>
-                      <Switch
-                        checked={integrationSettings?.portals?.enabled || false}
-                        onCheckedChange={(checked) => {
-                          queryClient.setQueryData(['/api/users/me/integrations'], {
-                            ...integrationSettings,
-                            portals: {
-                              ...integrationSettings?.portals,
-                              enabled: checked,
-                            },
-                          });
-                        }}
-                      />
                     </div>
-                    {integrationSettings?.portals?.enabled && (
-                      <div className="border rounded-md p-4 space-y-4">
-                        <div className="grid gap-2">
-                          <Label>Portais Habilitados</Label>
-                          <div className="flex flex-wrap gap-2">
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                id="portalZap"
-                                checked={integrationSettings?.portals?.zapImoveis || false}
-                                onCheckedChange={(checked) => {
-                                  queryClient.setQueryData(['/api/users/me/integrations'], {
-                                    ...integrationSettings,
-                                    portals: {
-                                      ...integrationSettings?.portals,
-                                      zapImoveis: checked,
-                                    },
-                                  });
-                                }}
-                              />
-                              <Label htmlFor="portalZap">ZAP Imóveis</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                id="portalVivaReal"
-                                checked={integrationSettings?.portals?.vivaReal || false}
-                                onCheckedChange={(checked) => {
-                                  queryClient.setQueryData(['/api/users/me/integrations'], {
-                                    ...integrationSettings,
-                                    portals: {
-                                      ...integrationSettings?.portals,
-                                      vivaReal: checked,
-                                    },
-                                  });
-                                }}
-                              />
-                              <Label htmlFor="portalVivaReal">Viva Real</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                id="portalOLX"
-                                checked={integrationSettings?.portals?.olx || false}
-                                onCheckedChange={(checked) => {
-                                  queryClient.setQueryData(['/api/users/me/integrations'], {
-                                    ...integrationSettings,
-                                    portals: {
-                                      ...integrationSettings?.portals,
-                                      olx: checked,
-                                    },
-                                  });
-                                }}
-                              />
-                              <Label htmlFor="portalOLX">OLX</Label>
-                            </div>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="secondary" 
-                          size="sm"
-                          onClick={() => setIsPortalCredentialsOpen(true)}
-                        >
-                          Configurar Credenciais dos Portais
-                        </Button>
-                      </div>
-                    )}
+                    <Switch id="2fa" />
                   </div>
                 </>
               )}
             </CardContent>
             <CardFooter>
-              <Button
-                onClick={() => handleIntegrationUpdate(integrationSettings)}
-                disabled={updateIntegrationsMutation.isPending || isLoadingIntegrations}
-                className="flex items-center"
+              <Button 
+                className="ml-auto" 
+                disabled={updateProfileMutation.isPending}
               >
-                <Save className="h-4 w-4 mr-2" />
-                {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Configurações"}
+                {updateProfileMutation.isPending ? "Salvando..." : "Atualizar Senha"}
               </Button>
             </CardFooter>
+          </Card>
+        </TabsContent>
+
+        {/* Advanced Settings */}
+        <TabsContent value="advanced" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações Avançadas</CardTitle>
+              <CardDescription>
+                Configurações avançadas e opções de exclusão de conta.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="data-export">Exportar Dados</Label>
+                <p className="text-sm text-muted-foreground">
+                  Exporte todos os seus dados para um arquivo JSON.
+                </p>
+                <Button variant="outline" className="mt-2">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Exportar Dados
+                </Button>
+              </div>
+              
+              <Separator className="my-4" />
+              
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-destructive">Zona de Perigo</h3>
+                <p className="text-sm text-muted-foreground">
+                  Cuidado! Estas ações são irreversíveis.
+                </p>
+                
+                <div className="space-y-4 pt-2">
+                  <div className="rounded-md border border-destructive/50 p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-destructive">Excluir Conta</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Todos os seus dados serão permanentemente excluídos.
+                        </p>
+                      </div>
+                      <Button variant="destructive">
+                        Excluir Conta
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
