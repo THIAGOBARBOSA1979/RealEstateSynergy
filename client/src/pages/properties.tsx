@@ -418,6 +418,12 @@ const Properties = () => {
           <PropertyTable 
             status="inactive"
             viewMode={viewMode}
+            searchTerm=""
+            propertyType="all"
+            bedrooms={undefined}
+            priceRange={{ min: "", max: "" }}
+            sortOrder="newest"
+            showFeatured={false}
           />
         </TabsContent>
       </Tabs>
