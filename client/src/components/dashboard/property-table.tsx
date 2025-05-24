@@ -23,7 +23,9 @@ import {
   Star, 
   StarOff, 
   Copy, 
-  Trash2 
+  Trash2,
+  Home as HomeIcon,
+  Plus
 } from "lucide-react";
 import {
   AlertDialog,
