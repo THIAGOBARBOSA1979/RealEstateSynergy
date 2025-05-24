@@ -11,7 +11,12 @@ import {
   Code, 
   GanttChart,
   HardDrive,
-  LogOut
+  LogOut,
+  Info,
+  AlertTriangle,
+  Plus,
+  Trash,
+  Save
 } from "lucide-react";
 
 import {

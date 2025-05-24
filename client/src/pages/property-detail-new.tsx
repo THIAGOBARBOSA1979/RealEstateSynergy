@@ -17,6 +17,7 @@ import { formatCurrency, getPropertyTypeLabel, getPropertyStatusLabel, getInitia
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Property, Lead } from "@/types";
+import { Bed, Bath } from "lucide-react";
 import { 
   CheckIcon, 
   ImageIcon, 
@@ -524,7 +525,7 @@ const PropertyDetailNew = () => {
                   
                   {property.bedrooms > 0 && (
                     <div className="flex flex-col items-center justify-center p-4 bg-primary/5 rounded-lg">
-                      <span className="material-icons text-2xl text-primary mb-1">bed</span>
+                      <Bed className="h-6 w-6 text-primary mb-1" />
                       <span className="text-lg font-bold">{property.bedrooms}</span>
                       <span className="text-xs text-muted-foreground">Quartos</span>
                     </div>
@@ -532,7 +533,7 @@ const PropertyDetailNew = () => {
                   
                   {property.bathrooms > 0 && (
                     <div className="flex flex-col items-center justify-center p-4 bg-primary/5 rounded-lg">
-                      <span className="material-icons text-2xl text-primary mb-1">shower</span>
+                      <Bath className="h-6 w-6 text-primary mb-1" />
                       <span className="text-lg font-bold">{property.bathrooms}</span>
                       <span className="text-xs text-muted-foreground">Banheiros</span>
                     </div>
