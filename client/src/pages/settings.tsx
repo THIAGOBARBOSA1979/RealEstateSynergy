@@ -535,7 +535,7 @@ const Settings = () => {
                     <div>
                       <h3 className="text-sm font-medium mb-3">Domínio padrão</h3>
                       <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
-                        <span className="material-icons text-sm mr-2">info</span>
+                        <Info className="h-4 w-4 mr-2" />
                         <span className="text-sm">
                           Seu site está disponível em <span className="font-medium text-foreground">admin-12345.meusite.com.br</span>
                         </span>
@@ -547,7 +547,7 @@ const Settings = () => {
                     <div>
                       <h3 className="text-sm font-medium mb-3">Domínio personalizado</h3>
                       <div className="flex items-center p-3 bg-yellow-50 rounded-md text-yellow-700 mb-4 border border-yellow-200">
-                        <span className="material-icons text-sm mr-2">warning</span>
+                        <AlertTriangle className="h-4 w-4 mr-2" />
                         <span className="text-sm">
                           A configuração de domínio personalizado está disponível apenas para planos Professional e Enterprise.
                         </span>
@@ -610,7 +610,7 @@ const Settings = () => {
                       </div>
 
                       <div className="flex items-center p-3 bg-muted rounded-md text-muted-foreground">
-                        <span className="material-icons text-sm mr-2">info</span>
+                        <Info className="h-4 w-4 mr-2" />
                         <span className="text-sm">
                           As alterações de DNS podem levar até 48 horas para se propagar.
                         </span>
@@ -831,7 +831,7 @@ const Settings = () => {
                               });
                             }}
                           >
-                            <span className="material-icons text-sm mr-1">add</span>
+                            <Plus className="h-4 w-4 mr-1" />
                             Adicionar
                           </Button>
                         </div>
