@@ -178,12 +178,15 @@ export const storage = {
   // Website operations
   async getWebsiteByUserId(userId: number) {
     try {
-      const result = await db.select().from(websites).where(eq(websites.userId, userId));
+      // Consulta direta para verificar se o website existe
+      const existingRecords = await db.select().from(websites).where(eq(websites.userId, userId));
       
-      if (result.length === 0) {
-        // Criar um registro padrão na base de dados
-        console.log(`Criando website para o usuário ${userId}`);
-        const defaultWebsite = {
+      if (existingRecords.length === 0) {
+        console.log(`Website não encontrado para o usuário ${userId}. Criando novo...`);
+        
+        // Criar novo registro para o website
+        const newWebsiteData = {
+          userId,
           siteName: "Meu Site Imobiliário",
           tagline: "Os melhores imóveis da região",
           description: "Profissional especializado no mercado imobiliário local",
@@ -200,17 +203,27 @@ export const storage = {
           showTestimonials: true,
           showFeaturedProperties: true,
           showAboutSection: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        // Inserir o novo website no banco de dados
+        const insertResult = await db.insert(websites).values(newWebsiteData).returning();
+        
+        if (insertResult.length === 0) {
+          throw new Error('Falha ao criar website');
+        }
+        
+        console.log(`Website criado com sucesso para o usuário ${userId}`);
+        
+        // Retornar o novo website com estatísticas
+        return {
+          ...insertResult[0],
           socialMedia: {
             instagram: "",
             facebook: "",
             youtube: ""
           },
-          userId: userId
-        };
-        
-        const createdWebsite = await this.updateWebsite(userId, defaultWebsite);
-        return {
-          ...createdWebsite,
           stats: {
             visitsToday: 0,
             leadsGenerated: 0
@@ -218,17 +231,24 @@ export const storage = {
         };
       }
       
-      // Add stats 
+      console.log(`Website encontrado para o usuário ${userId}`);
+      
+      // Retornar website existente com estatísticas
       return {
-        ...result[0],
+        ...existingRecords[0],
+        socialMedia: existingRecords[0].socialMedia || {
+          instagram: "",
+          facebook: "",
+          youtube: ""
+        },
         stats: {
           visitsToday: 27,
           leadsGenerated: 5
         }
       };
     } catch (error) {
-      console.error('Erro ao buscar website:', error);
-      return null;
+      console.error('Erro ao buscar ou criar website:', error);
+      throw new Error('Erro ao processar dados do website');
     }
   },
 

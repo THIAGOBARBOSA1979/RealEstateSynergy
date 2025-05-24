@@ -445,30 +445,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
     try {
       const website = await storage.getWebsiteByUserId(req.user.id);
-      if (!website) {
-        // Se não existir um website, cria um com valores padrão
-        const defaultWebsite = {
-          siteName: "Meu Site Imobiliário",
-          tagline: "Os melhores imóveis da região",
-          description: "Profissional especializado no mercado imobiliário local",
-          logoUrl: "",
-          heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
-          themeColor: "#FF5A00",
-          secondaryColor: "#222222",
-          fontFamily: "inter",
-          contactEmail: "",
-          contactPhone: "",
-          address: "",
-          whatsapp: "",
-          creci: "",
-          showTestimonials: true,
-          showFeaturedProperties: true,
-          showAboutSection: true,
-          userId: req.user.id
-        };
-        const newWebsite = await storage.updateWebsite(req.user.id, defaultWebsite);
-        return res.json(newWebsite);
-      }
       return res.json(website);
     } catch (error) {
       console.error("Erro ao buscar website:", error);
