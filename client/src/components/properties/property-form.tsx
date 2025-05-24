@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CloudUpload } from "lucide-react";
+import { CloudUpload, ArrowLeft, ArrowRight } from "lucide-react";
 
 import {
   Form,
@@ -998,7 +998,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
               }}
               disabled={activeTab === "basics"}
             >
-              <span className="material-icons text-sm mr-2">arrow_back</span>
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Anterior
             </Button>
             
@@ -1014,7 +1014,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
               disabled={activeTab === "images"}
             >
               Próximo
-              <span className="material-icons text-sm ml-2">arrow_forward</span>
+              <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
           
