@@ -1229,7 +1229,28 @@ const PropertyDetail = () => {
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleScheduleVisit();
+            
+            if (!scheduleForm.fullName || !scheduleForm.email || !scheduleForm.phone || !scheduleForm.date || !scheduleForm.timeSlot || !scheduleForm.visitType) {
+              toast({
+                title: "Erro no formulário",
+                description: "Por favor, preencha todos os campos obrigatórios.",
+                variant: "destructive",
+              });
+              return;
+            }
+            
+            // Obter UTM params do URL se existirem
+            const urlParams = new URLSearchParams(window.location.search);
+            const utmSource = urlParams.get('utm_source');
+            const utmMedium = urlParams.get('utm_medium');
+            const utmCampaign = urlParams.get('utm_campaign');
+            
+            scheduleVisit.mutate({
+              ...scheduleForm,
+              utmSource: utmSource || undefined,
+              utmMedium: utmMedium || undefined,
+              utmCampaign: utmCampaign || undefined,
+            });
           }}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -1333,7 +1354,13 @@ const PropertyDetail = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" className="w-full">Agendar Visita</Button>
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={scheduleVisit.isPending}
+              >
+                {scheduleVisit.isPending ? "Agendando..." : "Agendar Visita"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
