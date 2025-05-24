@@ -20,7 +20,10 @@ import {
   AlertCircle,
   X,
   Plus,
-  Search
+  Search,
+  Video,
+  Compass,
+  ExternalLink
 } from "lucide-react";
 
 import {
@@ -401,6 +404,10 @@ const EnhancedPropertyForm = ({ initialData, onSuccess }: EnhancedPropertyFormPr
                 <TabsTrigger value="images" className="flex gap-2 items-center">
                   <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Imagens</span>
+                </TabsTrigger>
+                <TabsTrigger value="media" className="flex gap-2 items-center">
+                  <Video className="h-4 w-4" />
+                  <span className="hidden sm:inline">Vídeo/Tour</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -1579,6 +1586,112 @@ const EnhancedPropertyForm = ({ initialData, onSuccess }: EnhancedPropertyFormPr
                 )}
               </TabsContent>
 
+              <TabsContent value="media" className="space-y-6 mt-4">
+                <h2 className="text-xl font-heading font-semibold">Vídeos e Tour Virtual</h2>
+                <Separator />
+                
+                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="h-4 w-4 text-blue-500" />
+                    <h3 className="text-sm font-medium">Conteúdo Multimídia</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Adicione vídeos e tours virtuais para enriquecer seu anúncio. 
+                    Você pode incluir links de YouTube, Vimeo ou tours virtuais como Matterport.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Coloque o link completo de incorporação (embed) ou o ID do vídeo/tour.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="videoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Video className="h-4 w-4 text-primary" />
+                          Vídeo (YouTube ou Vimeo)
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX" 
+                            {...field} 
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Cole o link do vídeo (ex: https://www.youtube.com/watch?v=XXXXXXXXXXX)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="tourUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Compass className="h-4 w-4 text-primary" />
+                          Tour Virtual (Matterport, etc)
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="https://my.matterport.com/show/?m=XXXXXXXXXXX" 
+                            {...field} 
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Cole o link do tour virtual (ex: https://my.matterport.com/show/?m=XXXXXXXXXXX)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Prévia dos conteúdos */}
+                  <div className="mt-4 space-y-6">
+                    {form.watch('videoUrl') && (
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium">Prévia do Vídeo:</h3>
+                        <div className="relative w-full pt-[56.25%] bg-muted rounded-md overflow-hidden">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <p className="text-sm text-muted-foreground">
+                              {form.watch('videoUrl')}
+                            </p>
+                            <ExternalLink className="h-4 w-4 ml-2 text-primary" />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          A prévia estará disponível após salvar o imóvel.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {form.watch('tourUrl') && (
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium">Prévia do Tour Virtual:</h3>
+                        <div className="relative w-full pt-[56.25%] bg-muted rounded-md overflow-hidden">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <p className="text-sm text-muted-foreground">
+                              {form.watch('tourUrl')}
+                            </p>
+                            <ExternalLink className="h-4 w-4 ml-2 text-primary" />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          A prévia estará disponível após salvar o imóvel.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+              
               <TabsContent value="images" className="space-y-6 mt-4">
                 <h2 className="text-xl font-heading font-semibold">Imagens</h2>
                 <Separator />
