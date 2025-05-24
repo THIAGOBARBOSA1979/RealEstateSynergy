@@ -23,6 +23,7 @@ import LandingPage from "./pages/landing-page";
 import AgentWebsite from "./pages/agent-website";
 import SuperAdminPanel from "./pages/super-admin";
 import PropertyDetailNew from "./pages/property-detail-new";
+import Catalog from "./pages/catalog";
 
 // Páginas de empreendimentos
 import Developments from "./pages/developments";
@@ -42,6 +43,7 @@ function Router() {
       
       {/* Painel do Usuário */}
       <Route path="/" component={Dashboard} />
+      <Route path="/catalog" component={Catalog} />
       <Route path="/properties" component={Properties} />
       <Route path="/add-property" component={AddProperty} />
       <Route path="/edit-property/:id" component={EditProperty} />
@@ -56,7 +58,7 @@ function Router() {
       {/* Rotas de Empreendimentos */}
       <Route path="/developments" component={Developments} />
       <Route path="/add-development" component={AddDevelopment} />
-      <Route path="/development/:id" component={DevelopmentDetail} />
+      <Route path="/development-detail/:id" component={DevelopmentDetail} />
       <Route component={NotFound} />
     </Switch>
   );
