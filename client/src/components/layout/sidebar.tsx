@@ -51,10 +51,12 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     }
   };
 
+  // Menu com submenus para organizar Imóveis e Empreendimentos
   const menuItems: MenuItem[] = [
     { path: "/", label: "Dashboard", icon: "dashboard" },
-    { path: "/properties", label: "Imóveis", icon: "home" },
-    { path: "/developments", label: "Empreendimentos", icon: "building" },
+    { path: "/properties", label: "Catálogo Imobiliário", icon: "home" },
+    { path: "/developments", label: "→ Empreendimentos", icon: "building" },
+    { path: "/properties", label: "→ Imóveis Avulsos", icon: "home" },
     { path: "/favorites", label: "Favoritos", icon: "favorite", badge: 2 },
     { path: "/analytics", label: "Analytics", icon: "bar_chart" },
     { path: "/crm", label: "CRM Clientes", icon: "people" },
