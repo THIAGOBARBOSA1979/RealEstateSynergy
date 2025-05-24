@@ -294,33 +294,291 @@ const SiteEditor = () => {
                 <h2 className="text-xl font-heading font-semibold">Integrações</h2>
                 <Separator />
                 
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="google-analytics">Google Analytics ID</Label>
-                    <Input 
-                      id="google-analytics" 
-                      placeholder="UA-XXXXXXXXX-X ou G-XXXXXXXXXX"
-                    />
+                <div className="grid gap-6">
+                  <div>
+                    <h3 className="text-md font-medium mb-2">Analytics e Rastreamento</h3>
+                    <div className="grid gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="google-analytics">Google Analytics ID</Label>
+                        <Input 
+                          id="google-analytics" 
+                          placeholder="UA-XXXXXXXXX-X ou G-XXXXXXXXXX"
+                          value={website.analytics?.googleAnalyticsId || ""}
+                          onChange={(e) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                analytics: {
+                                  ...websiteData.analytics,
+                                  googleAnalyticsId: e.target.value
+                                }
+                              });
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Adicione seu ID do Google Analytics para rastrear o tráfego do site.
+                        </p>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="facebook-pixel">Facebook Pixel ID</Label>
+                        <Input 
+                          id="facebook-pixel" 
+                          placeholder="XXXXXXXXXXXXXXXXXX"
+                          value={website.analytics?.facebookPixelId || ""}
+                          onChange={(e) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                analytics: {
+                                  ...websiteData.analytics,
+                                  facebookPixelId: e.target.value
+                                }
+                              });
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Adicione seu ID do Facebook Pixel para rastreamento de conversões.
+                        </p>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="tiktok-pixel">TikTok Pixel ID</Label>
+                        <Input 
+                          id="tiktok-pixel" 
+                          placeholder="XXXXXXXXXXXXXXXXXX"
+                          value={website.analytics?.tiktokPixelId || ""}
+                          onChange={(e) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                analytics: {
+                                  ...websiteData.analytics,
+                                  tiktokPixelId: e.target.value
+                                }
+                              });
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Adicione seu ID do TikTok Pixel para rastreamento de conversões.
+                        </p>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="google-ads">Google Ads ID</Label>
+                        <Input 
+                          id="google-ads" 
+                          placeholder="AW-XXXXXXXXX"
+                          value={website.analytics?.googleAdsId || ""}
+                          onChange={(e) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                analytics: {
+                                  ...websiteData.analytics,
+                                  googleAdsId: e.target.value
+                                }
+                              });
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Adicione seu ID de conversão do Google Ads.
+                        </p>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="gtm-container">Google Tag Manager</Label>
+                        <Input 
+                          id="gtm-container" 
+                          placeholder="GTM-XXXXXX"
+                          value={website.analytics?.gtmContainerId || ""}
+                          onChange={(e) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                analytics: {
+                                  ...websiteData.analytics,
+                                  gtmContainerId: e.target.value
+                                }
+                              });
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Use o Google Tag Manager para gerenciar todos os seus scripts de rastreamento.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="grid gap-2">
-                    <Label htmlFor="facebook-pixel">Facebook Pixel ID</Label>
-                    <Input 
-                      id="facebook-pixel" 
-                      placeholder="XXXXXXXXXXXXXXXXXX"
-                    />
+                  <Separator />
+                  
+                  <div>
+                    <h3 className="text-md font-medium mb-2">Configurações de UTM</h3>
+                    <div className="grid gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="enable-utm">Habilitar Rastreamento UTM</Label>
+                          <p className="text-xs text-muted-foreground">
+                            Rastrear parâmetros UTM em todas as páginas do site
+                          </p>
+                        </div>
+                        <Switch 
+                          id="enable-utm"
+                          checked={website.utmSettings?.enableUtmTracking || false}
+                          onCheckedChange={(checked) => {
+                            if (websiteData) {
+                              queryClient.setQueryData(['/api/users/me/website'], {
+                                ...websiteData,
+                                utmSettings: {
+                                  ...websiteData.utmSettings,
+                                  enableUtmTracking: checked
+                                }
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                      
+                      {(website.utmSettings?.enableUtmTracking || false) && (
+                        <>
+                          <div className="grid gap-2">
+                            <Label htmlFor="default-utm-source">UTM Source Padrão</Label>
+                            <Input 
+                              id="default-utm-source" 
+                              placeholder="imobconnect"
+                              value={website.utmSettings?.defaultUtmSource || "imobconnect"}
+                              onChange={(e) => {
+                                if (websiteData) {
+                                  queryClient.setQueryData(['/api/users/me/website'], {
+                                    ...websiteData,
+                                    utmSettings: {
+                                      ...websiteData.utmSettings,
+                                      defaultUtmSource: e.target.value
+                                    }
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="grid gap-2">
+                            <Label htmlFor="default-utm-medium">UTM Medium Padrão</Label>
+                            <Input 
+                              id="default-utm-medium" 
+                              placeholder="website"
+                              value={website.utmSettings?.defaultUtmMedium || "website"}
+                              onChange={(e) => {
+                                if (websiteData) {
+                                  queryClient.setQueryData(['/api/users/me/website'], {
+                                    ...websiteData,
+                                    utmSettings: {
+                                      ...websiteData.utmSettings,
+                                      defaultUtmMedium: e.target.value
+                                    }
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="grid gap-2">
+                            <Label htmlFor="default-utm-campaign">UTM Campaign Padrão</Label>
+                            <Input 
+                              id="default-utm-campaign" 
+                              placeholder="organic"
+                              value={website.utmSettings?.defaultUtmCampaign || "organic"}
+                              onChange={(e) => {
+                                if (websiteData) {
+                                  queryClient.setQueryData(['/api/users/me/website'], {
+                                    ...websiteData,
+                                    utmSettings: {
+                                      ...websiteData.utmSettings,
+                                      defaultUtmCampaign: e.target.value
+                                    }
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                              <Label htmlFor="save-utm">Salvar Parâmetros UTM nos Leads</Label>
+                              <p className="text-xs text-muted-foreground">
+                                Salvar a origem do lead automaticamente
+                              </p>
+                            </div>
+                            <Switch 
+                              id="save-utm"
+                              checked={website.utmSettings?.saveUtmParameters || false}
+                              onCheckedChange={(checked) => {
+                                if (websiteData) {
+                                  queryClient.setQueryData(['/api/users/me/website'], {
+                                    ...websiteData,
+                                    utmSettings: {
+                                      ...websiteData.utmSettings,
+                                      saveUtmParameters: checked
+                                    }
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="grid gap-2">
-                    <Label htmlFor="custom-code">Código Personalizado</Label>
-                    <Textarea 
-                      id="custom-code" 
-                      rows={6} 
-                      placeholder="<!-- Insira código HTML, JavaScript ou CSS personalizado aqui -->"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Este código será inserido no cabeçalho de todas as páginas.
-                    </p>
+                  <Separator />
+                  
+                  <div>
+                    <h3 className="text-md font-medium mb-2">Código Personalizado</h3>
+                    <div className="grid gap-2">
+                      <Label htmlFor="custom-code">Código HTML/JavaScript Personalizado</Label>
+                      <Textarea 
+                        id="custom-code" 
+                        rows={6} 
+                        placeholder="<!-- Insira código HTML, JavaScript ou CSS personalizado aqui -->"
+                        value={website.customJs || ""}
+                        onChange={(e) => {
+                          if (websiteData) {
+                            queryClient.setQueryData(['/api/users/me/website'], {
+                              ...websiteData,
+                              customJs: e.target.value
+                            });
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Este código será inserido no cabeçalho de todas as páginas.
+                      </p>
+                    </div>
+                    
+                    <div className="grid gap-2 mt-4">
+                      <Label htmlFor="custom-css">CSS Personalizado</Label>
+                      <Textarea 
+                        id="custom-css" 
+                        rows={6} 
+                        placeholder="/* Insira CSS personalizado aqui */"
+                        value={website.customCss || ""}
+                        onChange={(e) => {
+                          if (websiteData) {
+                            queryClient.setQueryData(['/api/users/me/website'], {
+                              ...websiteData,
+                              customCss: e.target.value
+                            });
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Este CSS será aplicado em todas as páginas do seu site.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
