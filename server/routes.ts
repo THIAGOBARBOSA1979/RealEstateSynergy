@@ -445,6 +445,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
     try {
       const website = await storage.getWebsiteByUserId(req.user.id);
+      
+      // Se o website não existir, retornar um objeto vazio em vez de null
+      if (!website) {
+        return res.json({});
+      }
+      
       return res.json(website);
     } catch (error) {
       console.error("Erro ao buscar website:", error);
