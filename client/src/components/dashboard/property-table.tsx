@@ -200,10 +200,8 @@ const PropertyTable = ({
   // Converter propriedade em empreendimento
   const handleConvertToDevelopment = (propertyId: number) => {
     if (confirm("Tem certeza que deseja converter este imóvel em um empreendimento com uma unidade? Esta ação não pode ser desfeita.")) {
-      // Usar diretamente apiRequest em vez de criar uma mutation dentro da função
-      apiRequest(`/api/properties/${propertyId}/convert-to-development`, {
-        method: 'POST'
-      })
+      // Usar diretamente apiRequest com o formato de função correta
+      apiRequest("POST", `/api/properties/${propertyId}/convert-to-development`)
       .then((data) => {
         toast({
           title: "Conversão realizada",
