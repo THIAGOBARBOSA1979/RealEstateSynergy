@@ -41,8 +41,18 @@ import {
   ArrowLeftIcon,
   VideoIcon,
   CompassIcon,
-  PlayIcon
+  PlayIcon,
+  Building2Icon,
+  Loader2Icon,
+  Edit2Icon,
+  MessageSquareIcon
 } from "lucide-react";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { SiWhatsapp, SiFacebook, SiInstagram, SiGmail } from "react-icons/si";
 
 interface PropertyFeature {
@@ -842,6 +852,74 @@ const PropertyDetail = () => {
       
       {/* Property Details Container */}
       <div className="container mx-auto px-4 py-6">
+        {/* Seção administrativa (visível apenas para proprietários) */}
+        {isPropertyOwner && (
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h3 className="text-lg font-medium mb-1">Ações administrativas</h3>
+                  <p className="text-sm text-muted-foreground">Ferramentas avançadas para gerenciamento</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/edit-property/${property.id}`)}
+                  >
+                    <Edit2Icon className="h-4 w-4 mr-2" />
+                    Editar imóvel
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const confirmConversion = window.confirm(
+                        "Ao converter este imóvel em empreendimento, você poderá gerenciá-lo com recursos avançados como espelho de vendas e unidades múltiplas. Deseja continuar?"
+                      );
+                      if (confirmConversion) {
+                        convertToDevelopment.mutate();
+                      }
+                    }}
+                  >
+                    <Building2Icon className="h-4 w-4 mr-2" />
+                    Converter em empreendimento
+                  </Button>
+                </div>
+              </div>
+              
+              {convertToDevelopment.isPending && (
+                <div className="mt-4 flex items-center text-sm text-primary bg-primary/5 p-3 rounded-md">
+                  <Loader2Icon className="h-4 w-4 mr-2 animate-spin" />
+                  Convertendo imóvel em empreendimento...
+                </div>
+              )}
+              
+              <div className="mt-4">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="conversion-info">
+                    <AccordionTrigger className="text-sm">
+                      O que significa converter em empreendimento?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-sm text-muted-foreground">
+                        Ao converter este imóvel em um empreendimento, você terá acesso a recursos avançados como:
+                      </p>
+                      <ul className="mt-2 space-y-1 text-sm text-muted-foreground list-disc pl-4">
+                        <li>Espelho de vendas unificado</li>
+                        <li>Possibilidade de adicionar múltiplas unidades</li>
+                        <li>Melhor organização no catálogo imobiliário</li>
+                        <li>Estatísticas e relatórios específicos para empreendimentos</li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Breadcrumbs and Title */}
         <div className="mb-6">
           <div className="flex flex-wrap items-center text-sm text-muted-foreground mb-2">
