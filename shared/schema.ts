@@ -48,6 +48,17 @@ export const properties = pgTable('properties', {
   status: text('status').notNull().default('active'), // active, reserved, sold, inactive
   featured: boolean('featured').default(false),
   images: jsonb('images').default([]),
+  // Novos campos para vídeo e tour virtual
+  videoUrl: text('video_url'),
+  tourUrl: text('tour_url'),
+  // Campos para propriedades rurais
+  totalArea: decimal('total_area', { precision: 10, scale: 2 }),
+  productiveArea: decimal('productive_area', { precision: 10, scale: 2 }),
+  carRegistration: text('car_registration'),
+  waterSources: jsonb('water_sources').default([]),
+  soilType: text('soil_type'),
+  agriculturalPotential: text('agricultural_potential'),
+  ruralInfrastructure: jsonb('rural_infrastructure').default([]),
   published: boolean('published').default(true),
   publishedPortals: jsonb('published_portals').default([]),
   availableForAffiliation: boolean('available_for_affiliation').default(false),
