@@ -69,6 +69,20 @@ const PropertyDetail = () => {
   });
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [viewMode, setViewMode] = useState<'photos' | 'map'>('photos');
+  const [isFloatingCTAVisible, setIsFloatingCTAVisible] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | undefined>(undefined);
+  
+  // Mostrar CTA flutuante quando o usuário rolar a página
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      setIsFloatingCTAVisible(scrollTop > 300);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   
   // Get UTM parameters if present in URL
   useEffect(() => {
@@ -341,33 +355,124 @@ const PropertyDetail = () => {
   // SEO Meta setup (in a production app, use Next.js Head or React Helmet)
   useEffect(() => {
     // Sempre defina um título padrão, mesmo que property seja null
-    document.title = property ? `${property.title} - ImobCloud` : 'Detalhes do Imóvel - ImobCloud';
+    document.title = property ? `${property.title} - ${property.neighborhood}, ${property.city} - ImobCloud` : 'Detalhes do Imóvel - ImobCloud';
     
     // Limpe quaisquer tags meta anteriores
-    const existingMetaTags = document.head.querySelectorAll('meta[name="description"], meta[property="og:image"]');
+    const existingMetaTags = document.head.querySelectorAll('meta[name="description"], meta[property^="og:"], meta[name="keywords"], meta[name="robots"], meta[name="twitter:"]');
     existingMetaTags.forEach(tag => tag.remove());
     
     // Só crie novas tags meta se property existir
     if (property) {
-      // Create meta description
-      const metaDesc = document.createElement('meta');
-      metaDesc.name = 'description';
-      metaDesc.content = `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} ${property.bathrooms ? `e ${property.bathrooms} banheiros` : ''}, ${property.status === 'active' ? 'à venda' : 'vendido'} em ${property.city}. ${property.description?.substring(0, 100)}...`;
-      document.head.appendChild(metaDesc);
+      const metaTags = [
+        // Meta description - otimizada para SEO com informações detalhadas e palavras-chave
+        {
+          name: 'description',
+          content: `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} ${property.bathrooms ? `e ${property.bathrooms} banheiros` : ''}, ${property.status === 'active' ? 'à venda' : 'vendido'} por ${formatCurrency(property.price)} em ${property.neighborhood}, ${property.city}. ${property.area ? `${property.area}m²` : ''} ${property.description?.substring(0, 100)}...`
+        },
+        // Keywords para SEO
+        {
+          name: 'keywords',
+          content: `imóvel, ${property.propertyType}, ${property.city}, ${property.neighborhood}, ${property.bedrooms ? `${property.bedrooms} quartos` : ''}, imobiliária, comprar, casa, apartamento`
+        },
+        // Permitir indexação 
+        {
+          name: 'robots',
+          content: 'index, follow'
+        },
+        // Open Graph para compartilhamento em redes sociais
+        {
+          property: 'og:title',
+          content: `${property.title} - ${property.neighborhood}, ${property.city}`
+        },
+        {
+          property: 'og:description',
+          content: `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} por ${formatCurrency(property.price)}. ${property.description?.substring(0, 100)}...`
+        },
+        {
+          property: 'og:type',
+          content: 'website'
+        },
+        {
+          property: 'og:url',
+          content: window.location.href
+        },
+        // Twitter Card
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:title',
+          content: `${property.title} - ${property.neighborhood}, ${property.city}`
+        },
+        {
+          name: 'twitter:description',
+          content: `${getPropertyTypeLabel(property.propertyType)} ${property.bedrooms ? `com ${property.bedrooms} quartos` : ''} por ${formatCurrency(property.price)}`
+        }
+      ];
       
-      // Create og:image if there are images
+      // Adicionar imagem para Open Graph e Twitter
       if (property.images?.length > 0) {
-        const ogImage = document.createElement('meta');
-        ogImage.setAttribute('property', 'og:image');
-        ogImage.content = property.images[0];
-        document.head.appendChild(ogImage);
+        metaTags.push(
+          {
+            property: 'og:image',
+            content: property.images[0]
+          },
+          {
+            name: 'twitter:image',
+            content: property.images[0]
+          }
+        );
+      }
+      
+      // Criar e adicionar todas as tags meta
+      metaTags.forEach(tag => {
+        const metaElement = document.createElement('meta');
+        const key = Object.keys(tag)[0];
+        const value = Object.values(tag)[0];
+        
+        metaElement.setAttribute(key, value as string);
+        document.head.appendChild(metaElement);
+      });
+      
+      // Registrar visualização para analytics
+      if (typeof window !== 'undefined') {
+        // Google Analytics event
+        if ((window as any).gtag) {
+          (window as any).gtag('event', 'view_item', {
+            event_category: 'property',
+            event_label: property.title,
+            value: property.price,
+            currency: 'BRL',
+            items: [{
+              id: property.id,
+              name: property.title,
+              category: property.propertyType,
+              price: property.price,
+              variant: `${property.bedrooms} quartos`,
+              location: `${property.neighborhood}, ${property.city}`
+            }]
+          });
+        }
+        
+        // Facebook Pixel
+        if ((window as any).fbq) {
+          (window as any).fbq('track', 'ViewContent', {
+            content_name: property.title,
+            content_category: property.propertyType,
+            content_ids: [property.id],
+            content_type: 'product',
+            value: property.price,
+            currency: 'BRL',
+          });
+        }
       }
     }
     
     return () => {
       // Clean up meta tags when component unmounts
       document.title = 'ImobCloud';
-      const metaTags = document.head.querySelectorAll('meta[name="description"], meta[property="og:image"]');
+      const metaTags = document.head.querySelectorAll('meta[name="description"], meta[property^="og:"], meta[name="keywords"], meta[name="robots"], meta[name="twitter:"]');
       metaTags.forEach(tag => tag.remove());
     };
   }, [property]);
@@ -387,6 +492,68 @@ const PropertyDetail = () => {
     );
   }
   
+  // Função para agendar visita
+  const handleScheduleVisit = () => {
+    if (!selectedScheduleDate) {
+      toast({
+        title: "Selecione uma data",
+        description: "Por favor, selecione uma data para a visita.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Criar um lead de agendamento
+    createLead.mutate({
+      fullName: contactForm.fullName,
+      email: contactForm.email,
+      phone: contactForm.phone,
+      message: `Solicitação de visita para ${selectedScheduleDate.toLocaleDateString('pt-BR')}`,
+      propertyId: Number(id),
+      userId: property?.userId,
+      stage: 'visit_scheduled',
+      source: contactForm.source || 'website',
+      status: 'active',
+      customFields: {
+        visitDate: selectedScheduleDate.toISOString(),
+        utmSource: contactForm.utmSource,
+        utmMedium: contactForm.utmMedium,
+        utmCampaign: contactForm.utmCampaign,
+      }
+    });
+    
+    // Registrar evento de conversão
+    if (typeof window !== 'undefined') {
+      // Facebook Pixel
+      if ((window as any).fbq) {
+        (window as any).fbq('track', 'ScheduleVisit', {
+          content_name: property?.title,
+          content_category: property?.propertyType,
+          content_ids: [property?.id],
+          value: property?.price,
+          currency: 'BRL',
+        });
+      }
+      
+      // Google Analytics
+      if ((window as any).gtag) {
+        (window as any).gtag('event', 'schedule_visit', {
+          event_category: 'property',
+          event_label: property?.title,
+          value: property?.price,
+        });
+      }
+    }
+    
+    toast({
+      title: "Visita agendada",
+      description: `Sua visita foi agendada para ${selectedScheduleDate.toLocaleDateString('pt-BR')}. O corretor entrará em contato para confirmar.`,
+    });
+    
+    setShowScheduleDialog(false);
+    setSelectedScheduleDate(undefined);
+  };
+
   return (
     <div className="property-detail bg-gray-50 min-h-screen">
       {/* Header with property branding */}
