@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import { Property } from "@/types";
+import { Image, Bed, Bath, SquareFoot, Car, Share, Edit } from "lucide-react";
 
 import {
   Dialog,
@@ -99,7 +100,7 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <span className="material-icons text-4xl mr-2">image</span>
+                    <Image className="h-8 w-8 mr-2" />
                     <span>Sem imagens disponíveis</span>
                   </div>
                 )}
