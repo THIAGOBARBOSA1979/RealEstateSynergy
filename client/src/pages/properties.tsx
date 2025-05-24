@@ -585,30 +585,81 @@ const Properties = () => {
         </TabsContent>
         
         <TabsContent value="active" className="mt-0">
-          <PropertyTable 
-            status="active"
-            viewMode={viewMode}
-          />
+          {viewMode === 'list' ? (
+            <PropertyTable 
+              status="active"
+              viewMode={viewMode}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {Array.isArray(filteredProperties) && filteredProperties
+                .filter((property: any) => property.status === 'active')
+                .map((property: any) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))
+              }
+              {Array.isArray(filteredProperties) && 
+                filteredProperties.filter((property: any) => property.status === 'active').length === 0 && (
+                <div className="col-span-3 py-8 text-center">
+                  <p className="text-muted-foreground">Nenhum imóvel ativo encontrado.</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="featured" className="mt-0">
-          <PropertyTable 
-            showFeatured={true}
-            viewMode={viewMode}
-          />
+          {viewMode === 'list' ? (
+            <PropertyTable 
+              showFeatured={true}
+              viewMode={viewMode}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {Array.isArray(filteredProperties) && filteredProperties
+                .filter((property: any) => property.featured)
+                .map((property: any) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))
+              }
+              {Array.isArray(filteredProperties) && 
+                filteredProperties.filter((property: any) => property.featured).length === 0 && (
+                <div className="col-span-3 py-8 text-center">
+                  <p className="text-muted-foreground">Nenhum imóvel destacado encontrado.</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="inactive" className="mt-0">
-          <PropertyTable 
-            status="inactive"
-            viewMode={viewMode}
-            searchTerm=""
-            propertyType="all"
-            bedrooms={undefined}
-            priceRange={{ min: "", max: "" }}
-            sortOrder="newest"
-            showFeatured={false}
-          />
+          {viewMode === 'list' ? (
+            <PropertyTable 
+              status="inactive"
+              viewMode={viewMode}
+              searchTerm=""
+              propertyType="all"
+              bedrooms={undefined}
+              priceRange={{ min: "", max: "" }}
+              sortOrder="newest"
+              showFeatured={false}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {Array.isArray(filteredProperties) && filteredProperties
+                .filter((property: any) => property.status === 'inactive')
+                .map((property: any) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))
+              }
+              {Array.isArray(filteredProperties) && 
+                filteredProperties.filter((property: any) => property.status === 'inactive').length === 0 && (
+                <div className="col-span-3 py-8 text-center">
+                  <p className="text-muted-foreground">Nenhum imóvel inativo encontrado.</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
       
