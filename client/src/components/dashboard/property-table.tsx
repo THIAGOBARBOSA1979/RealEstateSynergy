@@ -212,7 +212,13 @@ const PropertyTable = ({
         
         // Redirecionar para o novo empreendimento
         setTimeout(() => {
-          navigate(`/development-detail/${data.development.id}`);
+          // Verificar se a resposta contém o ID do desenvolvimento antes de redirecionar
+          if (data && data.development && data.development.id) {
+            navigate(`/development-detail/${data.development.id}`);
+          } else {
+            // Se não encontrar o ID, redirecionar para a lista de empreendimentos
+            navigate('/developments');
+          }
         }, 1500);
       })
       .catch((error) => {
@@ -432,12 +438,10 @@ const PropertyTable = ({
                                 <Copy className="h-4 w-4 mr-2" />
                                 Duplicar
                               </DropdownMenuItem>
-                              {!property.developmentId && (
-                                <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  Converter em Empreendimento
-                                </DropdownMenuItem>
-                              )}
+                              <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Converter em Empreendimento
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-destructive focus:text-destructive"
@@ -546,12 +550,10 @@ const PropertyTable = ({
                             <ExternalLink className="h-4 w-4 mr-2" />
                             Ver página
                           </DropdownMenuItem>
-                          {!property.developmentId && (
-                            <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
-                              <HomeIcon className="h-4 w-4 mr-2" />
-                              Converter em empreendimento
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
+                            <HomeIcon className="h-4 w-4 mr-2" />
+                            Converter em empreendimento
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive"
