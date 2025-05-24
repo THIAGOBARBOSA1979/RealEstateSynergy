@@ -177,74 +177,108 @@ export const storage = {
 
   // Website operations
   async getWebsiteByUserId(userId: number) {
-    const result = await db.select().from(websites).where(eq(websites.userId, userId));
-    
-    if (result.length === 0) {
-      // Retornar um objeto padrão se o website ainda não existir
+    try {
+      const result = await db.select().from(websites).where(eq(websites.userId, userId));
+      
+      if (result.length === 0) {
+        // Criar um registro padrão na base de dados
+        console.log(`Criando website para o usuário ${userId}`);
+        const defaultWebsite = {
+          siteName: "Meu Site Imobiliário",
+          tagline: "Os melhores imóveis da região",
+          description: "Profissional especializado no mercado imobiliário local",
+          logoUrl: "",
+          heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
+          themeColor: "#FF5A00",
+          secondaryColor: "#222222",
+          fontFamily: "inter",
+          contactEmail: "",
+          contactPhone: "",
+          address: "",
+          whatsapp: "",
+          creci: "",
+          showTestimonials: true,
+          showFeaturedProperties: true,
+          showAboutSection: true,
+          socialMedia: {
+            instagram: "",
+            facebook: "",
+            youtube: ""
+          },
+          userId: userId
+        };
+        
+        const createdWebsite = await this.updateWebsite(userId, defaultWebsite);
+        return {
+          ...createdWebsite,
+          stats: {
+            visitsToday: 0,
+            leadsGenerated: 0
+          }
+        };
+      }
+      
+      // Add stats 
       return {
-        siteName: "Meu Site Imobiliário",
-        tagline: "Os melhores imóveis da região",
-        description: "Profissional especializado no mercado imobiliário local",
-        logoUrl: "",
-        heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
-        themeColor: "#FF5A00",
-        secondaryColor: "#222222",
-        fontFamily: "inter",
-        contactEmail: "",
-        contactPhone: "",
-        address: "",
-        whatsapp: "",
-        creci: "",
-        showTestimonials: true,
-        showFeaturedProperties: true,
-        showAboutSection: true,
-        userId: userId,
+        ...result[0],
         stats: {
-          visitsToday: 0,
-          leadsGenerated: 0
+          visitsToday: 27,
+          leadsGenerated: 5
         }
       };
+    } catch (error) {
+      console.error('Erro ao buscar website:', error);
+      return null;
     }
-    
-    // Add stats 
-    return {
-      ...result[0],
-      stats: {
-        visitsToday: 27,
-        leadsGenerated: 5
-      }
-    };
   },
 
   async updateWebsite(userId: number, websiteData: any) {
-    // Check if website exists
-    const existingWebsite = await this.getWebsiteByUserId(userId);
-    
-    if (!existingWebsite) {
-      // Create new website
-      const result = await db.insert(websites)
-        .values({...websiteData, userId})
+    try {
+      // Verificar se o website já existe diretamente pelo banco de dados
+      const existingRecords = await db.select().from(websites).where(eq(websites.userId, userId));
+      
+      if (existingRecords.length === 0) {
+        console.log(`Criando novo website para o usuário ${userId}`);
+        // Create new website
+        const result = await db.insert(websites)
+          .values({
+            ...websiteData, 
+            userId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          })
+          .returning();
+        
+        return {
+          ...result[0],
+          stats: {
+            visitsToday: 0,
+            leadsGenerated: 0
+          }
+        };
+      }
+      
+      console.log(`Atualizando website para o usuário ${userId}`);
+      // Update existing website
+      const result = await db.update(websites)
+        .set({
+          ...websiteData, 
+          updatedAt: new Date().toISOString()
+        })
+        .where(eq(websites.userId, userId))
         .returning();
       
       return {
         ...result[0],
         stats: {
-          visitsToday: 0,
-          leadsGenerated: 0
+          visitsToday: 27,
+          leadsGenerated: 5
         }
       };
+    } catch (error) {
+      console.error('Erro ao atualizar website:', error);
+      throw error;
     }
-    
-    // Update existing website
-    const result = await db.update(websites)
-      .set({...websiteData, updatedAt: new Date().toISOString()})
-      .where(eq(websites.userId, userId))
-      .returning();
-    
-    return {
-      ...result[0],
-      stats: existingWebsite.stats
-    };
   },
 
   // Lead operations
