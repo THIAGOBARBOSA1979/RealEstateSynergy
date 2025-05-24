@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CloudUpload, ArrowLeft, ArrowRight } from "lucide-react";
+import { CloudUpload, ArrowLeft, ArrowRight, Info, MapPin, Home, Waves, DollarSign, Image } from "lucide-react";
 
 import {
   Form,
@@ -189,7 +189,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="w-full grid grid-cols-6 mb-6">
                 <TabsTrigger value="basics" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">info</span>
+                  <Info className="h-4 w-4" />
                   <span className="hidden sm:inline">Básico</span>
                 </TabsTrigger>
                 <TabsTrigger value="location" className="flex gap-2 items-center">
