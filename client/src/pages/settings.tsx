@@ -867,7 +867,7 @@ const Settings = () => {
                                       });
                                     }}
                                   >
-                                    <span className="material-icons text-sm">delete</span>
+                                    <Trash className="h-4 w-4" />
                                   </Button>
                                 </div>
                                 
@@ -1086,7 +1086,7 @@ const Settings = () => {
                 disabled={updateIntegrationsMutation.isPending || isLoadingIntegrations}
                 className="flex items-center"
               >
-                <span className="material-icons text-sm mr-2">save</span>
+                <Save className="h-4 w-4 mr-2" />
                 {updateIntegrationsMutation.isPending ? "Salvando..." : "Salvar Configurações"}
               </Button>
             </CardFooter>
