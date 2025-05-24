@@ -10,7 +10,7 @@ import AddProperty from "@/pages/add-property";
 import EditProperty from "@/pages/edit-property";
 import Favorites from "@/pages/favorites";
 import CRM from "@/pages/crm";
-import SiteEditor from "@/pages/site-editor";
+// SiteEditor foi unificado com Settings
 import Affiliate from "@/pages/affiliate";
 import ClientPortal from "@/pages/client-portal";
 import Analytics from "@/pages/analytics";
@@ -42,7 +42,6 @@ function Router() {
       <Route path="/edit-property/:id" component={EditProperty} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
-      <Route path="/site-editor" component={SiteEditor} />
       <Route path="/affiliate" component={Affiliate} />
       <Route path="/client-portal" component={ClientPortal} />
       <Route path="/analytics" component={Analytics} />
