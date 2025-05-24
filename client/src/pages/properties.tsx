@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +29,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import PropertyTable from "@/components/dashboard/property-table";
 import {
   DropdownMenu,
@@ -38,6 +48,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatCurrency } from "@/lib/utils";
 import { 
   Plus, 
   Search, 
@@ -52,7 +65,9 @@ import {
   MapPin,
   Tag,
   Home as HomeIcon,
-  MoreVertical
+  MoreVertical,
+  Trash2,
+  ExternalLink
 } from "lucide-react";
 
 const Properties = () => {
@@ -66,7 +81,10 @@ const Properties = () => {
   const [showFeatured, setShowFeatured] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [, navigate] = useLocation();
+  const { toast } = useToast();
 
   // Atualizar filtros ativos quando os valores mudarem
   useEffect(() => {
@@ -133,6 +151,36 @@ const Properties = () => {
       setShowFeatured(false);
     }
   };
+  
+  // Handle property deletion
+  const handleDeleteClick = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  // Delete property mutation
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: number) => {
+      return apiRequest(`/api/properties/${propertyId}`, {
+        method: 'DELETE'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Imóvel excluído",
+        description: "O imóvel foi excluído com sucesso",
+      });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao excluir imóvel",
+        description: "Não foi possível excluir o imóvel. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Fetch properties data
   const { data, isLoading, isError } = useQuery({
