@@ -974,39 +974,29 @@ const PropertyDetail = () => {
                         <CompassIcon className="h-5 w-5 text-primary" />
                         <h3 className="text-lg font-medium">Tour virtual</h3>
                       </div>
-                      <div className="h-[450px] bg-gray-100 rounded-lg overflow-hidden">
-                        {(() => {
-                          const { type, embedUrl } = getEmbedUrl(property.tourUrl);
-                          if (embedUrl) {
-                            if (type === 'matterport') {
-                              return (
-                                <iframe 
-                                  src={embedUrl}
-                                  width="100%" 
-                                  height="100%" 
-                                  allowFullScreen
-                                  allow="xr-spatial-tracking"
-                                  title={`Tour virtual de ${property.title}`}
-                                  frameBorder="0"
-                                  className="w-full h-full rounded-lg"
-                                ></iframe>
-                              );
-                            }
-                          }
-                          return (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                              <ExternalLinkIcon className="mr-2 h-4 w-4" />
-                              <a 
-                                href={property.tourUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline"
-                              >
-                                Abrir tour virtual em nova janela
-                              </a>
-                            </div>
-                          );
-                        })()}
+                      <div className="h-[450px] bg-gray-100 rounded-lg flex flex-col items-center justify-center p-8 text-center">
+                        <div className="mb-6">
+                          <CompassIcon className="h-16 w-16 text-primary/40 mb-4" />
+                          <h3 className="text-xl font-semibold mb-2">Tour Virtual Disponível</h3>
+                          <p className="text-muted-foreground mb-6 max-w-md">
+                            Explore este imóvel em 360° através do nosso tour virtual interativo. 
+                            Você será redirecionado para a plataforma do tour.
+                          </p>
+                        </div>
+                        
+                        <Button 
+                          className="flex items-center gap-2"
+                          size="lg"
+                          onClick={() => window.open(property.tourUrl, '_blank')}
+                        >
+                          <PlayIcon className="h-4 w-4" />
+                          Acessar Tour Virtual
+                        </Button>
+                        
+                        <p className="text-xs text-muted-foreground mt-4">
+                          O tour será aberto em uma nova janela
+                        </p>
+                      </div>
                       </div>
                     </div>
                   )}
