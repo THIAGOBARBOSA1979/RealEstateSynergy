@@ -38,7 +38,10 @@ import {
   MailIcon, 
   ClipboardCopyIcon, 
   MousePointerClickIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  VideoIcon,
+  CompassIcon,
+  PlayIcon
 } from "lucide-react";
 import { SiWhatsapp, SiFacebook, SiInstagram, SiGmail } from "react-icons/si";
 
@@ -85,7 +88,7 @@ const PropertyDetail = () => {
     source: "website"
   });
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [viewMode, setViewMode] = useState<'photos' | 'map'>('photos');
+  const [viewMode, setViewMode] = useState<'photos' | 'map' | 'media'>('photos');
   const [isFloatingCTAVisible, setIsFloatingCTAVisible] = useState(false);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | undefined>(undefined);
@@ -772,8 +775,9 @@ const PropertyDetail = () => {
         {/* Gallery and Map Toggle */}
         <div className="mb-6">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'photos' | 'map')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="photos">Fotos</TabsTrigger>
+              <TabsTrigger value="media">Vídeo & Tour</TabsTrigger>
               <TabsTrigger value="map">Mapa</TabsTrigger>
             </TabsList>
             
