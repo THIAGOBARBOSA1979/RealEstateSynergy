@@ -14,7 +14,8 @@ import {
   Globe,
   Settings,
   Sun,
-  Moon
+  Moon,
+  Building2
 } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -45,6 +46,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
       case "link": return <LinkIcon className="w-5 h-5" />;
       case "public": return <Globe className="w-5 h-5" />;
       case "settings": return <Settings className="w-5 h-5" />;
+      case "building": return <Building2 className="w-5 h-5" />;
       default: return <Home className="w-5 h-5" />;
     }
   };

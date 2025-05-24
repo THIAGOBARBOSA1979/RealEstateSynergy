@@ -24,6 +24,11 @@ import AgentWebsite from "./pages/agent-website";
 import SuperAdminPanel from "./pages/super-admin";
 import PropertyDetailNew from "./pages/property-detail-new";
 
+// Páginas de empreendimentos
+import Developments from "./pages/developments";
+import AddDevelopment from "./pages/add-development";
+import DevelopmentDetail from "./pages/development-detail";
+
 function Router() {
   return (
     <Switch>
@@ -47,6 +52,11 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/team" component={Team} />
       <Route path="/settings" component={Settings} />
+      
+      {/* Rotas de Empreendimentos */}
+      <Route path="/developments" component={Developments} />
+      <Route path="/add-development" component={AddDevelopment} />
+      <Route path="/development/:id" component={DevelopmentDetail} />
       <Route component={NotFound} />
     </Switch>
   );
