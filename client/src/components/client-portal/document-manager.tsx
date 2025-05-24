@@ -33,9 +33,10 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
 
   const uploadToGoogleDrive = useMutation({
     mutationFn: async (documentId: number) => {
-      const response = await apiRequest(`/api/documents/${documentId}/upload-drive`, {
+      const response = await fetch(`/api/documents/${documentId}/upload-drive`, {
         method: "POST",
-      } as RequestInit);
+        credentials: "include"
+      });
       
       if (!response.ok) {
         const error = await response.json();
@@ -87,10 +88,10 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
         formData.append("clientId", clientId.toString());
       }
 
-      const response = await apiRequest("/api/documents", {
+      const response = await fetch("/api/documents", {
         method: "POST",
         body: formData,
-      } as RequestInit);
+      });
       
       if (!response.ok) {
         const error = await response.json();
@@ -260,13 +261,13 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
                             onClick={() => uploadToGoogleDrive.mutate(doc.id)}
                             disabled={uploadToGoogleDrive.isPending}
                           >
-                            <span className="material-icons">cloud_upload</span>
+                            <Upload className="h-4 w-4" />
                           </Button>
                         )}
                         {doc.googleDriveId && (
                           <Button variant="ghost" size="icon" asChild>
                             <a href={`https://drive.google.com/file/d/${doc.googleDriveId}/view`} target="_blank" rel="noopener noreferrer">
-                              <span className="material-icons">cloud</span>
+                              <Cloud className="h-4 w-4" />
                             </a>
                           </Button>
                         )}
