@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   Plus,
   Trash,
-  Save
+  Save,
+  Eye
 } from "lucide-react";
 
 import {
@@ -32,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -114,6 +116,28 @@ const Settings = () => {
       });
     },
   });
+  
+  // Update website mutation
+  const updateWebsiteMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest("PUT", "/api/users/me/website", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users/me/website'] });
+      toast({
+        title: "Site atualizado",
+        description: "As alterações do seu site foram salvas com sucesso.",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao salvar",
+        description: "Ocorreu um erro ao salvar as alterações do site.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Handle profile update
   const handleProfileUpdate = (formData: any) => {
@@ -123,6 +147,11 @@ const Settings = () => {
   // Handle integration update
   const handleIntegrationUpdate = (integrationData: any) => {
     updateIntegrationsMutation.mutate(integrationData);
+  };
+  
+  // Handle website update
+  const handleWebsiteUpdate = (websiteData: any) => {
+    updateWebsiteMutation.mutate(websiteData);
   };
 
   return (
@@ -417,6 +446,368 @@ const Settings = () => {
         </TabsContent>
 
         {/* Notifications Settings */}
+        {/* Site Settings */}
+        <TabsContent value="site" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações do Site</CardTitle>
+              <CardDescription>
+                Configure informações gerais do seu site para clientes e visitantes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isLoadingWebsite ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="siteName">Nome do Site</Label>
+                      <Input 
+                        id="siteName" 
+                        placeholder="Nome do seu site" 
+                        defaultValue={websiteData?.siteName || ''}
+                        onChange={(e) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            siteName: e.target.value
+                          });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tagline">Slogan</Label>
+                      <Input 
+                        id="tagline" 
+                        placeholder="Slogan ou frase de efeito" 
+                        defaultValue={websiteData?.tagline || ''}
+                        onChange={(e) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            tagline: e.target.value
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="siteDescription">Descrição do Site</Label>
+                    <Textarea 
+                      id="siteDescription" 
+                      placeholder="Descreva seu site e serviços em poucas palavras..." 
+                      className="resize-none h-20"
+                      defaultValue={websiteData?.description || ''}
+                      onChange={(e) => {
+                        handleWebsiteUpdate({
+                          ...websiteData,
+                          description: e.target.value
+                        });
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Esta descrição será usada para SEO e meta tags.
+                    </p>
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-md font-medium">Informações de Contato</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="contactEmail">Email de Contato</Label>
+                        <Input 
+                          id="contactEmail" 
+                          type="email" 
+                          placeholder="seu@email.com" 
+                          defaultValue={websiteData?.contactEmail || ''}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              contactEmail: e.target.value
+                            });
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="contactPhone">Telefone de Contato</Label>
+                        <Input 
+                          id="contactPhone" 
+                          placeholder="(00) 00000-0000" 
+                          defaultValue={websiteData?.contactPhone || ''}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              contactPhone: e.target.value
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Endereço</Label>
+                      <Input 
+                        id="address" 
+                        placeholder="Seu endereço comercial" 
+                        defaultValue={websiteData?.address || ''}
+                        onChange={(e) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            address: e.target.value
+                          });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsapp">WhatsApp</Label>
+                        <Input 
+                          id="whatsapp" 
+                          placeholder="(00) 00000-0000" 
+                          defaultValue={websiteData?.whatsapp || ''}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              whatsapp: e.target.value
+                            });
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="creci">CRECI</Label>
+                        <Input 
+                          id="creci" 
+                          placeholder="Seu número de CRECI" 
+                          defaultValue={websiteData?.creci || ''}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              creci: e.target.value
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end mt-6">
+                    <Button 
+                      onClick={() => window.open(`/agent-website`, '_blank')}
+                      variant="outline"
+                      className="mr-2"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Visualizar Site
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Appearance Settings */}
+        <TabsContent value="appearance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Aparência do Site</CardTitle>
+              <CardDescription>
+                Personalize a aparência do seu site com cores, fontes e layout.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isLoadingWebsite ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-36 w-full" />
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="themeColor">Cor Principal</Label>
+                      <div className="flex">
+                        <Input 
+                          id="themeColor"
+                          type="color" 
+                          className="w-12 h-10 p-1"
+                          defaultValue={websiteData?.themeColor || '#FF5A00'}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              themeColor: e.target.value
+                            });
+                          }}
+                        />
+                        <Input 
+                          value={websiteData?.themeColor || '#FF5A00'} 
+                          className="ml-2"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="secondaryColor">Cor Secundária</Label>
+                      <div className="flex">
+                        <Input 
+                          id="secondaryColor"
+                          type="color" 
+                          className="w-12 h-10 p-1"
+                          defaultValue={websiteData?.secondaryColor || '#222222'}
+                          onChange={(e) => {
+                            handleWebsiteUpdate({
+                              ...websiteData,
+                              secondaryColor: e.target.value
+                            });
+                          }}
+                        />
+                        <Input 
+                          value={websiteData?.secondaryColor || '#222222'} 
+                          className="ml-2"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="fontFamily">Família de Fonte</Label>
+                    <Select 
+                      defaultValue={websiteData?.fontFamily || 'inter'}
+                      onValueChange={(value) => {
+                        handleWebsiteUpdate({
+                          ...websiteData,
+                          fontFamily: value
+                        });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma fonte" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inter">Inter</SelectItem>
+                        <SelectItem value="roboto">Roboto</SelectItem>
+                        <SelectItem value="montserrat">Montserrat</SelectItem>
+                        <SelectItem value="poppins">Poppins</SelectItem>
+                        <SelectItem value="oswald">Oswald</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-md font-medium">Logo e Imagens</h3>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="logoUrl">URL do Logo</Label>
+                      <Input 
+                        id="logoUrl" 
+                        placeholder="https://exemplo.com/logo.png" 
+                        defaultValue={websiteData?.logoUrl || ''}
+                        onChange={(e) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            logoUrl: e.target.value
+                          });
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Coloque a URL do seu logo, recomendamos formato PNG ou SVG.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="heroImageUrl">Imagem de Destaque</Label>
+                      <Input 
+                        id="heroImageUrl" 
+                        placeholder="https://exemplo.com/imagem.jpg" 
+                        defaultValue={websiteData?.heroImageUrl || ''}
+                        onChange={(e) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            heroImageUrl: e.target.value
+                          });
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Imagem que aparecerá na seção principal do seu site.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-md font-medium">Elementos do Site</h3>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="showTestimonials" 
+                        checked={websiteData?.showTestimonials || false}
+                        onCheckedChange={(checked) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            showTestimonials: checked
+                          });
+                        }}
+                      />
+                      <Label htmlFor="showTestimonials">Mostrar Depoimentos</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="showFeaturedProperties" 
+                        checked={websiteData?.showFeaturedProperties || true}
+                        onCheckedChange={(checked) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            showFeaturedProperties: checked
+                          });
+                        }}
+                      />
+                      <Label htmlFor="showFeaturedProperties">Mostrar Imóveis em Destaque</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="showAboutSection" 
+                        checked={websiteData?.showAboutSection || true}
+                        onCheckedChange={(checked) => {
+                          handleWebsiteUpdate({
+                            ...websiteData,
+                            showAboutSection: checked
+                          });
+                        }}
+                      />
+                      <Label htmlFor="showAboutSection">Mostrar Seção Sobre</Label>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end mt-6">
+                    <Button 
+                      onClick={() => window.open(`/agent-website`, '_blank')}
+                      variant="outline"
+                      className="mr-2"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Visualizar Site
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="notifications" className="space-y-4">
           <Card>
             <CardHeader>
