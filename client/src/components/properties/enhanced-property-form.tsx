@@ -75,7 +75,8 @@ const propertyFormSchema = z.object({
   addressComplement: z.string().optional(),
   neighborhood: z.string().optional(),
   price: z.coerce.number().positive("O preço deve ser maior que zero"),
-  propertyType: z.enum(["apartment", "house", "land", "commercial"]),
+  propertyType: z.enum(["apartment", "house", "land", "commercial", "rural"]),
+  transactionType: z.enum(["sale", "rent", "both"]).default("sale"),
   bedrooms: z.coerce.number().optional(),
   bathrooms: z.coerce.number().optional(),
   area: z.coerce.number().min(1, "A área deve ser maior que zero"),
@@ -83,6 +84,7 @@ const propertyFormSchema = z.object({
   garageSpots: z.coerce.number().optional(),
   status: z.enum(["active", "reserved", "sold", "inactive"]),
   yearBuilt: z.coerce.number().optional(),
+  occupancyStatus: z.enum(["vacant", "occupied", "under_construction"]).optional(),
   // Características
   hasSwimmingPool: z.boolean().default(false),
   hasFurniture: z.boolean().default(false),
