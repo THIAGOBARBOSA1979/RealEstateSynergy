@@ -127,6 +127,8 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
     garageSpots: 0,
     status: "active",
     yearBuilt: new Date().getFullYear(),
+    videoUrl: "",
+    tourUrl: "",
     hasSwimmingPool: false,
     hasFurniture: false,
     hasGarden: false,
@@ -997,6 +999,101 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                   </p>
                 </div>
               </TabsContent>
+              
+              <TabsContent value="media" className="space-y-6 mt-4">
+                <h2 className="text-xl font-heading font-semibold">Vídeo e Tour Virtual</h2>
+                <Separator />
+                
+                <div className="grid gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Link de Vídeo</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Adicione um vídeo do YouTube ou Vimeo para apresentar o imóvel.
+                    </p>
+                    
+                    <FormField
+                      control={form.control}
+                      name="videoUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL do Vídeo</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://www.youtube.com/watch?v=..." 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Cole aqui o link do YouTube ou Vimeo.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {form.watch("videoUrl") && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-2">Pré-visualização:</h4>
+                        <div className="border rounded-md p-2 bg-muted/20">
+                          <p className="text-sm text-muted-foreground">
+                            Vídeo será exibido na página do imóvel após salvar.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Tour Virtual</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Adicione um tour virtual do Matterport ou similar para uma experiência imersiva.
+                    </p>
+                    
+                    <FormField
+                      control={form.control}
+                      name="tourUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL do Tour Virtual</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://my.matterport.com/show/?m=..." 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Cole aqui o link do Matterport ou outro serviço de tour virtual.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {form.watch("tourUrl") && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-2">Pré-visualização:</h4>
+                        <div className="border rounded-md p-2 bg-muted/20">
+                          <p className="text-sm text-muted-foreground">
+                            Tour virtual será exibido na página do imóvel após salvar.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Dicas</h3>
+                    <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>Vídeos devem ter qualidade profissional e boa iluminação</li>
+                        <li>Tours virtuais são excelentes para imóveis de alto padrão</li>
+                        <li>Um vídeo curto (2-3 minutos) tem melhor engajamento</li>
+                        <li>Certifique-se que os links estão funcionando antes de salvar</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
@@ -1007,9 +1104,10 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
               type="button"
               variant="outline"
               onClick={() => {
-                const tabIndex = ["basics", "location", "features", "amenities", "commercial", "images"].indexOf(activeTab);
+                const tabs = ["basics", "location", "features", "amenities", "commercial", "images", "media"];
+                const tabIndex = tabs.indexOf(activeTab);
                 if (tabIndex > 0) {
-                  setActiveTab(["basics", "location", "features", "amenities", "commercial", "images"][tabIndex - 1]);
+                  setActiveTab(tabs[tabIndex - 1]);
                 }
               }}
               disabled={activeTab === "basics"}
@@ -1022,12 +1120,13 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
               type="button"
               variant="outline"
               onClick={() => {
-                const tabIndex = ["basics", "location", "features", "amenities", "commercial", "images"].indexOf(activeTab);
-                if (tabIndex < 5) {
-                  setActiveTab(["basics", "location", "features", "amenities", "commercial", "images"][tabIndex + 1]);
+                const tabs = ["basics", "location", "features", "amenities", "commercial", "images", "media"];
+                const tabIndex = tabs.indexOf(activeTab);
+                if (tabIndex < tabs.length - 1) {
+                  setActiveTab(tabs[tabIndex + 1]);
                 }
               }}
-              disabled={activeTab === "images"}
+              disabled={activeTab === "media"}
             >
               Próximo
               <ArrowRight className="h-4 w-4 ml-2" />
