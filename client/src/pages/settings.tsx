@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import SiteTab from "@/components/settings/site-tab";
 import AppearanceTab from "@/components/settings/appearance-tab";
+import PortalIntegrations from "@/components/settings/portal-integrations";
 
 import {
   Card,
