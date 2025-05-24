@@ -143,6 +143,67 @@ const PropertyDetail = () => {
     enabled: !!property?.userId,
   });
   
+  // Visit scheduling mutation
+  const scheduleVisit = useMutation({
+    mutationFn: async (visitData: ScheduleVisitFormData) => {
+      return apiRequest('/api/leads/schedule-visit', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...visitData,
+          propertyId: property?.id,
+          scheduledDate: visitData.date ? visitData.date.toISOString() : undefined,
+          agentId: property?.userId,
+          type: 'visit_request'
+        })
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Visita agendada com sucesso!",
+        description: "O corretor entrará em contato para confirmar os detalhes.",
+        duration: 5000,
+      });
+      setShowScheduleDialog(false);
+      setScheduleForm({
+        fullName: "",
+        email: "",
+        phone: "",
+        date: undefined,
+        timeSlot: "10:00",
+        visitType: "presencial",
+        message: "Gostaria de agendar uma visita para conhecer este imóvel."
+      });
+      setSelectedScheduleDate(undefined);
+      
+      // Registrar evento de conversão
+      if (typeof window !== 'undefined') {
+        if ((window as any).fbq) {
+          (window as any).fbq('track', 'Schedule', {
+            content_name: property?.title,
+            content_category: 'property_visit',
+            content_ids: [property?.id],
+          });
+        }
+        
+        if ((window as any).gtag) {
+          (window as any).gtag('event', 'schedule_visit', {
+            event_category: 'leads',
+            event_label: property?.title,
+          });
+        }
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao agendar visita",
+        description: "Houve um problema ao processar sua solicitação. Tente novamente mais tarde.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      console.error("Erro ao agendar visita:", error);
+    },
+  });
+  
   // Lead creation mutation
   const createLead = useMutation({
     mutationFn: async (leadData: Partial<Lead>) => {
