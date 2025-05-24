@@ -326,6 +326,36 @@ const PropertyDetail = () => {
         message: "Olá, gostaria de mais informações sobre este imóvel.",
         source: "website"
       });
+    }
+  });
+  
+  // Mutation para converter um imóvel em empreendimento de unidade única
+  const convertToDevelopment = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/properties/${id}/convert-to-development`, {
+        method: 'POST'
+      });
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Conversão realizada com sucesso!",
+        description: "Imóvel transformado em empreendimento de unidade única.",
+        duration: 5000,
+      });
+      
+      // Redirecionar para a página de detalhes do novo empreendimento
+      setTimeout(() => {
+        window.location.href = `/development-detail/${data.development.id}`;
+      }, 1500);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro na conversão",
+        description: error.message || "Não foi possível converter o imóvel em empreendimento.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
       
       // Trigger conversion pixel events
       if (typeof window !== 'undefined') {
