@@ -184,27 +184,30 @@ export const storage = {
       if (existingRecords.length === 0) {
         console.log(`Website não encontrado para o usuário ${userId}. Criando novo...`);
         
-        // Criar novo registro para o website
+        // Criar novo registro para o website de acordo com o schema
         const newWebsiteData = {
           userId,
-          siteName: "Meu Site Imobiliário",
-          tagline: "Os melhores imóveis da região",
-          description: "Profissional especializado no mercado imobiliário local",
-          logoUrl: "",
-          heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
-          themeColor: "#FF5A00",
-          secondaryColor: "#222222",
-          fontFamily: "inter",
-          contactEmail: "",
-          contactPhone: "",
-          address: "",
-          whatsapp: "",
-          creci: "",
-          showTestimonials: true,
-          showFeaturedProperties: true,
-          showAboutSection: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          title: "Meu Site Imobiliário",
+          theme: {
+            primaryColor: "#FF5A00",
+            secondaryColor: "#222222",
+            fontFamily: "inter",
+            tagline: "Os melhores imóveis da região",
+            description: "Profissional especializado no mercado imobiliário local",
+            heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
+          },
+          layout: {
+            showTestimonials: true,
+            showFeaturedProperties: true,
+            showAboutSection: true,
+            contactInfo: {
+              email: "",
+              phone: "",
+              address: "",
+              whatsapp: "",
+              creci: ""
+            }
+          }
         };
         
         // Inserir o novo website no banco de dados
@@ -216,9 +219,29 @@ export const storage = {
         
         console.log(`Website criado com sucesso para o usuário ${userId}`);
         
-        // Retornar o novo website com estatísticas
+        // Retornar o novo website com informações adicionais
         return {
           ...insertResult[0],
+          // Extrai dados do tema e layout para compatibilidade com frontend
+          siteName: insertResult[0].title,
+          tagline: insertResult[0].theme?.tagline || "",
+          description: insertResult[0].theme?.description || "",
+          themeColor: insertResult[0].theme?.primaryColor || "#FF5A00",
+          secondaryColor: insertResult[0].theme?.secondaryColor || "#222222",
+          fontFamily: insertResult[0].theme?.fontFamily || "inter",
+          heroImageUrl: insertResult[0].theme?.heroImageUrl || "",
+          logoUrl: insertResult[0].logo || "",
+          // Informações de contato
+          contactEmail: insertResult[0].layout?.contactInfo?.email || "",
+          contactPhone: insertResult[0].layout?.contactInfo?.phone || "",
+          address: insertResult[0].layout?.contactInfo?.address || "",
+          whatsapp: insertResult[0].layout?.contactInfo?.whatsapp || "",
+          creci: insertResult[0].layout?.contactInfo?.creci || "",
+          // Configurações de layout
+          showTestimonials: insertResult[0].layout?.showTestimonials || true,
+          showFeaturedProperties: insertResult[0].layout?.showFeaturedProperties || true,
+          showAboutSection: insertResult[0].layout?.showAboutSection || true,
+          // Dados adicionais para o frontend
           socialMedia: {
             instagram: "",
             facebook: "",
@@ -233,10 +256,30 @@ export const storage = {
       
       console.log(`Website encontrado para o usuário ${userId}`);
       
-      // Retornar website existente com estatísticas
+      // Retornar website existente com informações adicionais para compatibilidade
       return {
         ...existingRecords[0],
-        socialMedia: existingRecords[0].socialMedia || {
+        // Extrai dados do tema e layout para compatibilidade com frontend
+        siteName: existingRecords[0].title,
+        tagline: existingRecords[0].theme?.tagline || "",
+        description: existingRecords[0].theme?.description || "",
+        themeColor: existingRecords[0].theme?.primaryColor || "#FF5A00",
+        secondaryColor: existingRecords[0].theme?.secondaryColor || "#222222",
+        fontFamily: existingRecords[0].theme?.fontFamily || "inter",
+        heroImageUrl: existingRecords[0].theme?.heroImageUrl || "",
+        logoUrl: existingRecords[0].logo || "",
+        // Informações de contato
+        contactEmail: existingRecords[0].layout?.contactInfo?.email || "",
+        contactPhone: existingRecords[0].layout?.contactInfo?.phone || "",
+        address: existingRecords[0].layout?.contactInfo?.address || "",
+        whatsapp: existingRecords[0].layout?.contactInfo?.whatsapp || "",
+        creci: existingRecords[0].layout?.contactInfo?.creci || "",
+        // Configurações de layout
+        showTestimonials: existingRecords[0].layout?.showTestimonials || true,
+        showFeaturedProperties: existingRecords[0].layout?.showFeaturedProperties || true,
+        showAboutSection: existingRecords[0].layout?.showAboutSection || true,
+        // Dados adicionais para o frontend
+        socialMedia: {
           instagram: "",
           facebook: "",
           youtube: ""
@@ -254,23 +297,69 @@ export const storage = {
 
   async updateWebsite(userId: number, websiteData: any) {
     try {
+      console.log(`Tentando atualizar website para o usuário ${userId}`);
       // Verificar se o website já existe diretamente pelo banco de dados
       const existingRecords = await db.select().from(websites).where(eq(websites.userId, userId));
+      
+      // Converter dados do formato de frontend para o formato do banco de dados
+      const dbWebsiteData = {
+        title: websiteData.siteName || "Meu Site Imobiliário",
+        theme: {
+          primaryColor: websiteData.themeColor || "#FF5A00",
+          secondaryColor: websiteData.secondaryColor || "#222222",
+          fontFamily: websiteData.fontFamily || "inter",
+          tagline: websiteData.tagline || "Os melhores imóveis da região",
+          description: websiteData.description || "Profissional especializado no mercado imobiliário local",
+          heroImageUrl: websiteData.heroImageUrl || ""
+        },
+        layout: {
+          showTestimonials: websiteData.showTestimonials ?? true,
+          showFeaturedProperties: websiteData.showFeaturedProperties ?? true,
+          showAboutSection: websiteData.showAboutSection ?? true,
+          contactInfo: {
+            email: websiteData.contactEmail || "",
+            phone: websiteData.contactPhone || "",
+            address: websiteData.address || "",
+            whatsapp: websiteData.whatsapp || "",
+            creci: websiteData.creci || ""
+          }
+        },
+        logo: websiteData.logoUrl || null
+      };
       
       if (existingRecords.length === 0) {
         console.log(`Criando novo website para o usuário ${userId}`);
         // Create new website
         const result = await db.insert(websites)
           .values({
-            ...websiteData, 
-            userId,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            ...dbWebsiteData, 
+            userId
           })
           .returning();
         
+        // Converter de volta para o formato do frontend
         return {
           ...result[0],
+          // Dados para compatibilidade com frontend
+          siteName: result[0].title,
+          tagline: result[0].theme?.tagline || "",
+          description: result[0].theme?.description || "",
+          themeColor: result[0].theme?.primaryColor || "#FF5A00",
+          secondaryColor: result[0].theme?.secondaryColor || "#222222",
+          fontFamily: result[0].theme?.fontFamily || "inter",
+          heroImageUrl: result[0].theme?.heroImageUrl || "",
+          logoUrl: result[0].logo || "",
+          // Informações de contato
+          contactEmail: result[0].layout?.contactInfo?.email || "",
+          contactPhone: result[0].layout?.contactInfo?.phone || "",
+          address: result[0].layout?.contactInfo?.address || "",
+          whatsapp: result[0].layout?.contactInfo?.whatsapp || "",
+          creci: result[0].layout?.contactInfo?.creci || "",
+          // Configurações de layout
+          showTestimonials: result[0].layout?.showTestimonials || true,
+          showFeaturedProperties: result[0].layout?.showFeaturedProperties || true,
+          showAboutSection: result[0].layout?.showAboutSection || true,
+          // Estatísticas
           stats: {
             visitsToday: 0,
             leadsGenerated: 0
@@ -278,18 +367,39 @@ export const storage = {
         };
       }
       
-      console.log(`Atualizando website para o usuário ${userId}`);
+      console.log(`Atualizando website existente para o usuário ${userId}`);
       // Update existing website
       const result = await db.update(websites)
         .set({
-          ...websiteData, 
-          updatedAt: new Date().toISOString()
+          ...dbWebsiteData, 
+          updatedAt: new Date()
         })
         .where(eq(websites.userId, userId))
         .returning();
       
+      // Converter de volta para o formato do frontend
       return {
         ...result[0],
+        // Dados para compatibilidade com frontend
+        siteName: result[0].title,
+        tagline: result[0].theme?.tagline || "",
+        description: result[0].theme?.description || "",
+        themeColor: result[0].theme?.primaryColor || "#FF5A00",
+        secondaryColor: result[0].theme?.secondaryColor || "#222222",
+        fontFamily: result[0].theme?.fontFamily || "inter",
+        heroImageUrl: result[0].theme?.heroImageUrl || "",
+        logoUrl: result[0].logo || "",
+        // Informações de contato
+        contactEmail: result[0].layout?.contactInfo?.email || "",
+        contactPhone: result[0].layout?.contactInfo?.phone || "",
+        address: result[0].layout?.contactInfo?.address || "",
+        whatsapp: result[0].layout?.contactInfo?.whatsapp || "",
+        creci: result[0].layout?.contactInfo?.creci || "",
+        // Configurações de layout
+        showTestimonials: result[0].layout?.showTestimonials || true,
+        showFeaturedProperties: result[0].layout?.showFeaturedProperties || true,
+        showAboutSection: result[0].layout?.showAboutSection || true,
+        // Estatísticas
         stats: {
           visitsToday: 27,
           leadsGenerated: 5
