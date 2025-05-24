@@ -1176,8 +1176,8 @@ const PropertyDetail = () => {
                 <Input
                   id="visit-name"
                   name="fullName"
-                  value={contactForm.fullName}
-                  onChange={handleInputChange}
+                  value={scheduleForm.fullName}
+                  onChange={(e) => setScheduleForm(prev => ({...prev, fullName: e.target.value}))}
                   placeholder="Seu nome completo"
                   required
                 />
@@ -1188,8 +1188,8 @@ const PropertyDetail = () => {
                   id="visit-email"
                   name="email"
                   type="email"
-                  value={contactForm.email}
-                  onChange={handleInputChange}
+                  value={scheduleForm.email}
+                  onChange={(e) => setScheduleForm(prev => ({...prev, email: e.target.value}))}
                   placeholder="Seu email"
                   required
                 />
@@ -1199,8 +1199,8 @@ const PropertyDetail = () => {
                 <Input
                   id="visit-phone"
                   name="phone"
-                  value={contactForm.phone}
-                  onChange={handleInputChange}
+                  value={scheduleForm.phone}
+                  onChange={(e) => setScheduleForm(prev => ({...prev, phone: e.target.value}))}
                   placeholder="Seu telefone para contato"
                   required
                 />
@@ -1211,7 +1211,10 @@ const PropertyDetail = () => {
                   <Calendar
                     mode="single"
                     selected={selectedScheduleDate}
-                    onSelect={setSelectedScheduleDate}
+                    onSelect={(date) => {
+                      setSelectedScheduleDate(date);
+                      setScheduleForm(prev => ({...prev, date}));
+                    }}
                     className="mx-auto"
                     disabled={(date) => date < new Date() || date > new Date(new Date().setDate(new Date().getDate() + 30))}
                   />
@@ -1219,6 +1222,53 @@ const PropertyDetail = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Selecione uma data nos próximos 30 dias. Horários disponíveis serão confirmados pelo corretor.
                 </p>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="visit-time">Horário preferencial*</Label>
+                <Select 
+                  value={scheduleForm.timeSlot} 
+                  onValueChange={(value) => setScheduleForm(prev => ({...prev, timeSlot: value}))}
+                >
+                  <SelectTrigger id="visit-time">
+                    <SelectValue placeholder="Selecione um horário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTimeSlots.map(time => (
+                      <SelectItem key={time} value={time}>{time}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label>Tipo de visita*</Label>
+                <RadioGroup 
+                  value={scheduleForm.visitType}
+                  onValueChange={(value) => setScheduleForm(prev => ({...prev, visitType: value}))}
+                  className="flex flex-col space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="presencial" id="presencial" />
+                    <Label htmlFor="presencial" className="font-normal">Presencial</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="video" id="video" />
+                    <Label htmlFor="video" className="font-normal">Videochamada</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="visit-message">Observações</Label>
+                <Textarea
+                  id="visit-message"
+                  name="message"
+                  value={scheduleForm.message}
+                  onChange={(e) => setScheduleForm(prev => ({...prev, message: e.target.value}))}
+                  placeholder="Detalhes adicionais sobre sua visita"
+                  rows={3}
+                />
               </div>
             </div>
             <DialogFooter>
