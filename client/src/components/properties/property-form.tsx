@@ -193,23 +193,23 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                   <span className="hidden sm:inline">Básico</span>
                 </TabsTrigger>
                 <TabsTrigger value="location" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">location_on</span>
+                  <MapPin className="h-4 w-4" />
                   <span className="hidden sm:inline">Localização</span>
                 </TabsTrigger>
                 <TabsTrigger value="features" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">home</span>
+                  <Home className="h-4 w-4" />
                   <span className="hidden sm:inline">Características</span>
                 </TabsTrigger>
                 <TabsTrigger value="amenities" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">pool</span>
+                  <Waves className="h-4 w-4" />
                   <span className="hidden sm:inline">Comodidades</span>
                 </TabsTrigger>
                 <TabsTrigger value="commercial" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">attach_money</span>
+                  <DollarSign className="h-4 w-4" />
                   <span className="hidden sm:inline">Comercial</span>
                 </TabsTrigger>
                 <TabsTrigger value="images" className="flex gap-2 items-center">
-                  <span className="material-icons text-sm">image</span>
+                  <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Imagens</span>
                 </TabsTrigger>
               </TabsList>

@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import type { Document } from "@/types";
+import { Plus, FileText, Eye, Upload, Cloud } from "lucide-react";
 
 interface DocumentManagerProps {
   leadId?: number;
