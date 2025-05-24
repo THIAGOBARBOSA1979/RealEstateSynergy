@@ -74,6 +74,104 @@ interface ScheduleVisitFormData {
   utmCampaign?: string;
 }
 
+// Funções utilitárias para processar URLs de vídeo e tour virtual
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Formatos possíveis:
+  // - https://www.youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://www.youtube.com/embed/VIDEO_ID
+  
+  let videoId: string | null = null;
+  
+  // Regex para extrair o ID do vídeo do YouTube
+  const regexes = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/,
+    /^([a-zA-Z0-9_-]{11})$/ // Se o usuário colocou apenas o ID do vídeo
+  ];
+  
+  for (const regex of regexes) {
+    const match = url.match(regex);
+    if (match && match[1]) {
+      videoId = match[1];
+      break;
+    }
+  }
+  
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+};
+
+const getVimeoEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Formatos possíveis:
+  // - https://vimeo.com/VIDEO_ID
+  // - https://player.vimeo.com/video/VIDEO_ID
+  
+  let videoId: string | null = null;
+  
+  // Regex para extrair o ID do vídeo do Vimeo
+  const regexes = [
+    /vimeo\.com\/([0-9]+)/,
+    /player\.vimeo\.com\/video\/([0-9]+)/,
+    /^([0-9]+)$/ // Se o usuário colocou apenas o ID do vídeo
+  ];
+  
+  for (const regex of regexes) {
+    const match = url.match(regex);
+    if (match && match[1]) {
+      videoId = match[1];
+      break;
+    }
+  }
+  
+  return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+};
+
+const getMatterportEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Formatos possíveis:
+  // - https://my.matterport.com/show/?m=MODEL_ID
+  // - https://my.matterport.com/models/MODEL_ID
+  
+  let modelId: string | null = null;
+  
+  // Regex para extrair o ID do modelo Matterport
+  const regexes = [
+    /my\.matterport\.com\/show\/\?m=([a-zA-Z0-9]+)/,
+    /my\.matterport\.com\/models\/([a-zA-Z0-9]+)/,
+    /^([a-zA-Z0-9]{8,})$/ // Se o usuário colocou apenas o ID do modelo
+  ];
+  
+  for (const regex of regexes) {
+    const match = url.match(regex);
+    if (match && match[1]) {
+      modelId = match[1];
+      break;
+    }
+  }
+  
+  return modelId ? `https://my.matterport.com/show/?m=${modelId}` : null;
+};
+
+// Detecta automaticamente o tipo de URL e retorna o embed apropriado
+const getEmbedUrl = (url: string): { type: 'youtube' | 'vimeo' | 'matterport' | 'unknown', embedUrl: string | null } => {
+  if (!url) return { type: 'unknown', embedUrl: null };
+  
+  const youtubeUrl = getYouTubeEmbedUrl(url);
+  if (youtubeUrl) return { type: 'youtube', embedUrl: youtubeUrl };
+  
+  const vimeoUrl = getVimeoEmbedUrl(url);
+  if (vimeoUrl) return { type: 'vimeo', embedUrl: vimeoUrl };
+  
+  const matterportUrl = getMatterportEmbedUrl(url);
+  if (matterportUrl) return { type: 'matterport', embedUrl: matterportUrl };
+  
+  return { type: 'unknown', embedUrl: null };
+};
+
 const PropertyDetail = () => {
   const { id } = useParams();
   const [, navigate] = useLocation();
@@ -774,7 +872,7 @@ const PropertyDetail = () => {
         
         {/* Gallery and Map Toggle */}
         <div className="mb-6">
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'photos' | 'map')} className="w-full">
+          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'photos' | 'map' | 'media')} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="photos">Fotos</TabsTrigger>
               <TabsTrigger value="media">Vídeo & Tour</TabsTrigger>
@@ -817,6 +915,103 @@ const PropertyDetail = () => {
                   ))}
                 </div>
               </div>
+            </TabsContent>
+            <TabsContent value="media" className="mt-0">
+              {(!property.videoUrl && !property.tourUrl) ? (
+                <div className="h-[450px] bg-gray-100 rounded-lg flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
+                  <VideoIcon className="h-12 w-12 mb-4 opacity-40" />
+                  <h3 className="text-lg font-medium mb-2">Nenhum conteúdo multimídia disponível</h3>
+                  <p>Este imóvel não possui vídeos ou tour virtual cadastrados.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {property.videoUrl && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <VideoIcon className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-medium">Vídeo do imóvel</h3>
+                      </div>
+                      <div className="h-[450px] bg-gray-100 rounded-lg overflow-hidden">
+                        {(() => {
+                          const { type, embedUrl } = getEmbedUrl(property.videoUrl);
+                          if (embedUrl) {
+                            if (type === 'youtube' || type === 'vimeo') {
+                              return (
+                                <iframe 
+                                  src={embedUrl}
+                                  width="100%" 
+                                  height="100%" 
+                                  allowFullScreen
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  title={`Vídeo de ${property.title}`}
+                                  frameBorder="0"
+                                  className="w-full h-full rounded-lg"
+                                ></iframe>
+                              );
+                            }
+                          }
+                          return (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              <ExternalLinkIcon className="mr-2 h-4 w-4" />
+                              <a 
+                                href={property.videoUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline"
+                              >
+                                Ver vídeo em nova janela
+                              </a>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {property.tourUrl && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CompassIcon className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-medium">Tour virtual</h3>
+                      </div>
+                      <div className="h-[450px] bg-gray-100 rounded-lg overflow-hidden">
+                        {(() => {
+                          const { type, embedUrl } = getEmbedUrl(property.tourUrl);
+                          if (embedUrl) {
+                            if (type === 'matterport') {
+                              return (
+                                <iframe 
+                                  src={embedUrl}
+                                  width="100%" 
+                                  height="100%" 
+                                  allowFullScreen
+                                  allow="xr-spatial-tracking"
+                                  title={`Tour virtual de ${property.title}`}
+                                  frameBorder="0"
+                                  className="w-full h-full rounded-lg"
+                                ></iframe>
+                              );
+                            }
+                          }
+                          return (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              <ExternalLinkIcon className="mr-2 h-4 w-4" />
+                              <a 
+                                href={property.tourUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline"
+                              >
+                                Abrir tour virtual em nova janela
+                              </a>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="map" className="mt-0">
