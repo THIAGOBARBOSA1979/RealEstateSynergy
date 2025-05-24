@@ -649,7 +649,7 @@ const Settings = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                          <span className="material-icons text-secondary text-2xl">cloud</span>
+                          <HardDrive className="h-6 w-6 text-secondary" />
                         </div>
                         <div>
                           <h3 className="font-semibold">Google Drive</h3>
@@ -717,7 +717,7 @@ const Settings = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
-                          <span className="material-icons text-success text-2xl">chat</span>
+                          <MessageSquare className="h-6 w-6 text-success" />
                         </div>
                         <div>
                           <h3 className="font-semibold">WhatsApp</h3>
@@ -782,7 +782,7 @@ const Settings = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <span className="material-icons text-indigo-600 text-2xl">webhook</span>
+                          <Webhook className="h-6 w-6 text-indigo-600" />
                         </div>
                         <div>
                           <h3 className="font-semibold">Webhooks</h3>
@@ -985,7 +985,7 @@ const Settings = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="material-icons text-primary text-2xl">share</span>
+                          <Share2 className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                           <h3 className="font-semibold">Portais Imobiliários</h3>
