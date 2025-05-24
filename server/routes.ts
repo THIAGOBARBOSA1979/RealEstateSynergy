@@ -9,9 +9,19 @@ import {
   websites, 
   propertyAffiliations, 
   documents, 
-  activityLogs 
+  activityLogs,
+  developments,
+  units
 } from "../shared/schema";
-import { insertUserSchema, insertPropertySchema, insertLeadSchema, insertWebsiteSchema, insertDocumentSchema } from "../shared/schema";
+import { 
+  insertUserSchema, 
+  insertPropertySchema, 
+  insertLeadSchema, 
+  insertWebsiteSchema, 
+  insertDocumentSchema,
+  insertDevelopmentSchema,
+  insertUnitSchema
+} from "../shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -983,6 +993,283 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro ao atualizar configurações de pixel" });
     }
   }));
+
+  // Rotas para empreendimentos
+  app.get(`${apiPrefix}/developments`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    
+    try {
+      // Buscar todos os empreendimentos do usuário
+      const developmentsList = await db.query.developments.findMany({
+        where: eq(developments.userId, req.user.id),
+        orderBy: desc(developments.createdAt)
+      });
+      
+      res.json(developmentsList);
+    } catch (error) {
+      console.error('Erro ao buscar empreendimentos:', error);
+      res.status(500).json({ message: 'Erro ao buscar empreendimentos' });
+    }
+  }));
+
+  // Buscar um empreendimento específico
+  app.get(`${apiPrefix}/developments/:id`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.id);
+    
+    try {
+      const development = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!development) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      res.json(development);
+    } catch (error) {
+      console.error('Erro ao buscar empreendimento:', error);
+      res.status(500).json({ message: 'Erro ao buscar empreendimento' });
+    }
+  }));
+
+  // Criar um novo empreendimento
+  app.post(`${apiPrefix}/developments`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    
+    try {
+      // Validar dados recebidos
+      const validatedData = insertDevelopmentSchema.parse({
+        ...req.body,
+        userId: req.user.id
+      });
+      
+      // Criar empreendimento
+      const [newDevelopment] = await db.insert(developments).values(validatedData).returning();
+      
+      res.status(201).json(newDevelopment);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Erro ao criar empreendimento:', error);
+      res.status(500).json({ message: 'Erro ao criar empreendimento' });
+    }
+  }));
+
+  // Atualizar um empreendimento
+  app.patch(`${apiPrefix}/developments/:id`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.id);
+    
+    try {
+      // Verificar se o empreendimento existe e pertence ao usuário
+      const existingDevelopment = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!existingDevelopment) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      // Atualizar o empreendimento
+      const [updatedDevelopment] = await db.update(developments)
+        .set(req.body)
+        .where(eq(developments.id, developmentId))
+        .returning();
+      
+      res.json(updatedDevelopment);
+    } catch (error) {
+      console.error('Erro ao atualizar empreendimento:', error);
+      res.status(500).json({ message: 'Erro ao atualizar empreendimento' });
+    }
+  }));
+
+  // Excluir um empreendimento
+  app.delete(`${apiPrefix}/developments/:id`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.id);
+    
+    try {
+      // Verificar se o empreendimento existe e pertence ao usuário
+      const existingDevelopment = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!existingDevelopment) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      // Primeiro, excluir todas as unidades associadas
+      await db.delete(units).where(eq(units.developmentId, developmentId));
+      
+      // Em seguida, excluir o empreendimento
+      await db.delete(developments).where(eq(developments.id, developmentId));
+      
+      res.status(200).json({ message: 'Empreendimento excluído com sucesso' });
+    } catch (error) {
+      console.error('Erro ao excluir empreendimento:', error);
+      res.status(500).json({ message: 'Erro ao excluir empreendimento' });
+    }
+  }));
+
+  // Rotas para unidades de empreendimentos
+  app.get(`${apiPrefix}/developments/:id/units`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.id);
+    
+    try {
+      // Verificar se o empreendimento pertence ao usuário
+      const development = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!development) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      // Buscar todas as unidades do empreendimento
+      const unitsList = await db.query.units.findMany({
+        where: eq(units.developmentId, developmentId),
+        orderBy: [asc(units.block), asc(units.unitNumber)]
+      });
+      
+      res.json(unitsList);
+    } catch (error) {
+      console.error('Erro ao buscar unidades:', error);
+      res.status(500).json({ message: 'Erro ao buscar unidades' });
+    }
+  }));
+
+  // Criar uma nova unidade
+  app.post(`${apiPrefix}/developments/:id/units`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.id);
+    
+    try {
+      // Verificar se o empreendimento pertence ao usuário
+      const development = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!development) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      // Validar dados da unidade
+      const validatedData = insertUnitSchema.parse({
+        ...req.body,
+        developmentId
+      });
+      
+      // Criar a unidade
+      const [newUnit] = await db.insert(units).values(validatedData).returning();
+      
+      // Atualizar o status de vendas do empreendimento
+      await updateDevelopmentSalesStatus(db, developmentId);
+      
+      res.status(201).json(newUnit);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Erro ao criar unidade:', error);
+      res.status(500).json({ message: 'Erro ao criar unidade' });
+    }
+  }));
+
+  // Atualizar uma unidade
+  app.patch(`${apiPrefix}/developments/:developmentId/units/:unitId`, requireAuth, asyncHandler(async (req, res) => {
+    const { db } = await import("../db");
+    const developmentId = parseInt(req.params.developmentId);
+    const unitId = parseInt(req.params.unitId);
+    
+    try {
+      // Verificar se o empreendimento pertence ao usuário
+      const development = await db.query.developments.findFirst({
+        where: and(
+          eq(developments.id, developmentId),
+          eq(developments.userId, req.user.id)
+        )
+      });
+      
+      if (!development) {
+        return res.status(404).json({ message: 'Empreendimento não encontrado' });
+      }
+      
+      // Verificar se a unidade existe e pertence ao empreendimento
+      const existingUnit = await db.query.units.findFirst({
+        where: and(
+          eq(units.id, unitId),
+          eq(units.developmentId, developmentId)
+        )
+      });
+      
+      if (!existingUnit) {
+        return res.status(404).json({ message: 'Unidade não encontrada' });
+      }
+      
+      // Atualizar a unidade
+      const [updatedUnit] = await db.update(units)
+        .set(req.body)
+        .where(eq(units.id, unitId))
+        .returning();
+      
+      // Atualizar o status de vendas do empreendimento se o status da unidade foi alterado
+      if (req.body.status && req.body.status !== existingUnit.status) {
+        await updateDevelopmentSalesStatus(db, developmentId);
+      }
+      
+      res.json(updatedUnit);
+    } catch (error) {
+      console.error('Erro ao atualizar unidade:', error);
+      res.status(500).json({ message: 'Erro ao atualizar unidade' });
+    }
+  }));
+
+  // Função auxiliar para atualizar o status de vendas de um empreendimento
+  async function updateDevelopmentSalesStatus(db: any, developmentId: number) {
+    try {
+      // Buscar todas as unidades do empreendimento
+      const unitsList = await db.query.units.findMany({
+        where: eq(units.developmentId, developmentId)
+      });
+      
+      // Calcular estatísticas de vendas
+      const totalUnits = unitsList.length;
+      const available = unitsList.filter(unit => unit.status === 'available').length;
+      const reserved = unitsList.filter(unit => unit.status === 'reserved').length;
+      const sold = unitsList.filter(unit => unit.status === 'sold').length;
+      
+      // Atualizar o empreendimento com as novas estatísticas
+      await db.update(developments)
+        .set({ 
+          salesStatus: JSON.stringify({ available, reserved, sold, total: totalUnits }),
+          updatedAt: new Date()
+        })
+        .where(eq(developments.id, developmentId));
+      
+      return { available, reserved, sold, total: totalUnits };
+    } catch (error) {
+      console.error('Erro ao atualizar status de vendas:', error);
+      throw error;
+    }
+  }
 
   const httpServer = createServer(app);
   return httpServer;

@@ -53,14 +53,15 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
 
   const menuItems: MenuItem[] = [
     { path: "/", label: "Dashboard", icon: "dashboard" },
-    { path: "/properties", label: "My Units", icon: "home" },
-    { path: "/favorites", label: "Favorites", icon: "favorite", badge: 2 },
+    { path: "/properties", label: "Imóveis", icon: "home" },
+    { path: "/developments", label: "Empreendimentos", icon: "building" },
+    { path: "/favorites", label: "Favoritos", icon: "favorite", badge: 2 },
     { path: "/analytics", label: "Analytics", icon: "bar_chart" },
-    { path: "/crm", label: "Client Data", icon: "people" },
-    { path: "/team", label: "Team", icon: "group" },
-    { path: "/affiliate", label: "Affiliation", icon: "link" },
-    { path: "/client-portal", label: "Client Portal", icon: "public" },
-    { path: "/settings", label: "Site & Settings", icon: "settings" },
+    { path: "/crm", label: "CRM Clientes", icon: "people" },
+    { path: "/team", label: "Equipe", icon: "group" },
+    { path: "/affiliate", label: "Afiliação", icon: "link" },
+    { path: "/client-portal", label: "Portal Cliente", icon: "public" },
+    { path: "/settings", label: "Configurações", icon: "settings" },
   ];
 
   return (
