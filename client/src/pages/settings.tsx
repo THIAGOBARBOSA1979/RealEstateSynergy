@@ -67,6 +67,11 @@ const Settings = () => {
   const { data: integrationSettings, isLoading: isLoadingIntegrations } = useQuery({
     queryKey: ['/api/users/me/integrations'],
   });
+  
+  // Fetch website data
+  const { data: websiteData, isLoading: isLoadingWebsite } = useQuery({
+    queryKey: ['/api/users/me/website'],
+  });
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
@@ -136,11 +141,13 @@ const Settings = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-5 w-full max-w-md">
+        <TabsList className="grid grid-cols-7 w-full max-w-3xl">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
           <TabsTrigger value="subscription">Assinatura</TabsTrigger>
           <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="domain">Domínio</TabsTrigger>
+          <TabsTrigger value="site">Site</TabsTrigger>
+          <TabsTrigger value="appearance">Aparência</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
         </TabsList>
 

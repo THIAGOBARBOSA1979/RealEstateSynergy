@@ -55,11 +55,10 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     { path: "/favorites", label: "Favorites", icon: "favorite", badge: 2 },
     { path: "/analytics", label: "Analytics", icon: "bar_chart" },
     { path: "/crm", label: "Client Data", icon: "people" },
-    { path: "/site-editor", label: "Documents", icon: "description" },
     { path: "/team", label: "Team", icon: "group" },
     { path: "/affiliate", label: "Affiliation", icon: "link" },
     { path: "/client-portal", label: "Client Portal", icon: "public" },
-    { path: "/settings", label: "Settings", icon: "settings" },
+    { path: "/settings", label: "Site & Settings", icon: "settings" },
   ];
 
   return (
