@@ -138,7 +138,7 @@ export const storage = {
 
   async updateProperty(id: number, propertyData: any) {
     const result = await db.update(properties)
-      .set({...propertyData, updatedAt: new Date().toISOString()})
+      .set({...propertyData, updatedAt: new Date()})
       .where(eq(properties.id, id))
       .returning();
     
