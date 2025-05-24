@@ -195,7 +195,7 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
                 size="sm"
                 onClick={() => setActiveTab("upload")}
               >
-                <span className="material-icons text-sm mr-1">add</span>
+                <Plus className="h-4 w-4 mr-1" />
                 Novo Documento
               </Button>
             </div>
@@ -214,7 +214,7 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
               </div>
             ) : filteredDocuments.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <span className="material-icons text-4xl mb-2">description</span>
+                <FileText className="h-10 w-10 mx-auto mb-2" />
                 <p>Nenhum documento encontrado.</p>
                 <Button 
                   variant="outline" 
@@ -232,12 +232,7 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
                         <div className="bg-primary/10 p-2 rounded">
-                          <span className="material-icons text-primary">
-                            {doc.type === "id" ? "badge" : 
-                             doc.type === "contract" ? "description" : 
-                             doc.type === "proof_of_income" ? "account_balance" : 
-                             doc.type === "proof_of_address" ? "home" : "insert_drive_file"}
-                          </span>
+                          <FileText className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-medium">{doc.title}</h4>
@@ -254,7 +249,7 @@ const DocumentManager = ({ leadId, clientId }: DocumentManagerProps) => {
                         {doc.fileUrl && (
                           <Button variant="ghost" size="icon" asChild>
                             <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
-                              <span className="material-icons">visibility</span>
+                              <Eye className="h-4 w-4" />
                             </a>
                           </Button>
                         )}
