@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CloudUpload, ArrowLeft, ArrowRight, Info, MapPin, Home, Waves, DollarSign, Image } from "lucide-react";
+import { CloudUpload, ArrowLeft, ArrowRight, Info, MapPin, Home, Waves, DollarSign, Image, Video, Compass } from "lucide-react";
 
 import {
   Form,
@@ -54,7 +54,7 @@ const propertyFormSchema = z.object({
   addressComplement: z.string().optional(),
   neighborhood: z.string().optional(),
   price: z.coerce.number().positive("O preço deve ser maior que zero"),
-  propertyType: z.enum(["apartment", "house", "land", "commercial"]),
+  propertyType: z.enum(["apartment", "house", "land", "commercial", "rural"]),
   bedrooms: z.coerce.number().optional(),
   bathrooms: z.coerce.number().optional(),
   area: z.coerce.number().min(1, "A área deve ser maior que zero"),
@@ -62,6 +62,18 @@ const propertyFormSchema = z.object({
   garageSpots: z.coerce.number().optional(),
   status: z.enum(["active", "reserved", "sold", "inactive"]),
   yearBuilt: z.coerce.number().optional(),
+  // Campos para vídeo e tour virtual
+  videoUrl: z.string().url("Insira uma URL válida").optional().or(z.literal("")),
+  tourUrl: z.string().url("Insira uma URL válida").optional().or(z.literal("")),
+  // Campos para propriedades rurais
+  totalArea: z.coerce.number().optional(),
+  productiveArea: z.coerce.number().optional(),
+  carRegistration: z.string().optional(),
+  waterSources: z.array(z.string()).optional(),
+  soilType: z.string().optional(),
+  agriculturalPotential: z.string().optional(),
+  ruralInfrastructure: z.array(z.string()).optional(),
+  // Características do imóvel
   hasSwimmingPool: z.boolean().default(false),
   hasFurniture: z.boolean().default(false),
   hasGarden: z.boolean().default(false),
@@ -187,7 +199,7 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full grid grid-cols-6 mb-6">
+              <TabsList className="w-full grid grid-cols-7 mb-6">
                 <TabsTrigger value="basics" className="flex gap-2 items-center">
                   <Info className="h-4 w-4" />
                   <span className="hidden sm:inline">Básico</span>
@@ -211,6 +223,10 @@ const PropertyForm = ({ initialData, onSuccess }: PropertyFormProps) => {
                 <TabsTrigger value="images" className="flex gap-2 items-center">
                   <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Imagens</span>
+                </TabsTrigger>
+                <TabsTrigger value="media" className="flex gap-2 items-center">
+                  <Video className="h-4 w-4" />
+                  <span className="hidden sm:inline">Vídeo & Tour</span>
                 </TabsTrigger>
               </TabsList>
 
