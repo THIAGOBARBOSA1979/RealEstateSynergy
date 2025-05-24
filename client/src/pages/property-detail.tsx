@@ -146,7 +146,7 @@ const PropertyDetail = () => {
   // Visit scheduling mutation
   const scheduleVisit = useMutation({
     mutationFn: async (visitData: ScheduleVisitFormData) => {
-      return apiRequest('/api/leads/schedule-visit', {
+      return apiRequest('/api/public/schedule-visit', {
         method: 'POST',
         body: JSON.stringify({
           ...visitData,

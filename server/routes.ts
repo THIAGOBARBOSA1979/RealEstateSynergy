@@ -373,6 +373,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       throw error;
     }
   }));
+  
+  // Rota para agendamento de visitas
+  app.post(`${apiPrefix}/public/schedule-visit`, asyncHandler(async (req, res) => {
+    try {
+      const { 
+        fullName, 
+        email, 
+        phone, 
+        date, 
+        timeSlot, 
+        visitType, 
+        message, 
+        propertyId, 
+        agentId,
+        utmSource,
+        utmMedium,
+        utmCampaign
+      } = req.body;
+      
+      if (!fullName || !email || !phone || !date || !timeSlot || !visitType || !propertyId) {
+        return res.status(400).json({ message: "Campos obrigatórios não preenchidos" });
+      }
+      
+      if (!agentId) {
+        return res.status(400).json({ message: "ID do agente é obrigatório" });
+      }
+      
+      // Criar lead do tipo visita
+      const lead = await storage.insertLead({
+        name: fullName,
+        email,
+        phone,
+        message: message || `Solicitação de visita ${visitType}: ${date} às ${timeSlot}`,
+        propertyId: Number(propertyId),
+        userId: Number(agentId),
+        stage: 'visit_requested',
+        source: utmSource || 'website',
+        status: 'active',
+        type: 'visit_request',
+        customFields: {
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          visitDate: date,
+          visitTime: timeSlot,
+          visitType,
+          scheduledDate: new Date().toISOString()
+        }
+      });
+      
+      // Registrar atividade
+      await storage.logActivity({
+        userId: Number(agentId),
+        type: 'appointment',
+        name: 'Visita agendada',
+        description: `Visita ${visitType} para ${fullName} agendada para ${new Date(date).toLocaleDateString()} às ${timeSlot}`,
+        metadata: {
+          propertyId,
+          leadId: lead.id,
+          visitType,
+          date,
+          timeSlot
+        }
+      });
+      
+      res.status(201).json({ success: true, lead });
+    } catch (error) {
+      console.error("Erro ao agendar visita:", error);
+      res.status(500).json({ 
+        message: "Erro ao processar agendamento de visita", 
+        error: error instanceof Error ? error.message : "Erro desconhecido" 
+      });
+    }
+  }));
 
   // Team routes
   app.get(`${apiPrefix}/team`, requireAuth, asyncHandler(async (req, res) => {
