@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Property } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Settings, Save, RefreshCw } from "lucide-react";
 
 import {
   Dialog,
@@ -252,7 +253,7 @@ const PortalIntegrationsDialog = ({
                   className="text-xs"
                   onClick={() => window.location.href = '/settings'}
                 >
-                  <span className="material-icons text-xs mr-1">settings</span>
+                  <Settings className="h-4 w-4 mr-1" />
                   Configurar Credenciais
                 </Button>
               </div>
