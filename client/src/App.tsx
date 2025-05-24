@@ -48,7 +48,7 @@ function Router() {
       <Route path="/properties" component={Properties} />
       <Route path="/add-property" component={AddProperty} />
       <Route path="/edit-property/:id" component={EditProperty} />
-      <Route path="/property-detail/:id" component={PropertyDetail} />
+      <Route path="/property-detail/:id" component={PropertyDetailNew} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
       <Route path="/affiliate" component={Affiliate} />
