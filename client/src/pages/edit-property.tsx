@@ -6,6 +6,7 @@ import PropertyForm from "@/components/properties/property-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft } from "lucide-react";
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,7 +46,7 @@ const EditProperty = () => {
             </p>
           </div>
           <Button variant="outline" onClick={() => navigate("/properties")}>
-            <span className="material-icons text-sm mr-2">arrow_back</span>
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Imóveis
           </Button>
         </div>
@@ -77,7 +78,7 @@ const EditProperty = () => {
           </p>
         </div>
         <Button variant="outline" onClick={() => navigate("/properties")}>
-          <span className="material-icons text-sm mr-2">arrow_back</span>
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Imóveis
         </Button>
       </div>
