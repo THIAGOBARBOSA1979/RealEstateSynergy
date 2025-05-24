@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { User, Plus, MoreVertical } from "lucide-react";
 
 // Components
 import AffiliationRequestDialog from "@/components/affiliate/affiliation-request-dialog";
@@ -141,7 +142,7 @@ const Affiliate = () => {
                         {property.bedrooms} quartos • {property.bathrooms} banheiros • {property.area}m²
                       </p>
                       <div className="flex items-center text-xs text-muted-foreground">
-                        <span className="material-icons text-xs mr-1">person</span>
+                        <User className="h-3 w-3 mr-1 inline" />
                         Publicado por: {property.owner.name}
                       </div>
                     </CardContent>
@@ -227,7 +228,7 @@ const Affiliate = () => {
             <div className="flex justify-between items-center">
               <p className="text-muted-foreground">Imóveis disponíveis para afiliação</p>
               <Button>
-                <span className="material-icons text-sm mr-1">add</span>
+                <Plus className="h-4 w-4 mr-1" />
                 Adicionar Imóvel
               </Button>
             </div>
@@ -275,7 +276,7 @@ const Affiliate = () => {
                                 Gerenciar
                               </Button>
                               <Button variant="ghost" size="sm" className="h-8 p-0 w-8">
-                                <span className="material-icons text-muted-foreground">more_vert</span>
+                                <MoreVertical className="h-5 w-5 text-muted-foreground" />
                               </Button>
                             </div>
                           </TableCell>
