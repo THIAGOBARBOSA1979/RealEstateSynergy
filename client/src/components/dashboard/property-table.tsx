@@ -404,6 +404,12 @@ const PropertyTable = ({
                                 <Copy className="h-4 w-4 mr-2" />
                                 Duplicar
                               </DropdownMenuItem>
+                              {!property.developmentId && (
+                                <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Converter em Empreendimento
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-destructive focus:text-destructive"
