@@ -365,7 +365,6 @@ const PropertyDetail = () => {
         variant: "destructive",
         duration: 5000,
       });
-    }
       
       // Trigger conversion pixel events
       if (typeof window !== 'undefined') {
@@ -1104,7 +1103,6 @@ const PropertyDetail = () => {
                         <p className="text-xs text-muted-foreground mt-4">
                           O tour será aberto em uma nova janela
                         </p>
-                      </div>
                       </div>
                     </div>
                   )}

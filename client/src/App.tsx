@@ -23,6 +23,7 @@ import LandingPage from "./pages/landing-page";
 import AgentWebsite from "./pages/agent-website";
 import SuperAdminPanel from "./pages/super-admin";
 import PropertyDetailNew from "./pages/property-detail-new";
+import PropertyDetail from "./pages/property-detail";
 import Catalog from "./pages/catalog";
 
 // Páginas de empreendimentos
@@ -47,7 +48,7 @@ function Router() {
       <Route path="/properties" component={Properties} />
       <Route path="/add-property" component={AddProperty} />
       <Route path="/edit-property/:id" component={EditProperty} />
-      <Route path="/property-detail/:id" component={PropertyDetailNew} />
+      <Route path="/property-detail/:id" component={PropertyDetail} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/crm" component={CRM} />
       <Route path="/affiliate" component={Affiliate} />
