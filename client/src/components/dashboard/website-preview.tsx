@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Globe } from "lucide-react";
 
 interface WebsitePreviewProps {
   userId: number;
@@ -49,7 +50,7 @@ const WebsitePreview = ({ userId }: WebsitePreviewProps) => {
 
         {isError || !websiteData ? (
           <div className="flex flex-col items-center justify-center p-6 bg-orange-50 rounded-lg mb-4">
-            <span className="material-icons text-4xl text-orange-500 mb-2">web</span>
+            <Globe className="h-12 w-12 text-orange-500 mb-2" />
             <p className="text-sm text-gray-600 text-center mb-2">You don't have a website yet</p>
             <p className="text-xs text-gray-500 text-center">Create a professional website to showcase your properties</p>
           </div>
