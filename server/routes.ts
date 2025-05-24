@@ -1307,6 +1307,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tourUrl: property.tourUrl,
         isSingleProperty: true,
         constructionStatus: 'pronto', // Assumindo que imóveis avulsos estão prontos
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       
       // Importar db diretamente
@@ -1334,6 +1336,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         features: property.features,
         images: property.images,
         floorPlanImage: property.floorPlanUrl,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       
       // Inserir a unidade
@@ -1346,7 +1350,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Marcar a propriedade como associada ao empreendimento
       await storage.updateProperty(propertyId, {
-        developmentId: newDevelopment.id
+        developmentId: newDevelopment.id,
+        updatedAt: new Date().toISOString()
       });
       
       // Registrar atividade
