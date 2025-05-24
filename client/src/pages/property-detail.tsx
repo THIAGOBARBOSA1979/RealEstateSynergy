@@ -14,6 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatCurrency, formatDate, getPropertyTypeLabel, getPropertyStatusLabel, getInitials } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,6 +58,19 @@ interface ContactFormData {
   utmCampaign?: string;
 }
 
+interface ScheduleVisitFormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  date: Date | undefined;
+  timeSlot: string;
+  visitType: string;
+  message?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+}
+
 const PropertyDetail = () => {
   const { id } = useParams();
   const [, navigate] = useLocation();
@@ -73,6 +89,18 @@ const PropertyDetail = () => {
   const [isFloatingCTAVisible, setIsFloatingCTAVisible] = useState(false);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | undefined>(undefined);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleVisitFormData>({
+    fullName: "",
+    email: "",
+    phone: "",
+    date: undefined,
+    timeSlot: "10:00",
+    visitType: "presencial",
+    message: "Gostaria de agendar uma visita para conhecer este imóvel."
+  });
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([
+    "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"
+  ]);
   
   // Mostrar CTA flutuante quando o usuário rolar a página
   useEffect(() => {
@@ -596,6 +624,16 @@ const PropertyDetail = () => {
             >
               <PhoneIcon className="h-4 w-4 mr-2" />
               Contatar corretor
+            </Button>
+            
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="hidden md:flex"
+              onClick={() => setShowScheduleDialog(true)}
+            >
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Agendar visita
             </Button>
             
             <Button 
