@@ -29,10 +29,39 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   leads: many(leads),
 }));
 
+// Empreendimentos (Developments)
+export const developments = pgTable('developments', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  address: text('address').notNull(),
+  city: text('city').notNull(),
+  state: text('state').notNull(),
+  zipCode: text('zip_code').notNull(),
+  developmentType: text('development_type').notNull(), // condominio_vertical, condominio_horizontal, loteamento, etc
+  totalUnits: integer('total_units').notNull(),
+  priceRange: jsonb('price_range').default({}), // { min: 0, max: 0 }
+  deliveryDate: timestamp('delivery_date'),
+  constructionStatus: text('construction_status'), // planta, em_construcao, pronto
+  mainImage: text('main_image'),
+  images: jsonb('images').default([]),
+  videoUrl: text('video_url'),
+  tourUrl: text('tour_url'),
+  amenities: jsonb('amenities').default([]),
+  featured: boolean('featured').default(false),
+  published: boolean('published').default(true),
+  publishedPortals: jsonb('published_portals').default([]),
+  salesStatus: jsonb('sales_status').default({}), // { available: 0, reserved: 0, sold: 0 }
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Properties
 export const properties = pgTable('properties', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id).notNull(),
+  developmentId: integer('development_id'),  // A referência será adicionada após a definição da tabela developments
   title: text('title').notNull(),
   description: text('description').notNull(),
   address: text('address').notNull(),
@@ -71,6 +100,47 @@ export const properties = pgTable('properties', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Units (Unidades de empreendimentos)
+export const units = pgTable('units', {
+  id: serial('id').primaryKey(),
+  developmentId: integer('development_id').references(() => developments.id).notNull(),
+  unitNumber: text('unit_number').notNull(), // Número/identificador da unidade (Apto 101, Casa 25, etc)
+  block: text('block'), // Bloco ou setor (A, B, Torre 1, etc)
+  floor: integer('floor'), // Andar (para condomínios verticais)
+  unitType: text('unit_type'), // Tipo da unidade (Tipo 1, Garden, Cobertura, etc)
+  bedrooms: integer('bedrooms'),
+  bathrooms: integer('bathrooms'),
+  area: decimal('area', { precision: 10, scale: 2 }),
+  privateArea: decimal('private_area', { precision: 10, scale: 2 }),
+  price: decimal('price', { precision: 12, scale: 2 }).notNull(),
+  status: text('status').notNull().default('available'), // available, reserved, sold
+  images: jsonb('images').default([]),
+  floorPlanImage: text('floor_plan_image'),
+  features: jsonb('features').default([]),
+  position: jsonb('position').default({}), // Coordenadas no mapa do empreendimento, posição no andar
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Relacionamentos para unidades
+export const unitsRelations = relations(units, ({ one }) => ({
+  development: one(developments, {
+    fields: [units.developmentId],
+    references: [developments.id],
+  }),
+}));
+
+// Relacionamentos para empreendimentos
+export const developmentsRelations = relations(developments, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [developments.userId],
+    references: [users.id],
+  }),
+  units: many(units),
+  properties: many(properties),
+}));
+
+// Adicionando a referência correta na tabela properties
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
   owner: one(users, {
     fields: [properties.userId],
@@ -78,6 +148,10 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   }),
   leads: many(leads),
   affiliations: many(propertyAffiliations),
+  development: one(developments, {
+    fields: [properties.developmentId],
+    references: [developments.id],
+  }),
 }));
 
 // Websites
@@ -307,6 +381,32 @@ export const insertCrmStageConfigSchema = createInsertSchema(crmStageConfigs, {
   stageId: (schema) => schema.min(1, "Stage ID is required"),
   position: (schema) => schema.refine((val) => Number(val) >= 0, "Position must be non-negative"),
 });
+
+// Esquemas de validação para empreendimentos e unidades
+export const insertDevelopmentSchema = createInsertSchema(developments, {
+  name: (schema) => schema.min(3, "Nome deve ter pelo menos 3 caracteres"),
+  description: (schema) => schema.min(10, "Descrição deve ter pelo menos 10 caracteres"),
+  address: (schema) => schema.min(5, "Endereço deve ter pelo menos 5 caracteres"),
+  developmentType: (schema) => schema.refine(
+    (val) => ["condominio_vertical", "condominio_horizontal", "loteamento", "apartamentos", "casas"].includes(val),
+    { message: "Tipo de empreendimento inválido" }
+  ),
+});
+
+export const insertUnitSchema = createInsertSchema(units, {
+  unitNumber: (schema) => schema.min(1, "Número da unidade é obrigatório"),
+  price: (schema) => schema.refine((val) => parseFloat(val) > 0, { message: "Preço deve ser maior que zero" }),
+  status: (schema) => schema.refine(
+    (val) => ["available", "reserved", "sold"].includes(val),
+    { message: "Status inválido" }
+  ),
+});
+
+export type Development = typeof developments.$inferSelect;
+export type InsertDevelopment = z.infer<typeof insertDevelopmentSchema>;
+
+export type Unit = typeof units.$inferSelect;
+export type InsertUnit = z.infer<typeof insertUnitSchema>;
 
 export type PropertyAffiliation = typeof propertyAffiliations.$inferSelect;
 export type ActivityLog = typeof activityLogs.$inferSelect;
