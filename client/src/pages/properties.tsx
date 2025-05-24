@@ -161,9 +161,7 @@ const Properties = () => {
   // Delete property mutation
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId: number) => {
-      return apiRequest(`/api/properties/${propertyId}`, {
-        method: 'DELETE'
-      });
+      return apiRequest(`/api/properties/${propertyId}`, "DELETE");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
@@ -556,17 +554,31 @@ const Properties = () => {
             </div>
           )}
           
-          {/* Property Table com filtros aplicados */}
-          <PropertyTable 
-            searchTerm={searchTerm}
-            propertyType={propertyType}
-            status={status}
-            priceRange={priceRange}
-            bedrooms={bedrooms === "all" ? undefined : bedrooms}
-            sortOrder={sortOrder}
-            viewMode={viewMode}
-            showFeatured={showFeatured}
-          />
+          {viewMode === 'list' ? (
+            /* Visualização em lista */
+            <PropertyTable 
+              searchTerm={searchTerm}
+              propertyType={propertyType}
+              status={status}
+              priceRange={priceRange}
+              bedrooms={bedrooms === "all" ? undefined : bedrooms}
+              sortOrder={sortOrder}
+              viewMode={viewMode}
+              showFeatured={showFeatured}
+            />
+          ) : (
+            /* Visualização em grid */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {filteredProperties.map((property: any) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+              {filteredProperties.length === 0 && (
+                <div className="col-span-3 py-8 text-center">
+                  <p className="text-muted-foreground">Nenhum imóvel encontrado com os filtros selecionados.</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="active" className="mt-0">
@@ -597,6 +609,103 @@ const Properties = () => {
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+// Componente de Propriedade para visualização em Grid
+function PropertyCard({ property }: { property: any }) {
+  const [, navigate] = useLocation();
+  
+  return (
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <div 
+        className="h-40 bg-cover bg-center relative"
+        style={{ 
+          backgroundImage: property.images && property.images.length > 0
+            ? `url(${property.images[0]})`
+            : 'none',
+          backgroundColor: !property.images || property.images.length === 0 ? 'rgb(243, 244, 246)' : 'transparent'
+        }}
+      >
+        {(!property.images || property.images.length === 0) && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <HomeIcon className="h-16 w-16 text-muted-foreground/40" />
+          </div>
+        )}
+        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+          <Badge className="bg-orange-500 hover:bg-orange-600">
+            {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
+          </Badge>
+          <Badge variant="outline" className="bg-white">
+            {getPropertyTypeLabel(property.type)}
+          </Badge>
+        </div>
+        {property.featured && (
+          <Badge className="absolute top-2 right-2 bg-yellow-500 hover:bg-yellow-600">
+            <Star className="h-3 w-3 mr-1" /> Destacado
+          </Badge>
+        )}
+      </div>
+      
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-semibold text-lg line-clamp-1" title={property.title}>
+            {property.title}
+          </h3>
+          <Badge variant={property.status === 'active' ? 'default' : property.status === 'sold' ? 'destructive' : 'outline'}>
+            {property.status === 'active' ? 'Ativo' : 
+             property.status === 'sold' ? 'Vendido' : 
+             property.status === 'reserved' ? 'Reservado' : 'Inativo'}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center text-muted-foreground text-sm mb-3">
+          <MapPin className="h-3.5 w-3.5 mr-1" />
+          <span className="truncate">{property.address}</span>
+        </div>
+        
+        <div className="flex justify-between items-center mb-3">
+          <div className="font-medium text-lg">
+            {formatCurrency(property.price)}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {property.bedrooms} quarto{property.bedrooms !== 1 && 's'} • {property.bathrooms} banh{property.bathrooms !== 1 && 's'} • {property.area}m²
+          </div>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(`/property/${property.id}`)}
+          >
+            Ver detalhes
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate(`/edit-property/${property.id}`)}>
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/convert-property/${property.id}`)}>
+                Converter para Empreendimento
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive" 
+                onClick={() => handleDeleteClick(property.id)}
+              >
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
