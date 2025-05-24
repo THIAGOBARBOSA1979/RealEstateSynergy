@@ -450,17 +450,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Website settings routes
   app.get(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
     try {
+      console.log(`Buscando website para o usuário ${req.user.id}`);
       const website = await storage.getWebsiteByUserId(req.user.id);
       
       // Se o website não existir, retornar um objeto vazio em vez de null
       if (!website) {
+        console.log(`Nenhum website encontrado para o usuário ${req.user.id}, retornando objeto vazio`);
         return res.json({});
       }
       
+      console.log(`Website encontrado para o usuário ${req.user.id}`);
       return res.json(website);
     } catch (error) {
       console.error("Erro ao buscar website:", error);
-      res.status(500).json({ message: "Erro ao buscar informações do website" });
+      return res.status(500).json({ message: "Erro ao buscar informações do website" });
     }
   }));
 
