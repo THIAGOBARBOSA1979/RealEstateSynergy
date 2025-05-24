@@ -1348,7 +1348,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Marcar a propriedade como associada ao empreendimento
       await storage.updateProperty(propertyId, {
-        developmentId: newDevelopment.id
+        developmentId: newDevelopment.id,
+        userId: userId  // Adicionando o userId para o registro de atividade
       });
       
       // Registrar atividade

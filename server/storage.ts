@@ -142,14 +142,16 @@ export const storage = {
       .where(eq(properties.id, id))
       .returning();
     
-    // Log activity
-    await this.logActivity({
-      userId: propertyData.userId,
-      entityType: 'property',
-      entityId: id,
-      action: 'updated',
-      metadata: {}
-    });
+    // Log activity apenas se userId estiver presente
+    if (propertyData.userId) {
+      await this.logActivity({
+        userId: propertyData.userId,
+        entityType: 'property',
+        entityId: id,
+        action: 'updated',
+        metadata: {}
+      });
+    }
     
     return result[0];
   },
