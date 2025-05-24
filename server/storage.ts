@@ -180,10 +180,33 @@ export const storage = {
     const result = await db.select().from(websites).where(eq(websites.userId, userId));
     
     if (result.length === 0) {
-      return null;
+      // Retornar um objeto padrão se o website ainda não existir
+      return {
+        siteName: "Meu Site Imobiliário",
+        tagline: "Os melhores imóveis da região",
+        description: "Profissional especializado no mercado imobiliário local",
+        logoUrl: "",
+        heroImageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80",
+        themeColor: "#FF5A00",
+        secondaryColor: "#222222",
+        fontFamily: "inter",
+        contactEmail: "",
+        contactPhone: "",
+        address: "",
+        whatsapp: "",
+        creci: "",
+        showTestimonials: true,
+        showFeaturedProperties: true,
+        showAboutSection: true,
+        userId: userId,
+        stats: {
+          visitsToday: 0,
+          leadsGenerated: 0
+        }
+      };
     }
     
-    // Add mock stats for demo purposes
+    // Add stats 
     return {
       ...result[0],
       stats: {
