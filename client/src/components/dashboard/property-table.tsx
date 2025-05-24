@@ -546,6 +546,10 @@ const PropertyTable = ({
                             <ExternalLink className="h-4 w-4 mr-2" />
                             Ver página
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleConvertToDevelopment(property.id)}>
+                            <HomeIcon className="h-4 w-4 mr-2" />
+                            Converter em empreendimento
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive"
