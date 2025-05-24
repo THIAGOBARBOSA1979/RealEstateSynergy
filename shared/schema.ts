@@ -240,6 +240,16 @@ export const insertPropertySchema = createInsertSchema(properties, {
   title: (schema) => schema.min(3, "Title must be at least 3 characters"),
   description: (schema) => schema.min(10, "Description must be at least 10 characters"),
   price: (schema) => schema.refine((val) => Number(val) > 0, "Price must be positive"),
+  videoUrl: (schema) => schema.optional(),
+  tourUrl: (schema) => schema.optional(),
+  // Campos para propriedades rurais
+  totalArea: (schema) => schema.optional(),
+  productiveArea: (schema) => schema.optional(),
+  carRegistration: (schema) => schema.optional(),
+  waterSources: (schema) => schema.optional(),
+  soilType: (schema) => schema.optional(),
+  agriculturalPotential: (schema) => schema.optional(),
+  ruralInfrastructure: (schema) => schema.optional(),
 });
 
 export const insertLeadSchema = createInsertSchema(leads, {
