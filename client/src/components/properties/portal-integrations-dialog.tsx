@@ -316,12 +316,12 @@ const PortalIntegrationsDialog = ({
                 >
                   {updatePropertyPortals.isPending ? (
                     <>
-                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
                       Salvando...
                     </>
                   ) : (
                     <>
-                      <span className="material-icons text-xs mr-1">save</span>
+                      <Save className="h-4 w-4 mr-1" />
                       Salvar
                     </>
                   )}
@@ -381,12 +381,12 @@ const PortalIntegrationsDialog = ({
                 >
                   {updatePropertyWebhook.isPending ? (
                     <>
-                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
                       Salvando...
                     </>
                   ) : (
                     <>
-                      <span className="material-icons text-xs mr-1">save</span>
+                      <Save className="h-4 w-4 mr-1" />
                       Salvar Configurações
                     </>
                   )}
@@ -446,12 +446,12 @@ const PortalIntegrationsDialog = ({
                 >
                   {updatePropertyPixel.isPending ? (
                     <>
-                      <span className="material-icons animate-spin text-xs mr-1">sync</span>
+                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
                       Salvando...
                     </>
                   ) : (
                     <>
-                      <span className="material-icons text-xs mr-1">save</span>
+                      <Save className="h-4 w-4 mr-1" />
                       Salvar Configurações
                     </>
                   )}
