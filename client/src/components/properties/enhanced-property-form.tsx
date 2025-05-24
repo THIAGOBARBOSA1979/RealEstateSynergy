@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useCep } from "@/hooks/use-cep";
 import { 
   CloudUpload, 
   ArrowLeft, 
@@ -18,7 +19,8 @@ import {
   Upload,
   AlertCircle,
   X,
-  Plus
+  Plus,
+  Search
 } from "lucide-react";
 
 import {
