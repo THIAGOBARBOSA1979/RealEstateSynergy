@@ -161,7 +161,7 @@ const Properties = () => {
   // Delete property mutation
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId: number) => {
-      return apiRequest(`/api/properties/${propertyId}`, "DELETE");
+      return apiRequest("DELETE", `/api/properties/${propertyId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
@@ -194,7 +194,9 @@ const Properties = () => {
   });
 
   // Process and filter properties
-  const filteredProperties = data?.properties || [];
+  const filteredProperties: any[] = data && typeof data === 'object' && data !== null && 'properties' in data 
+    ? (data.properties as any[]) 
+    : [];
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -569,10 +571,11 @@ const Properties = () => {
           ) : (
             /* Visualização em grid */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-              {filteredProperties.map((property: any) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-              {filteredProperties.length === 0 && (
+              {Array.isArray(filteredProperties) && filteredProperties.length > 0 ? (
+                filteredProperties.map((property: any) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))
+              ) : (
                 <div className="col-span-3 py-8 text-center">
                   <p className="text-muted-foreground">Nenhum imóvel encontrado com os filtros selecionados.</p>
                 </div>
@@ -608,6 +611,32 @@ const Properties = () => {
           />
         </TabsContent>
       </Tabs>
+      
+      {/* Diálogo de confirmação de exclusão */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Este imóvel será permanentemente excluído
+              do sistema e todos os dados associados serão removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (selectedPropertyId) {
+                  deletePropertyMutation.mutate(selectedPropertyId);
+                }
+              }}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deletePropertyMutation.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
@@ -637,7 +666,10 @@ function PropertyCard({ property }: { property: any }) {
             {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
           </Badge>
           <Badge variant="outline" className="bg-white">
-            {getPropertyTypeLabel(property.type)}
+            {property.type === "apartment" ? "Apartamento" : 
+             property.type === "house" ? "Casa" : 
+             property.type === "commercial" ? "Comercial" : 
+             property.type === "land" ? "Terreno" : property.type}
           </Badge>
         </div>
         {property.featured && (
@@ -697,7 +729,7 @@ function PropertyCard({ property }: { property: any }) {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-destructive focus:text-destructive" 
-                onClick={() => handleDeleteClick(property.id)}
+                onClick={() => navigate(`/properties?delete=${property.id}`)}
               >
                 Excluir
               </DropdownMenuItem>
