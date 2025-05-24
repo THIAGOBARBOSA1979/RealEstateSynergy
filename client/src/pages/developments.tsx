@@ -103,9 +103,7 @@ export default function DevelopmentsPage() {
   // Mutação para excluir empreendimento
   const deleteDevelopmentMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/developments/${id}`, {
-        method: 'DELETE'
-      });
+      return apiRequest("DELETE", `/api/developments/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/developments'] });
@@ -216,33 +214,82 @@ export default function DevelopmentsPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold flex items-center">
-            <Building2 className="mr-2 h-6 w-6" />
-            Empreendimentos
+            <Home className="h-6 w-6 mr-2" /> Empreendimentos
           </h1>
           <p className="text-muted-foreground">
-            Gerencie seus projetos imobiliários
+            Gerencie seus projetos imobiliários, veja estatísticas e atualize informações
           </p>
         </div>
-        <Button onClick={() => navigate('/add-development')}>
-          <Plus className="mr-2 h-4 w-4" /> Novo Empreendimento
+        <Button onClick={() => navigate('/add-development')} className="bg-orange-500 hover:bg-orange-600">
+          <Plus className="h-4 w-4 mr-2" /> Novo Empreendimento
         </Button>
       </div>
       
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div className="flex flex-1 items-center gap-2">
-          <div className="relative flex-1">
+      {/* Barra de filtros e visualização */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Buscar empreendimentos..."
-              className="pl-8"
+              className="pl-8 w-[250px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Todos os Tipos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Tipos</SelectItem>
+              <SelectItem value="condominio_vertical">Condomínio Vertical</SelectItem>
+              <SelectItem value="condominio_horizontal">Condomínio Horizontal</SelectItem>
+              <SelectItem value="loteamento">Loteamento</SelectItem>
+              <SelectItem value="apartamentos">Edifício de Apartamentos</SelectItem>
+              <SelectItem value="casas">Casas</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Todos os Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Status</SelectItem>
+              <SelectItem value="planta">Na Planta</SelectItem>
+              <SelectItem value="em_construcao">Em Construção</SelectItem>
+              <SelectItem value="pronto">Pronto para Morar</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="flex border rounded-md overflow-hidden">
+            <Button
+              type="button"
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              className={`flex-1 rounded-none ${viewMode === 'list' ? '' : 'border-r'}`}
+              onClick={() => setViewMode('list')}
+            >
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              Lista
+            </Button>
+            <Button
+              type="button"
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              className="flex-1 rounded-none"
+              onClick={() => setViewMode('grid')}
+            >
+              <Building2 className="h-4 w-4 mr-2" />
+              Grade
+            </Button>
           </div>
           
           <DropdownMenu>
@@ -270,34 +317,6 @@ export default function DevelopmentsPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-        
-        <div className="flex gap-2">
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Todos os Tipos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Tipos</SelectItem>
-              <SelectItem value="condominio_vertical">Condomínio Vertical</SelectItem>
-              <SelectItem value="condominio_horizontal">Condomínio Horizontal</SelectItem>
-              <SelectItem value="loteamento">Loteamento</SelectItem>
-              <SelectItem value="apartamentos">Edifício de Apartamentos</SelectItem>
-              <SelectItem value="casas">Casas</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Todos os Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Status</SelectItem>
-              <SelectItem value="planta">Na Planta</SelectItem>
-              <SelectItem value="em_construcao">Em Construção</SelectItem>
-              <SelectItem value="pronto">Pronto para Morar</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
       
