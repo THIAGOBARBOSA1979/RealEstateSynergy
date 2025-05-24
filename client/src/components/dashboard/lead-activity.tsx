@@ -44,6 +44,20 @@ const LeadActivity = () => {
         return 'bg-primary';
     }
   };
+  
+  // Helper function to get icon component
+  const getIconComponent = (type: string) => {
+    switch (type) {
+      case 'lead':
+        return <UserPlus className="h-5 w-5" />;
+      case 'appointment':
+        return <Calendar className="h-5 w-5" />;
+      case 'document':
+        return <FileText className="h-5 w-5" />;
+      default:
+        return <UserPlus className="h-5 w-5" />;
+    }
+  };
 
   // Helper function to get label
   const getLabel = (type: string) => {
@@ -89,7 +103,7 @@ const LeadActivity = () => {
           {(activities || []).map((activity: ActivityItem) => (
             <div key={activity.id} className="flex gap-4 pb-4 border-b border-border">
               <div className={`h-10 w-10 rounded-full ${getIconClass(activity.type)} flex items-center justify-center text-white flex-shrink-0`}>
-                <span className="material-icons">{activity.icon}</span>
+                {getIconComponent(activity.type)}
               </div>
               <div>
                 <div className="flex items-center">
@@ -100,13 +114,13 @@ const LeadActivity = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{activity.description}</p>
                 <div className="flex items-center text-xs text-muted-foreground mt-2">
-                  <span className="material-icons text-xs mr-1">schedule</span>
+                  <Clock className="h-3 w-3 mr-1" />
                   <span>{activity.timeAgo}</span>
                 </div>
               </div>
               <div className="ml-auto flex-shrink-0">
                 <Button variant="ghost" size="icon" className="text-primary hover:text-primary-dark">
-                  <span className="material-icons">chevron_right</span>
+                  <ChevronRight className="h-5 w-5" />
                 </Button>
               </div>
             </div>
