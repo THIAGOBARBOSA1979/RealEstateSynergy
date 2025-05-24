@@ -108,8 +108,8 @@ const SiteTab: React.FC<SiteTabProps> = ({
                     <Input 
                       id="siteName" 
                       placeholder="Nome do seu site" 
-                      defaultValue={currentData.siteName || ''}
-                      onChange={(e) => updateField('siteName', e.target.value)}
+                      defaultValue={currentData?.title || ''}
+                      onChange={(e) => updateField('title', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
