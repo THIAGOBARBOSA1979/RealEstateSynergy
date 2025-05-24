@@ -1306,9 +1306,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         videoUrl: property.videoUrl,
         tourUrl: property.tourUrl,
         isSingleProperty: true,
-        constructionStatus: 'pronto', // Assumindo que imóveis avulsos estão prontos
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        constructionStatus: 'pronto' // Assumindo que imóveis avulsos estão prontos
+        // Drizzle adicionará os timestamps automaticamente
       };
       
       // Importar db diretamente
@@ -1335,9 +1334,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: property.status === 'sold' ? 'sold' : (property.status === 'reserved' ? 'reserved' : 'available'),
         features: property.features,
         images: property.images,
-        floorPlanImage: property.floorPlanUrl,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        floorPlanImage: property.floorPlanUrl
+        // Drizzle adicionará os timestamps automaticamente
       };
       
       // Inserir a unidade
@@ -1350,8 +1348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Marcar a propriedade como associada ao empreendimento
       await storage.updateProperty(propertyId, {
-        developmentId: newDevelopment.id,
-        updatedAt: new Date().toISOString()
+        developmentId: newDevelopment.id
       });
       
       // Registrar atividade
