@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar } from "@/components/ui/calendar";
 import { formatCurrency, formatDate, getPropertyTypeLabel, getPropertyStatusLabel, getInitials } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1117,6 +1118,148 @@ const PropertyDetail = () => {
           />
         </div>
       )}
+      
+      {/* Diálogo de Agendamento de Visita */}
+      <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Agendar Visita</DialogTitle>
+            <DialogDescription>
+              Preencha seus dados para agendar uma visita a este imóvel.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleScheduleVisit();
+          }}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="visit-name">Nome completo*</Label>
+                <Input
+                  id="visit-name"
+                  name="fullName"
+                  value={contactForm.fullName}
+                  onChange={handleInputChange}
+                  placeholder="Seu nome completo"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="visit-email">Email*</Label>
+                <Input
+                  id="visit-email"
+                  name="email"
+                  type="email"
+                  value={contactForm.email}
+                  onChange={handleInputChange}
+                  placeholder="Seu email"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="visit-phone">Telefone*</Label>
+                <Input
+                  id="visit-phone"
+                  name="phone"
+                  value={contactForm.phone}
+                  onChange={handleInputChange}
+                  placeholder="Seu telefone para contato"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="visit-date">Data preferencial para visita*</Label>
+                <div className="p-4 border rounded-md">
+                  <Calendar
+                    mode="single"
+                    selected={selectedScheduleDate}
+                    onSelect={setSelectedScheduleDate}
+                    className="mx-auto"
+                    disabled={(date) => date < new Date() || date > new Date(new Date().setDate(new Date().getDate() + 30))}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Selecione uma data nos próximos 30 dias. Horários disponíveis serão confirmados pelo corretor.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="w-full">Agendar Visita</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* CTA Flutuante para Dispositivos Móveis */}
+      {isFloatingCTAVisible && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg flex justify-between items-center z-50 md:hidden">
+          <div>
+            <p className="font-bold text-lg">{formatCurrency(property.price)}</p>
+            <p className="text-xs text-muted-foreground">{property.bedrooms} quartos · {property.area}m²</p>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => setShowScheduleDialog(true)}
+            >
+              <CalendarIcon className="h-4 w-4 mr-1" />
+              Visitar
+            </Button>
+            <Button 
+              size="sm" 
+              className="flex-1"
+              onClick={() => setShowContactDialog(true)}
+            >
+              <PhoneIcon className="h-4 w-4 mr-1" />
+              Contato
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* WhatsApp Flutuante */}
+      <div className="fixed bottom-24 right-4 z-50">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="default" 
+                size="icon" 
+                className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
+                onClick={() => {
+                  const message = `Olá, estou interessado no imóvel "${property.title}" (Ref: ${property.id}) anunciado no seu site.`;
+                  window.open(`https://wa.me/${agent?.phone?.replace(/\D/g, '') || '5511999999999'}?text=${encodeURIComponent(message)}`);
+                  
+                  // Registrar evento de conversão
+                  if (typeof window !== 'undefined') {
+                    if ((window as any).fbq) {
+                      (window as any).fbq('track', 'Contact', {
+                        content_name: property.title,
+                        content_category: 'whatsapp',
+                        content_ids: [property.id],
+                      });
+                    }
+                    
+                    if ((window as any).gtag) {
+                      (window as any).gtag('event', 'whatsapp_click', {
+                        event_category: 'contact',
+                        event_label: property.title,
+                      });
+                    }
+                  }
+                }}
+              >
+                <SiWhatsapp className="h-7 w-7 text-white" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>Fale pelo WhatsApp</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 };
