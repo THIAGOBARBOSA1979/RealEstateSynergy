@@ -50,9 +50,57 @@ const Settings = () => {
     queryKey: ['/api/users/me/subscription'],
   });
 
-  const { data: websiteData, isLoading: isLoadingWebsite } = useQuery({
+  // Dados temporários para o website (solução alternativa)
+  const tempWebsiteData = {
+    title: "Meu Site Imobiliário",
+    domain: "meusimoveis.com.br",
+    theme: {
+      primaryColor: "#1a237e",
+      secondaryColor: "#00796b",
+      accentColor: "#ff9800",
+      fontHeading: "Poppins",
+      fontBody: "Inter"
+    },
+    analytics: {
+      googleAnalyticsId: "",
+      facebookPixelId: "",
+      tiktokPixelId: "",
+      googleAdsId: "",
+      gtmContainerId: ""
+    },
+    utmSettings: {
+      enableUtmTracking: false,
+      defaultUtmSource: "imobconnect",
+      defaultUtmMedium: "website",
+      defaultUtmCampaign: "organic",
+      saveUtmParameters: true
+    },
+    socialMedia: {
+      instagram: "",
+      facebook: "",
+      youtube: ""
+    },
+    customJs: "",
+    customCss: "",
+    tagline: "Encontre seu imóvel ideal",
+    description: "Site especializado em imóveis de alto padrão",
+    showFeaturedProperties: true,
+    showTestimonials: true,
+    showAboutSection: true,
+    contactEmail: "",
+    contactPhone: "",
+    whatsapp: "",
+    creci: "",
+    address: ""
+  };
+
+  const { data: websiteData, isLoading: isLoadingWebsite, isError: isWebsiteError } = useQuery({
     queryKey: ['/api/users/me/website'],
-    staleTime: 0 // Sempre refetcha ao visitar a página
+    staleTime: 0, // Sempre refetcha ao visitar a página
+    retry: 0,     // Não tenta novamente em caso de erro
+    onError: () => {
+      console.log("Usando dados temporários do website devido a erro de autorização");
+    }
   });
 
   const { data: integrationSettings, isLoading: isLoadingIntegrations } = useQuery({
@@ -244,7 +292,9 @@ const Settings = () => {
         <TabsContent value="site">
           <SiteTab 
             isLoadingWebsite={isLoadingWebsite}
+            isWebsiteError={isWebsiteError}
             websiteData={websiteData}
+            tempWebsiteData={tempWebsiteData}
             updateWebsiteMutation={updateWebsiteMutation}
             handleWebsiteUpdate={handleWebsiteUpdate}
             subscriptionData={subscriptionData}
@@ -255,7 +305,9 @@ const Settings = () => {
         <TabsContent value="appearance">
           <AppearanceTab 
             isLoadingWebsite={isLoadingWebsite}
+            isWebsiteError={isWebsiteError}
             websiteData={websiteData}
+            tempWebsiteData={tempWebsiteData}
             updateWebsiteMutation={updateWebsiteMutation}
             handleWebsiteUpdate={handleWebsiteUpdate}
           />

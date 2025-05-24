@@ -117,7 +117,7 @@ const SiteTab: React.FC<SiteTabProps> = ({
                     <Input 
                       id="tagline" 
                       placeholder="Slogan ou frase de efeito" 
-                      defaultValue={currentData.tagline || ''}
+                      defaultValue={currentData?.tagline || ''}
                       onChange={(e) => updateField('tagline', e.target.value)}
                     />
                   </div>
@@ -129,7 +129,7 @@ const SiteTab: React.FC<SiteTabProps> = ({
                     id="siteDescription" 
                     placeholder="Descreva seu site e serviços em poucas palavras..." 
                     className="resize-none h-24"
-                    defaultValue={currentData.description || ''}
+                    defaultValue={currentData?.description || ''}
                     onChange={(e) => updateField('description', e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground flex items-center">
