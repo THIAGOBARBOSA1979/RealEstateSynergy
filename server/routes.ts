@@ -441,6 +441,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(subscription);
   }));
 
+  // Website settings routes
+  app.get(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
+    const website = await storage.getWebsiteByUserId(req.user.id);
+    res.json(website);
+  }));
+
+  app.put(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const updatedWebsite = await storage.updateWebsite(req.user.id, req.body);
+      res.json(updatedWebsite);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      throw error;
+    }
+  }));
+
   // Integration settings routes
   app.get(`${apiPrefix}/users/me/integrations`, requireAuth, asyncHandler(async (req, res) => {
     const integrations = await storage.getUserIntegrations(req.user.id);
