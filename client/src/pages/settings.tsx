@@ -20,6 +20,7 @@ import {
   Eye
 } from "lucide-react";
 import SiteTab from "@/components/settings/site-tab";
+import AppearanceTab from "@/components/settings/appearance-tab";
 
 import {
   Card,
