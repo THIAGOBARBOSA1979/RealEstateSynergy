@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import { Property } from "@/types";
-import { Image, Bed, Bath, SquareFoot, Car, Share, Edit } from "lucide-react";
+import { Image, Bed, Bath, SquareStack, Car, Share, Edit } from "lucide-react";
 
 import {
   Dialog,
@@ -163,22 +163,22 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
                 <TabsContent value="characteristics" className="py-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="p-4 border rounded-md flex flex-col items-center">
-                      <span className="material-icons text-primary text-2xl">king_bed</span>
+                      <Bed className="h-6 w-6 text-primary" />
                       <span className="text-sm text-muted-foreground mt-1">Quartos</span>
                       <span className="text-lg font-medium">{property.bedrooms || 0}</span>
                     </div>
                     <div className="p-4 border rounded-md flex flex-col items-center">
-                      <span className="material-icons text-primary text-2xl">bathroom</span>
+                      <Bath className="h-6 w-6 text-primary" />
                       <span className="text-sm text-muted-foreground mt-1">Banheiros</span>
                       <span className="text-lg font-medium">{property.bathrooms || 0}</span>
                     </div>
                     <div className="p-4 border rounded-md flex flex-col items-center">
-                      <span className="material-icons text-primary text-2xl">crop_square</span>
+                      <SquareStack className="h-6 w-6 text-primary" />
                       <span className="text-sm text-muted-foreground mt-1">Área</span>
                       <span className="text-lg font-medium">{property.area || 0} m²</span>
                     </div>
                     <div className="p-4 border rounded-md flex flex-col items-center">
-                      <span className="material-icons text-primary text-2xl">directions_car</span>
+                      <Car className="h-6 w-6 text-primary" />
                       <span className="text-sm text-muted-foreground mt-1">Vagas</span>
                       <span className="text-lg font-medium">{property.garageSpots || 0}</span>
                     </div>
@@ -236,14 +236,14 @@ const PropertyView = ({ propertyId, isOpen, onClose }: PropertyViewProps) => {
                   onClick={() => setIsPortalIntegrationsOpen(true)}
                   disabled={!property.id}
                 >
-                  <span className="material-icons text-xs mr-1">share</span>
+                  <Share className="h-4 w-4 mr-1" />
                   Portais
                 </Button>
                 <Button onClick={() => {
                   onClose();
                   window.location.href = `/edit-property/${property.id}`;
                 }}>
-                  <span className="material-icons text-xs mr-1">edit</span>
+                  <Edit className="h-4 w-4 mr-1" />
                   Editar
                 </Button>
               </DialogFooter>
