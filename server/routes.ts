@@ -521,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[ENDPOINT] GET /api/users/me/website - Requisição recebida`);
       console.log(`[ENDPOINT] Usuário ID: ${req.user.id}`);
       
-      // Dados estruturados completos do website para o frontend
+      // Dados do website para retornar
       const websiteData = {
         id: 1,
         userId: 1,

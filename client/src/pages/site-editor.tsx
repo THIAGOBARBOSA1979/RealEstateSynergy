@@ -141,17 +141,8 @@ const SiteEditor = () => {
     );
   }
 
-  const website = websiteData || { 
-    title: "", 
-    domain: "", 
-    theme: { 
-      primaryColor: "#1a237e", 
-      secondaryColor: "#00796b", 
-      accentColor: "#ff9800",
-      fontHeading: "Poppins",
-      fontBody: "Inter"
-    } 
-  };
+  // Usa os dados atuais, incluindo dados temporários quando necessário
+  const website = isError ? tempWebsiteData : (websiteData || tempWebsiteData);
 
   return (
     <div className="space-y-6">
