@@ -20,10 +20,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware for protected routes
   const requireAuth = (req: any, res: any, next: any) => {
-    // In production, this would check for a valid session token
-    // For demo purposes, we'll assume the user is authenticated
-    req.user = { id: 1, role: "agent" };
-    next();
+    try {
+      // Em produção, isso verificaria um token de sessão válido
+      // Para fins de demonstração, vamos assumir que o usuário está autenticado
+      req.user = { id: 1, role: "agent" };
+      console.log(`Auth middleware: Usuário autenticado com ID ${req.user.id}`);
+      next();
+    } catch (error) {
+      console.error("Erro no middleware de autenticação:", error);
+      return res.status(401).json({ message: "Não autorizado" });
+    }
   };
 
   // Helper to handle async route handlers

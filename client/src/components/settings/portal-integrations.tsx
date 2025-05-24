@@ -66,6 +66,42 @@ const portalsList = [
     name: "Super Imóveis Brasil", 
     description: "Portal especializado em imóveis de alto padrão",
     icon: Home 
+  },
+  { 
+    id: "chaves", 
+    name: "Chaves na Mão", 
+    description: "Portal regional com foco em imóveis residenciais",
+    icon: Building 
+  },
+  { 
+    id: "trovit", 
+    name: "Trovit Imóveis", 
+    description: "Meta buscador internacional de imóveis",
+    icon: Home 
+  },
+  { 
+    id: "lugarcerto", 
+    name: "Lugar Certo", 
+    description: "Portal focado em regiões Sul e Sudeste",
+    icon: Building 
+  },
+  { 
+    id: "mercadolivre", 
+    name: "Mercado Livre Imóveis", 
+    description: "Categoria imobiliária do maior marketplace da América Latina",
+    icon: Home 
+  },
+  { 
+    id: "123i", 
+    name: "123i", 
+    description: "Portal com foco em facilitar a busca por imóveis",
+    icon: Building 
+  },
+  { 
+    id: "casamineira", 
+    name: "Casa Mineira", 
+    description: "Especializado no mercado imobiliário de Minas Gerais",
+    icon: Home 
   }
 ];
 
