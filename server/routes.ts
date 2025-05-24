@@ -1309,8 +1309,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         constructionStatus: 'pronto', // Assumindo que imóveis avulsos estão prontos
       };
       
+      // Importar db diretamente
+      const { db } = await import("../db");
+      
       // Inserir o empreendimento
-      const [newDevelopment] = await storage.db.insert(developments)
+      const [newDevelopment] = await db.insert(developments)
         .values(developmentData)
         .returning();
       
@@ -1334,16 +1337,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Inserir a unidade
-      const [newUnit] = await storage.db.insert(units)
+      const [newUnit] = await db.insert(units)
         .values(unitData)
         .returning();
       
       // Atualizar o status de vendas do empreendimento
-      await updateDevelopmentSalesStatus(storage.db, newDevelopment.id);
+      await updateDevelopmentSalesStatus(db, newDevelopment.id);
       
-      // Opcional: Manter ou remover a propriedade original
-      // Se quiser remover a propriedade original, descomente a linha abaixo
-      // await storage.deleteProperty(propertyId);
+      // Marcar a propriedade como associada ao empreendimento
+      await storage.updateProperty(propertyId, {
+        developmentId: newDevelopment.id
+      });
+      
+      // Registrar atividade
+      await storage.logActivity({
+        userId: userId,
+        type: "property_converted",
+        entityId: propertyId,
+        metadata: { 
+          propertyName: property.title,
+          developmentId: newDevelopment.id,
+          developmentName: newDevelopment.name
+        }
+      });
       
       return res.status(201).json({ 
         message: "Imóvel convertido em empreendimento com sucesso",
