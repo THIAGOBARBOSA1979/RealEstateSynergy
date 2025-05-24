@@ -1271,6 +1271,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
+  // Rota para converter uma propriedade em um empreendimento de unidade única
+  app.post(`${apiPrefix}/properties/:propertyId/convert-to-development`, requireAuth, asyncHandler(async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId);
+      const userId = req.user.id;
+      
+      // Buscar a propriedade
+      const property = await storage.getPropertyById(propertyId);
+      
+      if (!property) {
+        return res.status(404).json({ message: "Imóvel não encontrado" });
+      }
+      
+      // Verificar se o usuário é dono da propriedade
+      if (property.userId !== userId) {
+        return res.status(403).json({ message: "Você não tem permissão para converter este imóvel" });
+      }
+      
+      // Criar um novo empreendimento baseado na propriedade
+      const developmentData = {
+        userId: userId,
+        name: property.title,
+        description: property.description || 'Imóvel individual convertido em empreendimento',
+        address: property.address,
+        city: property.city,
+        state: property.state,
+        zipCode: property.zipCode,
+        developmentType: 'imovel_avulso',
+        totalUnits: 1,
+        priceRange: JSON.stringify({ min: property.price, max: property.price }),
+        mainImage: property.mainImage,
+        images: property.images,
+        videoUrl: property.videoUrl,
+        tourUrl: property.tourUrl,
+        isSingleProperty: true,
+        constructionStatus: 'pronto', // Assumindo que imóveis avulsos estão prontos
+      };
+      
+      // Inserir o empreendimento
+      const [newDevelopment] = await storage.db.insert(developments)
+        .values(developmentData)
+        .returning();
+      
+      if (!newDevelopment) {
+        return res.status(500).json({ message: "Erro ao criar empreendimento" });
+      }
+      
+      // Criar uma unidade baseada na propriedade
+      const unitData = {
+        developmentId: newDevelopment.id,
+        unitNumber: '1', // Unidade única
+        price: property.price,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        area: property.area,
+        privateArea: property.area, // Assumindo que área privativa é igual à área total
+        status: property.status === 'sold' ? 'sold' : (property.status === 'reserved' ? 'reserved' : 'available'),
+        features: property.features,
+        images: property.images,
+        floorPlanImage: property.floorPlanUrl,
+      };
+      
+      // Inserir a unidade
+      const [newUnit] = await storage.db.insert(units)
+        .values(unitData)
+        .returning();
+      
+      // Atualizar o status de vendas do empreendimento
+      await updateDevelopmentSalesStatus(storage.db, newDevelopment.id);
+      
+      // Opcional: Manter ou remover a propriedade original
+      // Se quiser remover a propriedade original, descomente a linha abaixo
+      // await storage.deleteProperty(propertyId);
+      
+      return res.status(201).json({ 
+        message: "Imóvel convertido em empreendimento com sucesso",
+        development: newDevelopment,
+        unit: newUnit
+      });
+    } catch (error) {
+      console.error("Erro ao converter imóvel em empreendimento:", error);
+      return res.status(500).json({ message: "Erro ao converter imóvel", error: error.message });
+    }
+  }));
+
   const httpServer = createServer(app);
   return httpServer;
 }

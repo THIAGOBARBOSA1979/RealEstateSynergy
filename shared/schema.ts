@@ -48,6 +48,7 @@ export const developments = pgTable('developments', {
   images: jsonb('images').default([]),
   videoUrl: text('video_url'),
   tourUrl: text('tour_url'),
+  isSingleProperty: boolean('is_single_property').default(false), // Indica se é um imóvel avulso tratado como empreendimento
   amenities: jsonb('amenities').default([]),
   featured: boolean('featured').default(false),
   published: boolean('published').default(true),
@@ -388,9 +389,10 @@ export const insertDevelopmentSchema = createInsertSchema(developments, {
   description: (schema) => schema.min(10, "Descrição deve ter pelo menos 10 caracteres"),
   address: (schema) => schema.min(5, "Endereço deve ter pelo menos 5 caracteres"),
   developmentType: (schema) => schema.refine(
-    (val) => ["condominio_vertical", "condominio_horizontal", "loteamento", "apartamentos", "casas"].includes(val),
+    (val) => ["condominio_vertical", "condominio_horizontal", "loteamento", "apartamentos", "casas", "imovel_avulso"].includes(val),
     { message: "Tipo de empreendimento inválido" }
   ),
+  isSingleProperty: (schema) => schema.optional(),
 });
 
 export const insertUnitSchema = createInsertSchema(units, {
