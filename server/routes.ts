@@ -1358,6 +1358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: "property_converted",
         entityId: propertyId,
         entityType: "property", // Adicionando o tipo de entidade necessário
+        action: "convert_to_development", // Adicionando a ação necessária
         metadata: { 
           propertyName: property.title,
           developmentId: newDevelopment.id,
