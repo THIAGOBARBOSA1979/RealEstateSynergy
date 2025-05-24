@@ -102,6 +102,78 @@ const portalsList = [
     name: "Casa Mineira", 
     description: "Especializado no mercado imobiliário de Minas Gerais",
     icon: Home 
+  },
+  { 
+    id: "portalimoveis", 
+    name: "Portal Imóveis", 
+    description: "Plataforma com ampla cobertura nacional",
+    icon: Building 
+  },
+  { 
+    id: "imovelguide", 
+    name: "Imóvel Guide", 
+    description: "Guia completo de imóveis em todo o Brasil",
+    icon: Home 
+  },
+  { 
+    id: "netimoveisbrasil", 
+    name: "Net Imóveis Brasil", 
+    description: "Rede de imobiliárias conectadas em todo país",
+    icon: Building 
+  },
+  { 
+    id: "wimoveis", 
+    name: "WImóveis", 
+    description: "Plataforma digital moderna com foco em experiência do usuário",
+    icon: Home 
+  },
+  { 
+    id: "zumper", 
+    name: "Zumper Brasil", 
+    description: "Tecnologia avançada para busca de imóveis",
+    icon: Building 
+  },
+  { 
+    id: "imowebrio", 
+    name: "ImoWeb Rio", 
+    description: "Especializado em imóveis na região do Rio de Janeiro",
+    icon: Home 
+  },
+  { 
+    id: "brasilbrokers", 
+    name: "Brasil Brokers", 
+    description: "Rede de corretores de alto padrão",
+    icon: Building 
+  },
+  { 
+    id: "habitissimo", 
+    name: "Habitissimo", 
+    description: "Plataforma para imóveis e reforma",
+    icon: Home 
+  },
+  { 
+    id: "lopes", 
+    name: "Lopes Imóveis", 
+    description: "Imobiliária premium com alcance nacional",
+    icon: Building 
+  },
+  { 
+    id: "nestoria", 
+    name: "Nestoria Brasil", 
+    description: "Buscador internacional de imóveis",
+    icon: Home 
+  },
+  { 
+    id: "crecisp", 
+    name: "Portal CRECI-SP", 
+    description: "Portal oficial do CRECI de São Paulo",
+    icon: Building 
+  },
+  { 
+    id: "imoveisluxo", 
+    name: "Imóveis de Luxo", 
+    description: "Especializado em propriedades de alto padrão",
+    icon: Home 
   }
 ];
 
