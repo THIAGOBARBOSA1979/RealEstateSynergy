@@ -1,14 +1,15 @@
 import { useLocation, Link } from "wouter";
-import PropertyForm from "@/components/properties/property-form";
+import EnhancedPropertyForm from "@/components/properties/enhanced-property-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Info } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const AddProperty = () => {
   const [, navigate] = useLocation();
 
   return (
-    <div className="container mx-auto max-w-5xl py-6">
+    <div className="container mx-auto max-w-6xl py-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-heading font-bold">Adicionar Imóvel</h1>
@@ -22,9 +23,18 @@ const AddProperty = () => {
         </Button>
       </div>
       
+      <Alert className="mb-6">
+        <Info className="h-4 w-4" />
+        <AlertTitle>Formulário Aprimorado</AlertTitle>
+        <AlertDescription>
+          Este formulário possui campos específicos para cada tipo de imóvel e suporte a integração com portais imobiliários.
+          Navegue pelas abas para preencher todas as informações.
+        </AlertDescription>
+      </Alert>
+      
       <Card className="border-t-4 border-t-primary shadow-sm">
         <CardContent className="p-0">
-          <PropertyForm 
+          <EnhancedPropertyForm 
             onSuccess={() => {
               navigate("/properties");
             }}
