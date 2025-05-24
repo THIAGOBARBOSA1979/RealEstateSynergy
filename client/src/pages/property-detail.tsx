@@ -584,11 +584,7 @@ const PropertyDetail = () => {
   
   // SEO Meta setup (in a production app, use Next.js Head or React Helmet)
   useEffect(() => {
-    if (property) {
-      document.title = `${property.title} - ${property.neighborhood || ''}, ${property.city} - ImobCloud`;
-    } else {
-      document.title = 'Detalhes do Imóvel - ImobCloud';
-    }
+    document.title = property ? `${property.title} - ImobCloud` : 'Detalhes do Imóvel - ImobCloud';
     
     // Limpe quaisquer tags meta anteriores
     const existingMetaTags = document.head.querySelectorAll('meta[name="description"], meta[property^="og:"], meta[name="keywords"], meta[name="robots"], meta[name="twitter:"]');
