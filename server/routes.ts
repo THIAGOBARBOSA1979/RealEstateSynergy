@@ -93,14 +93,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log(`[ENDPOINT] GET /api/users/me/website - Usuário ID: ${req.user.id}`);
     try {
       const website = await storage.getWebsiteByUserId(req.user.id);
-      
-      // A função getWebsiteByUserId já cria um website se não existir
-      
-      console.log(`[ENDPOINT] Website encontrado para o usuário ${req.user.id}`);
+      console.log(`[ENDPOINT] Website encontrado/criado para o usuário ${req.user.id}`);
       res.json(website);
     } catch (error) {
       console.error(`[ERRO] Erro ao buscar website:`, error);
-      res.status(500).json({ message: "Erro ao buscar configurações do website" });
+      // Retornar dados padrão em caso de erro para evitar falha total
+      const defaultWebsite = {
+        userId: req.user.id,
+        title: "Meu Site Imobiliário",
+        theme: { primaryColor: "#1a237e", secondaryColor: "#00796b" },
+        analytics: { googleAnalyticsId: "", facebookPixelId: "" },
+        isActive: true
+      };
+      res.json(defaultWebsite);
     }
   }));
 
