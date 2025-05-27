@@ -140,7 +140,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro ao buscar configurações do website" });
     }
   }));
-  }));
 
   app.put(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
     console.log(`[ENDPOINT] PUT /api/users/me/website - Usuário ID: ${req.user.id}`);
