@@ -2,9 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-
-// Auth Components
-import { PrivateRoute, PublicRoute } from "@/components/auth/route-guard";
+import { useAuth } from "@/hooks/use-auth";
 
 // Layout Components
 import DashboardLayout from "@/components/layout/dashboard-layout";
@@ -43,79 +41,168 @@ import SuperAdminPanel from "./pages/super-admin";
 // Error Pages
 import NotFound from "@/pages/not-found";
 
+function AppContent() {
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
-function App() {
-  const [location] = useLocation();
-  
-  // Determine if current route is public or private
+  // Check if user needs to be redirected
   const isPublicRoute = location === "/" || location === "/login" || 
                        location.startsWith("/agente") || location.startsWith("/imovel");
-  const isAdminRoute = location.startsWith("/super-admin");
-  
-  if (isPublicRoute) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <Switch>
-          <Route path="/">
-            <PublicRoute redirectTo="/dashboard">
-              <LandingPage />
-            </PublicRoute>
-          </Route>
-          <Route path="/login">
-            <PublicRoute redirectTo="/dashboard">
-              <LoginPage />
-            </PublicRoute>
-          </Route>
-          <Route path="/agente/:agentId" component={AgentWebsite} />
-          <Route path="/imovel/:id" component={PropertyDetailNew} />
-          <Route component={NotFound} />
-        </Switch>
-        <Toaster />
-      </QueryClientProvider>
-    );
+
+  // Redirect authenticated users from public pages to dashboard
+  if (isAuthenticated && (location === "/" || location === "/login")) {
+    setLocation("/dashboard");
+    return null;
   }
 
-  if (isAdminRoute) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <PrivateRoute>
-          <div className="super-admin-layout">
-            <SuperAdminPanel />
-          </div>
-        </PrivateRoute>
-        <Toaster />
-      </QueryClientProvider>
-    );
+  // Redirect unauthenticated users from private pages to login
+  if (!isAuthenticated && !isPublicRoute) {
+    setLocation("/login");
+    return null;
   }
 
-  // Private dashboard routes
+  return (
+    <Switch>
+      {/* Public Routes */}
+      <Route path="/" component={LandingPage} />
+      <Route path="/login" component={LoginPage} />
+      <Route path="/agente/:agentId" component={AgentWebsite} />
+      <Route path="/imovel/:id" component={PropertyDetailNew} />
+      
+      {/* Super Admin Route */}
+      <Route path="/super-admin">
+        <div className="super-admin-layout">
+          <SuperAdminPanel />
+        </div>
+      </Route>
+      
+      {/* Private Routes with Dashboard Layout */}
+      <Route path="/dashboard">
+        <DashboardLayout>
+          <Dashboard />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/site-imobiliario">
+        <DashboardLayout>
+          <SiteImobiliario />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/catalog">
+        <DashboardLayout>
+          <Catalog />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/properties">
+        <DashboardLayout>
+          <Properties />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/add-property">
+        <DashboardLayout>
+          <AddProperty />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/edit-property/:id">
+        <DashboardLayout>
+          <EditProperty />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/property-detail/:id">
+        <DashboardLayout>
+          <PropertyDetailNew />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/favorites">
+        <DashboardLayout>
+          <Favorites />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/developments">
+        <DashboardLayout>
+          <Developments />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/add-development">
+        <DashboardLayout>
+          <AddDevelopment />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/development-detail/:id">
+        <DashboardLayout>
+          <DevelopmentDetail />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/crm">
+        <DashboardLayout>
+          <CRM />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/affiliate">
+        <DashboardLayout>
+          <Affiliate />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/client-portal">
+        <DashboardLayout>
+          <ClientPortal />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/analytics">
+        <DashboardLayout>
+          <Analytics />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/team">
+        <DashboardLayout>
+          <Team />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/settings">
+        <DashboardLayout>
+          <Settings />
+        </DashboardLayout>
+      </Route>
+      
+      {/* 404 - Not Found */}
+      <Route>
+        <NotFound />
+      </Route>
+    </Switch>
+  );
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <PrivateRoute>
-        <DashboardLayout>
-          <Switch>
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/site-imobiliario" component={SiteImobiliario} />
-            <Route path="/catalog" component={Catalog} />
-            <Route path="/properties" component={Properties} />
-            <Route path="/add-property" component={AddProperty} />
-            <Route path="/edit-property/:id" component={EditProperty} />
-            <Route path="/property-detail/:id" component={PropertyDetailNew} />
-            <Route path="/favorites" component={Favorites} />
-            <Route path="/developments" component={Developments} />
-            <Route path="/add-development" component={AddDevelopment} />
-            <Route path="/development-detail/:id" component={DevelopmentDetail} />
-            <Route path="/crm" component={CRM} />
-            <Route path="/affiliate" component={Affiliate} />
-            <Route path="/client-portal" component={ClientPortal} />
-            <Route path="/analytics" component={Analytics} />
-            <Route path="/team" component={Team} />
-            <Route path="/settings" component={Settings} />
-            <Route component={NotFound} />
-          </Switch>
-        </DashboardLayout>
-      </PrivateRoute>
+      <AppContent />
       <Toaster />
     </QueryClientProvider>
   );
