@@ -94,44 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const website = await storage.getWebsiteByUserId(req.user.id);
       
-      // Se não encontrar, retornamos um website padrão para novos usuários
-      if (!website) {
-        console.log(`[ENDPOINT] Website não encontrado para o usuário ${req.user.id}, retornando padrão`);
-        const defaultWebsite = {
-          userId: req.user.id,
-          title: "Meu Site Imobiliário",
-          domain: "",
-          theme: {
-            primaryColor: "#1a237e",
-            secondaryColor: "#00796b",
-            accentColor: "#ff9800",
-            fontHeading: "Poppins",
-            fontBody: "Inter"
-          },
-          analytics: {
-            googleAnalyticsId: "",
-            facebookPixelId: ""
-          },
-          seo: {
-            metaTitle: "Imóveis de Qualidade",
-            metaDescription: "Encontre o imóvel ideal com nossa equipe especializada",
-            keywords: "imóveis, casa, apartamento, venda, locação"
-          },
-          contact: {
-            phone: "",
-            email: "",
-            whatsapp: "",
-            address: ""
-          },
-          isActive: true,
-          customDomain: null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        
-        console.log(`[ENDPOINT] Retornando website padrão`);
-        return res.json(defaultWebsite);
-      }
+      // A função getWebsiteByUserId já cria um website se não existir
       
       console.log(`[ENDPOINT] Website encontrado para o usuário ${req.user.id}`);
       res.json(website);
