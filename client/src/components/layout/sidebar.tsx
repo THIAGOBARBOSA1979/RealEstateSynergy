@@ -56,10 +56,10 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     description?: string;
   }
 
-  // Menu com submenus para organizar Imóveis e Empreendimentos
+  // Menu unificado com Catálogo Imobiliário consolidado
   const menuItems: MenuItemWithDescription[] = [
     { 
-      path: "/", 
+      path: "/dashboard", 
       label: "Dashboard", 
       icon: "dashboard",
       description: "Visão geral do seu negócio imobiliário"
@@ -67,20 +67,8 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     { 
       path: "/catalog", 
       label: "Catálogo Imobiliário", 
-      icon: "home",
-      description: "Gerenciamento completo de imóveis e empreendimentos"
-    },
-    { 
-      path: "/developments", 
-      label: "→ Empreendimentos", 
       icon: "building",
-      description: "Gerencie seus projetos imobiliários"
-    },
-    { 
-      path: "/properties", 
-      label: "→ Imóveis Avulsos", 
-      icon: "home",
-      description: "Gerencie propriedades individuais"
+      description: "Gestão unificada de imóveis e empreendimentos"
     },
     { 
       path: "/favorites", 

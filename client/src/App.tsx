@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -45,6 +46,26 @@ function AppContent() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Handle redirects with useEffect to avoid setState during render
+  React.useEffect(() => {
+    if (!isLoading) {
+      const isPublicRoute = location === "/" || location === "/login" || 
+                           location.startsWith("/agente") || location.startsWith("/imovel");
+
+      // Redirect authenticated users from public pages to dashboard
+      if (isAuthenticated && (location === "/" || location === "/login")) {
+        setLocation("/dashboard");
+        return;
+      }
+
+      // Redirect unauthenticated users from private pages to login
+      if (!isAuthenticated && !isPublicRoute) {
+        setLocation("/login");
+        return;
+      }
+    }
+  }, [isAuthenticated, isLoading, location, setLocation]);
+
   // Loading state
   if (isLoading) {
     return (
@@ -55,22 +76,6 @@ function AppContent() {
         </div>
       </div>
     );
-  }
-
-  // Check if user needs to be redirected
-  const isPublicRoute = location === "/" || location === "/login" || 
-                       location.startsWith("/agente") || location.startsWith("/imovel");
-
-  // Redirect authenticated users from public pages to dashboard
-  if (isAuthenticated && (location === "/" || location === "/login")) {
-    setLocation("/dashboard");
-    return null;
-  }
-
-  // Redirect unauthenticated users from private pages to login
-  if (!isAuthenticated && !isPublicRoute) {
-    setLocation("/login");
-    return null;
   }
 
   return (
