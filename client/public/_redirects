@@ -1,2 +1,5 @@
+# API routes redirect to serverless function
 /api/* /.netlify/functions/api/:splat 200
+
+# SPA routing - all other routes serve index.html
 /* /index.html 200
