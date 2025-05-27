@@ -42,7 +42,7 @@ export default function UnifiedCatalogPage() {
   const filteredDevelopments = developments?.filter((development: Development) => {
     const matchesSearch = development.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          development.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all_statuses" || development.status === statusFilter;
+    const matchesStatus = statusFilter === "all_statuses" || development.salesStatus === statusFilter;
     return matchesSearch && matchesStatus;
   }) || [];
 
@@ -53,7 +53,7 @@ export default function UnifiedCatalogPage() {
   
   const activeProperties = filteredProperties.filter((p: Property) => p.status === "disponivel").length;
   const soldProperties = filteredProperties.filter((p: Property) => p.status === "vendido").length;
-  const activeDevelopments = filteredDevelopments.filter((d: Development) => d.status === "ativo").length;
+  const activeDevelopments = filteredDevelopments.filter((d: Development) => d.salesStatus === "ativo").length;
 
   if (isLoading) {
     return (
@@ -230,10 +230,10 @@ export default function UnifiedCatalogPage() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">{property.title}</h4>
-                      <p className="text-sm text-gray-600">{property.location}</p>
+                      <p className="text-sm text-gray-600">{property.city}, {property.state}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-green-600">{formatCurrency(property.price)}</p>
+                      <p className="font-semibold text-green-600">{formatCurrency(Number(property.price))}</p>
                       <Badge variant={property.status === "disponivel" ? "default" : "secondary"}>
                         {property.status}
                       </Badge>
@@ -262,12 +262,12 @@ export default function UnifiedCatalogPage() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">{development.name}</h4>
-                      <p className="text-sm text-gray-600">{development.location}</p>
+                      <p className="text-sm text-gray-600">{development.city}, {development.state}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-600">{development.totalUnits} unidades</p>
-                      <Badge variant={development.status === "ativo" ? "default" : "secondary"}>
-                        {development.status}
+                      <Badge variant={development.salesStatus === "ativo" ? "default" : "secondary"}>
+                        {development.salesStatus}
                       </Badge>
                     </div>
                   </div>
@@ -331,7 +331,7 @@ function PropertyCard({ property }: { property: Property }) {
         
         <p className="text-gray-600 text-sm flex items-center mb-2">
           <MapPin className="w-4 h-4 mr-1" />
-          {property.location}
+          {property.city}, {property.state}
         </p>
         
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
@@ -351,7 +351,7 @@ function PropertyCard({ property }: { property: Property }) {
         
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-green-600">
-            {formatCurrency(property.price)}
+            {formatCurrency(Number(property.price))}
           </span>
           
           <div className="flex gap-1">
@@ -390,14 +390,14 @@ function DevelopmentCard({ development }: { development: Development }) {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg line-clamp-1">{development.name}</h3>
-          <Badge variant={development.status === "ativo" ? "default" : "secondary"}>
-            {development.status}
+          <Badge variant={development.salesStatus === "ativo" ? "default" : "secondary"}>
+            {development.salesStatus}
           </Badge>
         </div>
         
         <p className="text-gray-600 text-sm flex items-center mb-2">
           <MapPin className="w-4 h-4 mr-1" />
-          {development.location}
+          {development.city}, {development.state}
         </p>
         
         <div className="space-y-2 mb-3">
@@ -420,7 +420,7 @@ function DevelopmentCard({ development }: { development: Development }) {
           <div>
             <p className="text-sm text-gray-600">A partir de</p>
             <span className="text-lg font-bold text-green-600">
-              {formatCurrency(development.minPrice || 0)}
+              {formatCurrency(Number(development.minPrice) || 0)}
             </span>
           </div>
           

@@ -97,7 +97,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Se não encontrar, retornamos um website padrão para novos usuários
       if (!website) {
         console.log(`[ENDPOINT] Website não encontrado para o usuário ${req.user.id}, retornando padrão`);
-        return res.json({
+        const defaultWebsite = {
+          userId: req.user.id,
           title: "Meu Site Imobiliário",
           domain: "",
           theme: {
@@ -109,6 +110,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           analytics: {
             googleAnalyticsId: "",
+            facebookPixelId: ""
+          },
+          seo: {
+            metaTitle: "Imóveis de Qualidade",
+            metaDescription: "Encontre o imóvel ideal com nossa equipe especializada",
+            keywords: "imóveis, casa, apartamento, venda, locação"
+          },
+          contact: {
+            phone: "",
+            email: "",
+            whatsapp: "",
+            address: ""
+          },
+          isActive: true,
+          customDomain: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        console.log(`[ENDPOINT] Retornando website padrão`);
+        return res.json(defaultWebsite);
+      }
+      
+      console.log(`[ENDPOINT] Website encontrado para o usuário ${req.user.id}`);
+      res.json(website);
+    } catch (error) {
+      console.error(`[ERRO] Erro ao buscar website:`, error);
+      res.status(500).json({ message: "Erro ao buscar configurações do website" });
+    }
+  }));
             facebookPixelId: "",
             tiktokPixelId: "",
             googleAdsId: "",
