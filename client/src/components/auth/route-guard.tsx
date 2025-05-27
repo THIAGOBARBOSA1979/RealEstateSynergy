@@ -23,13 +23,15 @@ export function RouteGuard({
     if (!isLoading) {
       if (requireAuth && !isAuthenticated) {
         // Usuário não autenticado tentando acessar rota privada
+        console.log("Redirecting to login - user not authenticated");
         setLocation("/login");
       } else if (!requireAuth && isAuthenticated && redirectTo) {
         // Usuário autenticado em página pública com redirecionamento
+        console.log("Redirecting to dashboard - user authenticated on public page");
         setLocation(redirectTo);
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, redirectTo, setLocation]);
+  }, [isAuthenticated, isLoading, requireAuth, redirectTo, setLocation, location]);
 
   // Mostra loading enquanto verifica autenticação
   if (isLoading) {

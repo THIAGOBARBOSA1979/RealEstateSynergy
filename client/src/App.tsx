@@ -46,184 +46,76 @@ import NotFound from "@/pages/not-found";
 
 
 function App() {
+  const [location] = useLocation();
+  
+  // Determine if current route is public or private
+  const isPublicRoute = location === "/" || location === "/login" || 
+                       location.startsWith("/agente") || location.startsWith("/imovel");
+  const isAdminRoute = location.startsWith("/super-admin");
+  
+  if (isPublicRoute) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Switch>
+          <Route path="/">
+            <PublicRoute redirectTo="/dashboard">
+              <LandingPage />
+            </PublicRoute>
+          </Route>
+          <Route path="/login">
+            <PublicRoute redirectTo="/dashboard">
+              <LoginPage />
+            </PublicRoute>
+          </Route>
+          <Route path="/agente/:agentId" component={AgentWebsite} />
+          <Route path="/imovel/:id" component={PropertyDetailNew} />
+          <Route component={NotFound} />
+        </Switch>
+        <Toaster />
+      </QueryClientProvider>
+    );
+  }
+
+  if (isAdminRoute) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <PrivateRoute>
+          <div className="super-admin-layout">
+            <SuperAdminPanel />
+          </div>
+        </PrivateRoute>
+        <Toaster />
+      </QueryClientProvider>
+    );
+  }
+
+  // Private dashboard routes
   return (
     <QueryClientProvider client={queryClient}>
-      <Switch>
-        {/* Public Routes - Landing Page */}
-        <Route path="/">
-          <PublicRoute>
-            <LandingPage />
-          </PublicRoute>
-        </Route>
-        
-        {/* Public Routes - Login */}
-        <Route path="/login">
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        </Route>
-        
-        {/* Public Routes - Agent Websites */}
-        <Route path="/agente/:agentId">
-          <AgentWebsite />
-        </Route>
-        
-        {/* Public Routes - Property Details */}
-        <Route path="/imovel/:id">
-          <PropertyDetailNew />
-        </Route>
-        
-        {/* Super Admin Routes */}
-        <Route path="/super-admin">
-          <PrivateRoute>
-            <div className="super-admin-layout">
-              <SuperAdminPanel />
-            </div>
-          </PrivateRoute>
-        </Route>
-        
-        {/* Private Routes - All Dashboard Area */}
-        <Route path="/dashboard">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Dashboard />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/site-imobiliario">
-          <PrivateRoute>
-            <DashboardLayout>
-              <SiteImobiliario />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/catalog">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Catalog />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/properties">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Properties />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/add-property">
-          <PrivateRoute>
-            <DashboardLayout>
-              <AddProperty />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/edit-property/:id">
-          <PrivateRoute>
-            <DashboardLayout>
-              <EditProperty />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/property-detail/:id">
-          <PrivateRoute>
-            <DashboardLayout>
-              <PropertyDetailNew />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/favorites">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Favorites />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/developments">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Developments />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/add-development">
-          <PrivateRoute>
-            <DashboardLayout>
-              <AddDevelopment />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/development-detail/:id">
-          <PrivateRoute>
-            <DashboardLayout>
-              <DevelopmentDetail />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/crm">
-          <PrivateRoute>
-            <DashboardLayout>
-              <CRM />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/affiliate">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Affiliate />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/client-portal">
-          <PrivateRoute>
-            <DashboardLayout>
-              <ClientPortal />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/analytics">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Analytics />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/team">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Team />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        <Route path="/settings">
-          <PrivateRoute>
-            <DashboardLayout>
-              <Settings />
-            </DashboardLayout>
-          </PrivateRoute>
-        </Route>
-        
-        {/* Fallback - 404 */}
-        <Route>
-          <NotFound />
-        </Route>
-      </Switch>
+      <PrivateRoute>
+        <DashboardLayout>
+          <Switch>
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/site-imobiliario" component={SiteImobiliario} />
+            <Route path="/catalog" component={Catalog} />
+            <Route path="/properties" component={Properties} />
+            <Route path="/add-property" component={AddProperty} />
+            <Route path="/edit-property/:id" component={EditProperty} />
+            <Route path="/property-detail/:id" component={PropertyDetailNew} />
+            <Route path="/favorites" component={Favorites} />
+            <Route path="/developments" component={Developments} />
+            <Route path="/add-development" component={AddDevelopment} />
+            <Route path="/development-detail/:id" component={DevelopmentDetail} />
+            <Route path="/crm" component={CRM} />
+            <Route path="/affiliate" component={Affiliate} />
+            <Route path="/client-portal" component={ClientPortal} />
+            <Route path="/analytics" component={Analytics} />
+            <Route path="/team" component={Team} />
+            <Route path="/settings" component={Settings} />
+            <Route component={NotFound} />
+          </Switch>
+        </DashboardLayout>
+      </PrivateRoute>
       <Toaster />
     </QueryClientProvider>
   );
