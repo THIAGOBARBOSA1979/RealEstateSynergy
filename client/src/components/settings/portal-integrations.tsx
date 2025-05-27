@@ -406,6 +406,7 @@ export default function PortalIntegrations({
                               <Input 
                                 id="gaMeasurementId" 
                                 placeholder="G-XXXXXXXXXX" 
+                                type="password"
                                 value={integrationSettings?.googleAnalytics?.measurementId || ''}
                                 onChange={(e) => {
                                   const currentSettings = integrationSettings || {};
@@ -419,6 +420,7 @@ export default function PortalIntegrations({
                                 }}
                                 className="h-8 text-sm"
                               />
+                              <p className="text-xs text-muted-foreground">Encontre em: Google Analytics → Admin → Data Streams</p>
                             </div>
                           </div>
                         )}

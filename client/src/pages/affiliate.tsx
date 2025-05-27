@@ -23,7 +23,42 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { User, Plus, MoreVertical } from "lucide-react";
+import { 
+  User, 
+  Plus, 
+  MoreVertical, 
+  Search, 
+  Filter, 
+  TrendingUp, 
+  Eye, 
+  Share2, 
+  Heart, 
+  DollarSign,
+  Building,
+  MapPin,
+  Calendar,
+  Users,
+  Award,
+  Target,
+  BarChart3,
+  CheckCircle,
+  Clock,
+  XCircle
+} from "lucide-react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 // Components
 import AffiliationRequestDialog from "@/components/affiliate/affiliation-request-dialog";
@@ -33,6 +68,10 @@ const Affiliate = () => {
   const [activeTab, setActiveTab] = useState("marketplace");
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [isAffiliationDialogOpen, setIsAffiliationDialogOpen] = useState(false);
+  const [cityFilter, setCityFilter] = useState("all_cities");
+  const [typeFilter, setTypeFilter] = useState("all_types");
+  const [statusFilter, setStatusFilter] = useState("all_status");
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -84,10 +123,99 @@ const Affiliate = () => {
     });
   };
 
+  // Filtrar propriedades do marketplace
+  const filteredMarketplaceProperties = marketplaceProperties?.filter((property: any) => {
+    const matchesSearch = !searchTerm || 
+      property.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.city?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCity = cityFilter === "all_cities" || property.city === cityFilter;
+    const matchesType = typeFilter === "all_types" || property.type === typeFilter;
+    const matchesStatus = statusFilter === "all_status" || property.status === statusFilter;
+    
+    return matchesSearch && matchesCity && matchesType && matchesStatus;
+  }) || [];
+
+  // Estatísticas do dashboard
+  const stats = {
+    totalAffiliations: myAffiliations?.length || 0,
+    pendingRequests: myAffiliations?.filter((a: any) => a.status === 'pending')?.length || 0,
+    approvedAffiliations: myAffiliations?.filter((a: any) => a.status === 'approved')?.length || 0,
+    totalEarnings: 15750.00, // Valor exemplo - você pode conectar com dados reais
+    availableProperties: filteredMarketplaceProperties.length
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl font-heading font-bold">Sistema de Afiliação</h1>
+        <div>
+          <h1 className="text-2xl font-heading font-bold">Sistema de Afiliação</h1>
+          <p className="text-muted-foreground">Gerencie suas afiliações e encontre novas oportunidades</p>
+        </div>
+      </div>
+
+      {/* Painel de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Users className="h-4 w-4 text-blue-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Afiliações Ativas</p>
+                <p className="text-lg font-semibold">{stats.totalAffiliations}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-yellow-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Pendentes</p>
+                <p className="text-lg font-semibold">{stats.pendingRequests}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Aprovadas</p>
+                <p className="text-lg font-semibold">{stats.approvedAffiliations}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-4 w-4 text-green-600" />
+              <div>
+                <p className="text-xs text-muted-foreground">Total Ganhos</p>
+                <p className="text-lg font-semibold">{formatCurrency(stats.totalEarnings)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Building className="h-4 w-4 text-purple-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Imóveis Disponíveis</p>
+                <p className="text-lg font-semibold">{stats.availableProperties}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
