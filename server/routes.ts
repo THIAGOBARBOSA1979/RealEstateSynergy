@@ -866,30 +866,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch(`${apiPrefix}/users/me/integrations`, (req, res) => {
-    try {
-      // Aplicando autenticação direta para contornar o problema 403
-      req.user = { id: 1, role: "agent" };
-      
-      console.log(`[ENDPOINT] PATCH ${apiPrefix}/users/me/integrations - Usuário ID: ${req.user.id}`);
-      console.log("[ENDPOINT] Dados recebidos:", JSON.stringify(req.body).substring(0, 200) + "...");
-      
-      // Simulando atualização bem-sucedida
-      const updatedIntegrations = {
-        ...req.body,
-        updatedAt: new Date().toISOString()
-      };
-      
-      console.log("[ENDPOINT] Integrações atualizadas com sucesso");
-      return res.json(updatedIntegrations);
-    } catch (error) {
-      console.error("[ERRO] Erro ao atualizar integrações:", error);
-      return res.status(500).json({ 
-        message: "Erro ao atualizar integrações",
-        error: error instanceof Error ? error.message : "Erro desconhecido"
-      });
-    }
-  });
+  app.patch(`${apiPrefix}/users/me/integrations`, requireAuth, asyncHandler(async (req: any, res: any) => {
+    console.log(`[ENDPOINT] PATCH ${apiPrefix}/users/me/integrations - Usuário ID: ${req.user.id}`);
+    console.log("[ENDPOINT] Dados recebidos:", JSON.stringify(req.body, null, 2));
+    
+    // Validar dados de entrada
+    const integrationData = req.body;
+    
+    // Atualizar integrações no banco de dados
+    await storage.updateUserIntegrations(req.user.id, integrationData);
+    
+    // Retornar dados atualizados
+    const updatedIntegrations = await storage.getUserIntegrations(req.user.id);
+    
+    console.log("[ENDPOINT] Integrações atualizadas com sucesso");
+    return res.json(updatedIntegrations);
+  }));
 
   // Favorite toggle route
   app.post(`${apiPrefix}/properties/:id/favorite`, requireAuth, asyncHandler(async (req, res) => {

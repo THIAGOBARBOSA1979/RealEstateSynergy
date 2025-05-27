@@ -29,19 +29,23 @@ export default function UnifiedCatalogPage() {
 
   const isLoading = propertiesLoading || developmentsLoading;
 
-  // Filtrar propriedades
+  // Filtrar propriedades com verificação de dados
   const filteredProperties = properties?.properties?.filter((property: Property) => {
-    const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = property.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         property.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         property.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         property.state?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all_statuses" || property.status === statusFilter;
-    const matchesType = typeFilter === "all_types" || property.type === typeFilter;
+    const matchesType = typeFilter === "all_types" || property.propertyType === typeFilter;
     return matchesSearch && matchesStatus && matchesType;
   }) || [];
 
-  // Filtrar empreendimentos
+  // Filtrar empreendimentos com verificação de dados
   const filteredDevelopments = developments?.filter((development: Development) => {
-    const matchesSearch = development.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         development.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = development.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         development.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         development.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         development.state?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all_statuses" || development.salesStatus === statusFilter;
     return matchesSearch && matchesStatus;
   }) || [];
@@ -375,7 +379,7 @@ function PropertyCard({ property }: { property: Property }) {
 function DevelopmentCard({ development }: { development: Development }) {
   const calculateProgress = (development: Development): number => {
     if (!development.totalUnits || development.totalUnits === 0) return 0;
-    const soldUnits = development.soldUnits || 0;
+    const soldUnits = Number(development.soldUnits) || 0;
     return Math.round((soldUnits / development.totalUnits) * 100);
   };
 
