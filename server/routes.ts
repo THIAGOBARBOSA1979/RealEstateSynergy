@@ -140,44 +140,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erro ao buscar configurações do website" });
     }
   }));
-            facebookPixelId: "",
-            tiktokPixelId: "",
-            googleAdsId: "",
-            gtmContainerId: ""
-          },
-          utmSettings: {
-            enableUtmTracking: false,
-            defaultUtmSource: "imobconnect",
-            defaultUtmMedium: "website",
-            defaultUtmCampaign: "organic",
-            saveUtmParameters: true
-          },
-          socialMedia: {
-            instagram: "",
-            facebook: "",
-            youtube: ""
-          },
-          customJs: "",
-          customCss: "",
-          tagline: "Encontre seu imóvel ideal",
-          description: "Site especializado em imóveis de alto padrão",
-          showFeaturedProperties: true,
-          showTestimonials: true,
-          showAboutSection: true,
-          contactEmail: "",
-          contactPhone: "",
-          whatsapp: "",
-          creci: "",
-          address: ""
-        });
-      }
-      
-      console.log(`[ENDPOINT] Website encontrado para o usuário ${req.user.id}`);
-      res.json(website);
-    } catch (error) {
-      console.error(`[ERRO] Erro ao buscar website: ${error}`);
-      res.status(500).json({ message: "Erro ao buscar dados do website" });
-    }
   }));
 
   app.put(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {

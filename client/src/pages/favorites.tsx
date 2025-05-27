@@ -1,204 +1,237 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import PropertyView from "@/components/properties/property-view";
-import { Search, Plus, Heart, HeartOff, Image, Eye } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { formatCurrency } from "@/lib/utils";
+import { Heart, Search, MapPin, Bed, Bath, Square, Eye, Share } from "lucide-react";
 
-const Favorites = () => {
+export default function FavoritesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  // Fetch favorite properties
-  const { data: favorites, isLoading, isError } = useQuery({
+  const { data: favorites, isLoading } = useQuery({
     queryKey: ['/api/properties/favorites'],
   });
 
-  // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (propertyId: number) => 
+      apiRequest(`/api/properties/${propertyId}/favorite`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties/favorites'] });
+      toast({
+        title: "Removido dos favoritos",
+        description: "Imóvel removido da sua lista de favoritos.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível remover o imóvel dos favoritos.",
+        variant: "destructive",
+      });
+    },
+  });
 
-  // Filter properties based on search term
-  const filteredProperties = favorites && Array.isArray(favorites)
-    ? favorites.filter((property: any) => {
-        if (!searchTerm) return true;
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          property.title?.toLowerCase().includes(searchLower) ||
-          property.address?.toLowerCase().includes(searchLower) ||
-          property.propertyType?.toLowerCase().includes(searchLower)
-        );
-      })
-    : [];
+  const filteredFavorites = favorites?.filter((property: any) =>
+    property.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.city?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
-  return (
+  if (isLoading) {
+    return (
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-heading font-bold">Imóveis Favoritos</h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie seus imóveis favoritos e compare propriedades
-            </p>
-          </div>
-          
-          <div className="flex gap-2">
-            <div className="relative w-full max-w-sm">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <Search className="h-4 w-4" />
-              </span>
-              <Input
-                placeholder="Buscar por título, endereço ou tipo..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Button 
-              onClick={() => navigate("/properties")}
-              variant="secondary"
-              className="gap-1"
-            >
-              <Plus className="h-4 w-4" />
-              Explorar Imóveis
-            </Button>
-          </div>
+          <h1 className="text-2xl font-heading font-bold">Meus Favoritos</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i}>
+              <Skeleton className="h-48 rounded-t-lg" />
+              <CardContent className="p-4 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-6 w-1/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Cabeçalho */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-heading font-bold">Meus Favoritos</h1>
+          <p className="text-muted-foreground">
+            {filteredFavorites.length} {filteredFavorites.length === 1 ? 'imóvel favorito' : 'imóveis favoritos'}
+          </p>
         </div>
         
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2">            
-            {filteredProperties.length > 0 && (
-              <p className="text-sm text-muted-foreground py-1">
-                Exibindo {filteredProperties.length} {filteredProperties.length === 1 ? 'imóvel' : 'imóveis'}
-              </p>
-            )}
+        {/* Barra de busca */}
+        <div className="flex items-center gap-2 max-w-md w-full md:w-auto">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Buscar nos favoritos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
-              <Card key={index} className="overflow-hidden">
-                <Skeleton className="h-48 w-full" />
-                <CardHeader className="pb-2">
-                  <Skeleton className="h-5 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent className="pb-2 space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                </CardContent>
-                <CardFooter>
-                  <Skeleton className="h-9 w-full" />
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : isError ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Erro ao carregar os favoritos. Tente novamente.</p>
-            <Button variant="outline" className="mt-4">Tentar novamente</Button>
-          </div>
-        ) : filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property: any) => (
-              <Card key={property.id} className="overflow-hidden">
-                <div className="relative h-48 bg-muted">
-                  {property.images && property.images.length > 0 ? (
-                    <img 
-                      src={property.images[0]} 
-                      alt={property.title} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      <Image className="h-16 w-16 opacity-25" />
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2">
-                    <Badge className="bg-accent/80 text-accent-foreground">
-                      {property.propertyType === 'apartment' ? 'Apartamento' :
-                      property.propertyType === 'house' ? 'Casa' :
-                      property.propertyType === 'land' ? 'Terreno' : 
-                      property.propertyType === 'commercial' ? 'Comercial' : 
-                      property.propertyType}
-                    </Badge>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <Badge className="bg-transparent hover:bg-primary/20 border-primary/50 text-white cursor-pointer gap-1">
-                      <Heart className="h-3 w-3 fill-current" />
-                      Favorito
-                    </Badge>
-                  </div>
-                </div>
-                
-                <CardHeader className="pb-2">
-                  <CardTitle className="line-clamp-1">{property.title}</CardTitle>
-                  <CardDescription className="line-clamp-1">{property.address}</CardDescription>
-                </CardHeader>
-                
-                <CardContent className="pb-2">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xl font-bold text-primary">{formatCurrency(property.price)}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {property.bedrooms || 0} quartos • {property.bathrooms || 0} banheiros • {property.area || 0}m²
-                  </p>
-                </CardContent>
-                
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full gap-1" 
-                    onClick={() => {
-                      setSelectedPropertyId(property.id);
-                      setIsViewDialogOpen(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                    Ver detalhes
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 px-4">
-            <div className="inline-block p-3 rounded-full bg-muted mb-4">
-              <HeartOff className="h-12 w-12 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-medium mb-2">Nenhum imóvel favorito</h3>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Você ainda não adicionou nenhum imóvel aos favoritos. Explore os imóveis disponíveis e marque seus favoritos para acompanhá-los mais facilmente.
-            </p>
-            <Button onClick={() => navigate("/properties")}>Explorar imóveis</Button>
-          </div>
-        )}
-
-        {/* Property View Dialog */}
-        <PropertyView
-          propertyId={selectedPropertyId}
-          isOpen={isViewDialogOpen}
-          onClose={() => setIsViewDialogOpen(false)}
-        />
       </div>
-  );
-};
 
-export default Favorites;
+      {/* Lista de favoritos */}
+      {filteredFavorites.length === 0 ? (
+        <div className="text-center py-12">
+          <Heart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
+            {searchTerm ? 'Nenhum favorito encontrado' : 'Nenhum imóvel favorito'}
+          </h3>
+          <p className="text-muted-foreground">
+            {searchTerm 
+              ? 'Tente ajustar sua busca para encontrar imóveis favoritos.'
+              : 'Comece a favoritar imóveis para vê-los aqui.'
+            }
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredFavorites.map((property: any) => (
+            <PropertyCard 
+              key={property.id} 
+              property={property} 
+              onRemoveFavorite={() => removeFavoriteMutation.mutate(property.id)}
+              isRemoving={removeFavoriteMutation.isPending}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PropertyCard({ 
+  property, 
+  onRemoveFavorite, 
+  isRemoving 
+}: { 
+  property: any; 
+  onRemoveFavorite: () => void;
+  isRemoving: boolean;
+}) {
+  const images = Array.isArray(property.images) ? property.images : [];
+  const mainImage = images[0] || "/api/placeholder/400/300";
+
+  return (
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
+      {/* Imagem */}
+      <div className="relative">
+        <img 
+          src={mainImage} 
+          alt={property.title}
+          className="w-full h-48 object-cover"
+        />
+        
+        {/* Badge de status */}
+        <div className="absolute top-3 left-3">
+          <Badge 
+            variant={property.status === 'disponivel' ? 'default' : 'secondary'}
+            className="text-xs"
+          >
+            {property.status === 'disponivel' ? 'Disponível' : 
+             property.status === 'vendido' ? 'Vendido' : 
+             property.status === 'alugado' ? 'Alugado' : property.status}
+          </Badge>
+        </div>
+
+        {/* Botão de remover favorito */}
+        <div className="absolute top-3 right-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+            onClick={onRemoveFavorite}
+            disabled={isRemoving}
+          >
+            <Heart className="h-4 w-4 fill-current text-red-500" />
+          </Button>
+        </div>
+
+        {/* Botões de ação (aparecem no hover) */}
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+          <Button size="sm" variant="secondary" className="h-8 w-8 p-0 bg-white/90 hover:bg-white">
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="secondary" className="h-8 w-8 p-0 bg-white/90 hover:bg-white">
+            <Share className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          {/* Preço */}
+          <div className="text-xl font-bold text-primary">
+            {formatCurrency(Number(property.price) || 0)}
+          </div>
+
+          {/* Título */}
+          <h3 className="font-semibold text-base line-clamp-2 min-h-[3rem]">
+            {property.title}
+          </h3>
+
+          {/* Localização */}
+          <div className="flex items-center text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="line-clamp-1">
+              {property.address}, {property.city} - {property.state}
+            </span>
+          </div>
+
+          {/* Características */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center gap-3">
+              {property.bedrooms && (
+                <div className="flex items-center gap-1">
+                  <Bed className="h-4 w-4" />
+                  <span>{property.bedrooms}</span>
+                </div>
+              )}
+              {property.bathrooms && (
+                <div className="flex items-center gap-1">
+                  <Bath className="h-4 w-4" />
+                  <span>{property.bathrooms}</span>
+                </div>
+              )}
+              {property.area && (
+                <div className="flex items-center gap-1">
+                  <Square className="h-4 w-4" />
+                  <span>{property.area}m²</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tipo do imóvel */}
+          <div className="pt-2">
+            <Badge variant="outline" className="text-xs">
+              {property.propertyType || 'Imóvel'}
+            </Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
