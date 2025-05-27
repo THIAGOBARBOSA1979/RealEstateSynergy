@@ -1,0 +1,49 @@
+# Prompt: Configuração de Sistema de Rotas para Plataforma Imobiliária
+
+## Contexto
+Você é um desenvolvedor experiente trabalhando em uma plataforma SaaS para corretores imobiliários no Replit. O projeto precisa de um sistema de roteamento robusto e seguro.
+
+## Objetivo
+Implemente um sistema de rotas completo que gerencie o fluxo de navegação entre página pública, autenticação e áreas privadas.
+
+## Requisitos Técnicos
+
+### Estrutura de Rotas Obrigatórias:
+- **`/`** - Landing page pública (apresentação da plataforma, recursos, planos)
+- **`/login`** - Página de autenticação
+- **`/dashboard`** - Painel administrativo do corretor (área privada)
+- **`/site-imobiliario`** - Interface do site do corretor (área privada)
+
+### Funcionalidades de Segurança:
+1. **Route Guards**: Proteger rotas privadas com verificação de autenticação
+2. **Redirecionamento Inteligente**: 
+   - Usuário autenticado em `/` ou `/login` → redirecionar para `/dashboard`
+   - Usuário não autenticado em rotas privadas → redirecionar para `/login`
+3. **Proteção contra acesso direto**: Validar tokens em todas as rotas protegidas
+
+### Configurações para Deploy:
+- Arquivo `_redirects` para Netlify (SPA routing)
+- History API fallback para preservar rotas em refresh
+- Tratamento de deep linking
+
+### Validações Necessárias:
+- Verificar funcionamento no Replit local
+- Testar comportamento após deploy na Netlify
+- Validar redirecionamentos automáticos
+- Confirmar preservação de estado de autenticação
+
+## Deliverables Esperados:
+1. Código do sistema de rotas (React Router ou similar)
+2. Componente de Route Guard
+3. Arquivo de configuração `_redirects`
+4. Documentação do fluxo de navegação
+5. Testes para validação dos redirecionamentos
+
+## Critérios de Sucesso:
+- Navegação fluida e intuitiva
+- Segurança das rotas privadas
+- Redirecionamentos automáticos funcionando
+- Compatibilidade com deploy na Netlify
+- Experiência profissional para o usuário corretor
+
+**Importante**: O sistema deve ser robusto, seguro e proporcionar uma experiência de navegação profissional para corretores imobiliários.
