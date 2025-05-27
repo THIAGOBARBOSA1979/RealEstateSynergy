@@ -40,7 +40,7 @@ async function seed() {
     }
     
     // Create developments
-    const developments = [
+    await db.insert(schema.developments).values([
       {
         userId: adminUser.id,
         name: "Edifício Green Hills",
@@ -65,7 +65,17 @@ async function seed() {
         salesStatus: JSON.stringify({ available: 35, reserved: 8, sold: 5 }),
         createdAt: new Date(Date.now() - 60 * 86400000), // 60 days ago
         updatedAt: new Date(Date.now() - 5 * 86400000) // 5 days ago
-      },
+      }
+    ]);
+    
+    console.log("Development created successfully");
+    
+    // Create team members
+    const teamMembers = [
+      {
+        username: "ana",
+        password: hashedPassword,
+        email: "ana@imobconnect.com",
         fullName: "Ana Pereira",
         role: "agent",
         parentId: adminUser.id,
