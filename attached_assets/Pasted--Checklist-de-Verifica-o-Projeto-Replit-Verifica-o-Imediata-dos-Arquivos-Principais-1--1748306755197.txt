@@ -1,0 +1,96 @@
+✅ Checklist de Verificação - Projeto Replit
+🎯 Verificação Imediata dos Arquivos Principais
+📦 1. Package.json - Dependências
+# Verificar se estas dependências estão corretas:
+✅ vite - deve estar em devDependencies
+✅ typescript - deve estar em devDependencies  
+✅ express - deve estar em dependencies
+✅ serverless-http - deve estar em dependencies
+🔧 2. Vite.config.ts - Configuração de Build
+// Verificar se está assim:
+root: path.resolve(import.meta.dirname, "client")
+build.outDir: path.resolve(import.meta.dirname, "dist/public")
+🌐 3. Netlify.toml - Configuração de Deploy
+# Comando deve ser direto, sem scripts externos:
+command = "NODE_ENV=development npm ci --include=dev && npx vite build"
+publish = "dist"
+📁 4. Redirecionamentos SPA
+# Verificar arquivo em: client/public/_redirects
+/api/* /.netlify/functions/api/:splat 200
+/* /index.html 200
+⚡ 5. Função Serverless API
+// Em netlify/functions/api.ts verificar:
+✅ CORS configurado corretamente
+✅ Error handling implementado
+✅ Endpoint de health check presente
+🔍 Verificação de Compatibilidade
+A. Estrutura de Diretórios
+ Frontend em /client/src/
+ Backend em /server/
+ Schemas em /shared/
+ Funções em /netlify/functions/
+B. Importações e Paths
+ Usar imports absolutos @/components/...
+ Evitar paths relativos ../../../
+ Case sensitivity respeitado
+C. Tipagem TypeScript
+ Schemas Zod para validação
+ Types compartilhados frontend/backend
+ Configuração tsconfig.json otimizada
+🧪 Testes de Compatibilidade Local
+1. Verificar Build
+npm run check    # TypeScript
+npm run build    # Vite build
+2. Testar Dependências
+npm ci --include=dev    # Instalar tudo
+npx vite --version      # Verificar Vite
+3. Validar Estrutura
+# Após build, verificar se existe:
+dist/index.html
+dist/assets/
+🚀 Verificação Pré-Deploy
+A. Arquivos Críticos Presentes
+ netlify.toml configurado
+ client/public/_redirects criado
+ netlify/functions/api.ts funcionando
+ package.json com dependências corretas
+B. Configurações de Ambiente
+ NODE_ENV definido corretamente no build
+ Variáveis de ambiente documentadas
+ Secrets configurados na Netlify (se necessário)
+C. Compatibilidade de Build
+ Build command sem dependência de scripts externos
+ Publish directory alinhado com Vite output
+ Permissões de arquivo não necessárias
+⚠️ Problemas Comuns a Evitar
+1. Scripts Externos
+❌ command = "./build.sh" (problemas de permissão) ✅ command = "npm run build" (comando direto)
+
+2. NODE_ENV em Produção
+❌ NODE_ENV=production (pula devDependencies) ✅ NODE_ENV=development durante build
+
+3. Estrutura de Diretórios
+❌ Expectativa incorreta do output do Vite ✅ Alinhar publish directory com Vite config
+
+4. Dependências
+❌ Vite em dependencies ✅ Vite em devDependencies
+
+🎯 Verificação Final Rápida
+Execute estes comandos no Replit para validar:
+
+# 1. Verificar estrutura
+ls -la client/public/    # _redirects deve estar aqui
+ls -la netlify/functions/ # api.ts deve estar aqui
+# 2. Testar build local
+npm ci --include=dev && npx vite build
+# 3. Verificar output
+ls -la dist/    # index.html e assets/ devem existir
+# 4. Validar tipos
+npm run check   # Deve passar sem erros
+📝 Ações Imediatas Recomendadas
+Revisar package.json - Confirmar dependências corretas
+Verificar vite.config.ts - Alinhar paths de output
+Confirmar _redirects - Arquivo em local correto
+Testar build local - Executar npm run build
+Validar função API - Verificar netlify/functions/api.ts
+✨ Seguindo este checklist, você evita 95% dos problemas de deploy!
