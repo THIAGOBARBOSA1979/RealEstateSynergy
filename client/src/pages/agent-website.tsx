@@ -115,7 +115,7 @@ const AgentWebsite = () => {
     queryKey: ['/api/users/me/website']
   });
 
-  const themeColor = website?.theme?.primaryColor || "#1a237e";
+  const themeColor = (website as any)?.theme?.primaryColor || "#1a237e";
 
   const filteredProperties = properties?.filter((property: Property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
