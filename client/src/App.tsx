@@ -12,6 +12,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import LandingPage from "./pages/landing-page";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
+import CheckoutPage from "./pages/checkout";
 import AgentWebsite from "./pages/agent-website";
 import PropertyDetailNew from "./pages/property-detail-new";
 
@@ -50,8 +51,8 @@ function AppContent() {
   // Handle redirects with useEffect to avoid setState during render
   React.useEffect(() => {
     if (!isLoading) {
-      const isPublicRoute = location === "/" || location === "/login" || location === "/register" ||
-                           location.startsWith("/agente") || location.startsWith("/imovel");
+      const isPublicRoute = location === "/" || location === "/login" || location === "/register" || 
+                           location === "/checkout" || location.startsWith("/agente") || location.startsWith("/imovel");
 
       // Redirect authenticated users from public pages to dashboard
       if (isAuthenticated && (location === "/" || location === "/login" || location === "/register")) {
@@ -85,6 +86,7 @@ function AppContent() {
       <Route path="/" component={LandingPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
+      <Route path="/checkout" component={CheckoutPage} />
       <Route path="/agente/:agentId" component={AgentWebsite} />
       <Route path="/imovel/:id" component={PropertyDetailNew} />
       

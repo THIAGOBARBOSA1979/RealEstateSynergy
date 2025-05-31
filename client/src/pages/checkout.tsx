@@ -129,17 +129,20 @@ export default function CheckoutPage() {
     setSelectedPlan(planData);
 
     // Criar subscription no backend
-    apiRequest("POST", "/api/create-subscription", { plan })
-      .then((data) => {
+    const createSubscription = async () => {
+      try {
+        const data = await apiRequest("POST", "/api/create-subscription", { plan });
         setClientSecret(data.clientSecret);
-      })
-      .catch((error) => {
+      } catch (error) {
         toast({
           title: "Erro ao processar pagamento",
           description: "Não foi possível inicializar o pagamento. Tente novamente.",
           variant: "destructive",
         });
-      });
+      }
+    };
+    
+    createSubscription();
   }, [toast]);
 
   if (!clientSecret) {

@@ -13,6 +13,11 @@ export const users = pgTable('users', {
   role: text('role').notNull().default('agent'), // agent, admin, assistant, client
   parentId: integer('parent_id').references(() => users.id), // For hierarchy (team members)
   planType: text('plan_type').default('basic'), // basic, professional, enterprise
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  subscriptionStatus: text('subscription_status').default('trial'), // trial, active, canceled, past_due
+  trialEndsAt: timestamp('trial_ends_at'),
+  subscriptionEndsAt: timestamp('subscription_ends_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
