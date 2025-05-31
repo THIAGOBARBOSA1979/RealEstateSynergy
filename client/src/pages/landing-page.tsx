@@ -21,6 +21,9 @@ import { CheckIcon, ArrowRightIcon, StarIcon, BriefcaseIcon, UsersIcon, BarChart
         LaptopIcon, ShieldCheckIcon, PieChartIcon, PlayCircleIcon, PhoneIcon, MailIcon, MapPinIcon } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 
+// Components
+import WhatsAppFloat from "@/components/whatsapp-float";
+
 interface FeatureItem {
   title: string;
   description: string;
@@ -54,6 +57,7 @@ interface ContactFormData {
 
 const LandingPage = () => {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [contactForm, setContactForm] = useState<ContactFormData>({
     fullName: "",
     email: "",
@@ -382,7 +386,7 @@ const LandingPage = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <Button size="lg" onClick={() => openContactDialog()}>
+                <Button size="lg" onClick={() => setLocation("/register")}>
                   Iniciar Teste Gratuito
                   <ArrowRightIcon className="ml-2 h-4 w-4" />
                 </Button>
@@ -519,7 +523,7 @@ const LandingPage = () => {
                   <Button 
                     className="w-full" 
                     variant={tier.popular ? "default" : "outline"}
-                    onClick={() => openContactDialog(tier.name)}
+                    onClick={() => setLocation("/register")}
                   >
                     {tier.cta}
                   </Button>
@@ -590,11 +594,11 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" variant="secondary" onClick={() => openContactDialog()}>
+              <Button size="lg" variant="secondary" onClick={() => setLocation("/register")}>
                 Iniciar Teste Gratuito
               </Button>
               
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-primary">
+              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-primary" onClick={() => openContactDialog()}>
                 Agendar Demonstração
               </Button>
             </div>
@@ -786,16 +790,12 @@ const LandingPage = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Floating Contact Button on Mobile */}
-      <div className="fixed bottom-4 right-4 md:hidden z-40 flex flex-col gap-2">
-        <Button 
-          size="icon"
-          className="h-12 w-12 rounded-full shadow-lg"
-          onClick={() => window.open(`https://wa.me/551143219876?text=${encodeURIComponent('Olá, gostaria de mais informações sobre a plataforma ImobCloud.')}`)}
-        >
-          <SiWhatsapp className="h-6 w-6" />
-        </Button>
-      </div>
+      {/* WhatsApp Float Button */}
+      <WhatsAppFloat 
+        phoneNumber="5511999999999"
+        message="Olá! Gostaria de mais informações sobre a ImobCloud e seus planos."
+        position="bottom-right"
+      />
       
       {/* Tracking Pixels (Non-visible) */}
       <div style={{ display: 'none' }} aria-hidden="true">
