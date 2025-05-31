@@ -112,7 +112,7 @@ const AgentWebsite = () => {
   });
 
   const { data: website } = useQuery({
-    queryKey: ['/api/users/me/website']
+    queryKey: [`/api/agent/${agentId}/website`]
   });
 
   const themeColor = (website as any)?.theme?.primaryColor || "#1a237e";

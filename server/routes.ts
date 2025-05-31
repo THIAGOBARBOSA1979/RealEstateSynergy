@@ -109,6 +109,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
+  // Rota pública para o website do corretor
+  app.get(`${apiPrefix}/agent/:agentId/website`, asyncHandler(async (req, res) => {
+    const agentId = parseInt(req.params.agentId);
+    console.log(`[ENDPOINT] GET /api/agent/${agentId}/website - Acesso público`);
+    try {
+      const website = await storage.getWebsiteByUserId(agentId);
+      res.json(website);
+    } catch (error) {
+      console.error(`[ERRO] Erro ao buscar website do agente:`, error);
+      // Retornar configuração padrão para o site público
+      const defaultWebsite = {
+        userId: agentId,
+        title: "Site Imobiliário",
+        theme: { primaryColor: "#1a237e", secondaryColor: "#00796b" },
+        analytics: { googleAnalyticsId: "", facebookPixelId: "" },
+        isActive: true
+      };
+      res.json(defaultWebsite);
+    }
+  }));
+
   app.put(`${apiPrefix}/users/me/website`, requireAuth, asyncHandler(async (req, res) => {
     console.log(`[ENDPOINT] PUT /api/users/me/website - Usuário ID: ${req.user.id}`);
     try {

@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --include=dev && npx vite build"
+  command = "chmod +x netlify/build.sh && ./netlify/build.sh"
   publish = "dist/public"
 
 [functions]
