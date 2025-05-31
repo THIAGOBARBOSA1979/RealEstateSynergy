@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -98,12 +98,9 @@ const LandingPage = () => {
   // Contact form submission handler
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
-      return apiRequest('/api/contact', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          ...utmParams
-        }),
+      return apiRequest("POST", "/api/contact", {
+        ...data,
+        ...utmParams
       });
     },
     onSuccess: () => {
@@ -346,6 +343,11 @@ const LandingPage = () => {
               <a href="#faq" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
                 FAQ
               </a>
+              <Link href="/login">
+                <Button variant="outline" className="mr-2">
+                  Entrar
+                </Button>
+              </Link>
               <Button
                 onClick={() => openContactDialog()}
               >
