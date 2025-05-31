@@ -40,12 +40,13 @@ const RegisterPage = () => {
     mutationFn: async (data: RegisterFormData) => {
       return await apiRequest("POST", "/api/auth/register", data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Conta criada com sucesso!",
-        description: "Verifique seu email para ativar sua conta e começar o teste gratuito.",
+        description: `Sua senha temporária é: ${data.tempPassword}. Anote em local seguro.`,
       });
-      setLocation("/login");
+      // Redirecionar para checkout com o plano selecionado
+      setLocation(`/checkout?plan=${formData.selectedPlan}`);
     },
     onError: (error: any) => {
       toast({

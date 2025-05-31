@@ -25,6 +25,15 @@ import {
   insertUnitSchema
 } from "../shared/schema";
 import { z } from "zod";
+import { db } from "../db";
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API prefix
@@ -1349,6 +1358,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erro ao converter imóvel em empreendimento:", error);
       return res.status(500).json({ message: "Erro ao converter imóvel", error: error.message });
+    }
+  }));
+
+  // Authentication routes
+  app.post(`${apiPrefix}/auth/register`, asyncHandler(async (req: any, res: any) => {
+    try {
+      const { fullName, email, phone, company, creci, selectedPlan } = req.body;
+      
+      // Verificar se o email já existe
+      const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (existingUser.length > 0) {
+        return res.status(400).json({ message: "Email já cadastrado" });
+      }
+
+      // Gerar username baseado no email
+      const username = email.split('@')[0];
+      
+      // Criar senha temporária (em produção, seria enviada por email)
+      const tempPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+      // Definir data de término do trial (14 dias)
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+      // Criar usuário
+      const [newUser] = await db.insert(users).values({
+        username,
+        password: hashedPassword,
+        email,
+        fullName,
+        planType: selectedPlan,
+        subscriptionStatus: 'trial',
+        trialEndsAt,
+      }).returning();
+
+      return res.status(201).json({ 
+        message: "Conta criada com sucesso",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          fullName: newUser.fullName
+        },
+        tempPassword
+      });
+    } catch (error) {
+      console.error("Erro ao criar conta:", error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }));
+
+  // Stripe payment routes
+  app.post(`${apiPrefix}/create-subscription`, asyncHandler(async (req: any, res: any) => {
+    try {
+      const { plan } = req.body;
+      
+      // Mapeamento de planos para preços (em centavos)
+      const planPrices = {
+        starter: 9700, // R$ 97,00
+        professional: 19700, // R$ 197,00
+        enterprise: 39700 // R$ 397,00
+      };
+
+      const amount = planPrices[plan] || planPrices.professional;
+
+      // Criar PaymentIntent com Stripe
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'brl',
+        payment_method_types: ['card'],
+        metadata: {
+          plan,
+          type: 'subscription'
+        }
+      });
+
+      return res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        amount: amount / 100
+      });
+    } catch (error) {
+      console.error("Erro ao criar subscription:", error);
+      return res.status(500).json({ message: "Erro ao processar pagamento" });
+    }
+  }));
+
+  // Webhook para receber confirmações de pagamento do Stripe
+  app.post(`${apiPrefix}/stripe/webhook`, asyncHandler(async (req: any, res: any) => {
+    try {
+      const sig = req.headers['stripe-signature'];
+      let event;
+
+      try {
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET || '');
+      } catch (err) {
+        console.log('Webhook signature verification failed.', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
+
+      // Processar eventos do Stripe
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object;
+          console.log('Payment succeeded:', paymentIntent.id);
+          
+          // Aqui você atualizaria o status da assinatura do usuário
+          // const userId = paymentIntent.metadata.userId;
+          // await updateUserSubscription(userId, 'active');
+          
+          break;
+        case 'payment_intent.payment_failed':
+          console.log('Payment failed:', event.data.object.id);
+          break;
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Erro no webhook:", error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  }));
+
+  // Rota para criar payment intent (pagamentos únicos)
+  app.post(`${apiPrefix}/create-payment-intent`, asyncHandler(async (req: any, res: any) => {
+    try {
+      const { amount } = req.body;
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Converter para centavos
+        currency: 'brl',
+        payment_method_types: ['card']
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+      console.error("Erro ao criar payment intent:", error);
+      res.status(500).json({ message: "Erro ao processar pagamento: " + error.message });
+    }
+  }));
+
+  // Rota para verificar status da assinatura
+  app.get(`${apiPrefix}/subscription/status`, requireAuth, asyncHandler(async (req: any, res: any) => {
+    try {
+      const userId = req.user.id;
+      
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      const now = new Date();
+      const isTrialExpired = user.trialEndsAt && now > user.trialEndsAt;
+      const isSubscriptionActive = user.subscriptionStatus === 'active';
+
+      return res.json({
+        subscriptionStatus: user.subscriptionStatus,
+        planType: user.planType,
+        trialEndsAt: user.trialEndsAt,
+        subscriptionEndsAt: user.subscriptionEndsAt,
+        isTrialActive: !isTrialExpired && user.subscriptionStatus === 'trial',
+        isSubscriptionActive,
+        needsPayment: isTrialExpired && !isSubscriptionActive
+      });
+    } catch (error) {
+      console.error("Erro ao verificar status da assinatura:", error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
     }
   }));
 
