@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 
 // Public Pages
-import LandingPage from "./pages/landing-page";
+import LandingPage from "./pages/landing-simple";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import CheckoutPage from "./pages/checkout";

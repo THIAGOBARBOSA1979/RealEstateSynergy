@@ -32,7 +32,7 @@ const WhatsAppFloat = ({
     <>
       {/* Bubble de conversa (aparece quando hover) */}
       {isOpen && (
-        <div className={`fixed ${positionClasses[position]} mb-20 z-40 animate-in slide-in-from-bottom-2`}>
+        <div className={`fixed ${positionClasses[position]} mb-20 z-40`}>
           <Card className="w-64 shadow-lg border-0 bg-white">
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">

@@ -40,7 +40,7 @@ const RegisterPage = () => {
     mutationFn: async (data: RegisterFormData) => {
       return await apiRequest("POST", "/api/auth/register", data);
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: "Conta criada com sucesso!",
         description: `Sua senha temporária é: ${data.tempPassword}. Anote em local seguro.`,
