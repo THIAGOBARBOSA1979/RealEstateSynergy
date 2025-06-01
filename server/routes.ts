@@ -58,6 +58,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 
+  // Logout route
+  app.post(`${apiPrefix}/auth/logout`, (req, res) => {
+    req.session.destroy((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Erro ao fazer logout" });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logout realizado com sucesso" });
+    });
+  });
+
   // User routes
   app.get(`${apiPrefix}/users/me`, requireAuth, asyncHandler(async (req, res) => {
     const user = await storage.getUserById(req.user.id);
